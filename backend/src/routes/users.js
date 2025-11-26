@@ -1,0 +1,243 @@
+// backend/src/routes/users.js
+import express from "express";
+import path from "path";
+import multer from "multer";
+import sharp from "sharp";
+import { fileURLToPath } from "url";
+
+import auth from "../middleware/auth.js";
+import User from "../models/User.js";
+import Conversation from "../models/Conversation.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const router = express.Router();
+
+/* ---------------------------------------------
+   MULTER MEMORY STORAGE
+--------------------------------------------- */
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+});
+
+/* ---------------------------------------------
+   1) UPLOAD AVATAR
+--------------------------------------------- */
+router.post("/avatar", auth, upload.single("avatar"), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ message: "No file uploaded" });
+
+    const userId = req.user.id;
+    const outputDir = path.join(__dirname, "../..", "uploads", "avatars");
+    const filename = `${userId}-${Date.now()}.jpg`;
+    const filepath = path.join(outputDir, filename);
+
+    import("fs").then((fs) => {
+      if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
+    });
+
+    await sharp(req.file.buffer).resize(300, 300).jpeg({ quality: 85 }).toFile(filepath);
+
+    const avatarUrl = `/uploads/avatars/${filename}`;
+
+    await User.findByIdAndUpdate(userId, { avatar: avatarUrl });
+
+    res.json({ success: true, avatar: avatarUrl });
+  } catch (err) {
+    console.error("POST /api/users/avatar ERROR:", err);
+    res.status(500).json({ message: "Avatar upload failed" });
+  }
+});
+
+/* ---------------------------------------------
+   2) GET ALL USERS (except self)
+--------------------------------------------- */
+router.get("/all", auth, async (req, res) => {
+  try {
+    const meId = req.user.id;
+
+    const users = await User.find({}, "username email avatar followers following").lean();
+
+    const formatted = users
+      .filter((u) => String(u._id) !== String(meId))
+      .map((u) => ({
+        _id: u._id,
+        username: u.username,
+        email: u.email,
+        avatar: u.avatar,
+        followersCount: u.followers?.length || 0,
+        followingCount: u.following?.length || 0,
+        isFollowed: u.followers?.map(String).includes(String(meId)), // <— FIXED
+      }));
+
+    res.json(formatted);
+  } catch (err) {
+    console.error("GET /api/users/all error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+/* ---------------------------------------------
+   3) GET LOGGED-IN USER PROFILE
+--------------------------------------------- */
+router.get("/me", auth, async (req, res) => {
+  try {
+    const me = await User.findById(req.user.id)
+      .select("username email avatar followers following bio about location")
+      .populate("followers", "username avatar email")
+      .populate("following", "username avatar email");
+
+    if (!me) return res.status(404).json({ message: "User not found" });
+
+    res.json({
+      ...me.toObject(),
+      followersCount: me.followers.length,
+      followingCount: me.following.length,
+    });
+  } catch (err) {
+    console.error("GET /api/users/me error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+/* ---------------------------------------------
+   4) GET PROFILE BY ID (FULL FIX)
+--------------------------------------------- */
+router.get("/:id", auth, async (req, res) => {
+  try {
+    const viewerId = req.user.id;
+
+    const user = await User.findById(req.params.id)
+      .select("username email avatar followers following about bio location")
+      .populate("followers", "username email avatar")
+      .populate("following", "username email avatar");
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const formattedFollowers = user.followers.map((u) => ({
+      _id: u._id,
+      username: u.username,
+      email: u.email,
+      avatar: u.avatar,
+      isFollowed: user.following.map(String).includes(String(u._id)),
+    }));
+
+    const formattedFollowing = user.following.map((u) => ({
+      _id: u._id,
+      username: u.username,
+      email: u.email,
+      avatar: u.avatar,
+      isFollowed: true, // you follow these people
+    }));
+
+    res.json({
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      avatar: user.avatar,
+      about: user.about || "",
+      bio: user.bio || "",
+      location: user.location || "",
+      followers: formattedFollowers,
+      following: formattedFollowing,
+      followersCount: formattedFollowers.length,
+      followingCount: formattedFollowing.length,
+      isFollowed: formattedFollowers.some((f) => String(f._id) === viewerId),
+    });
+  } catch (err) {
+    console.error("GET /api/users/:id error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+/* ---------------------------------------------
+   5) FOLLOW USER
+--------------------------------------------- */
+router.post("/:id/follow", auth, async (req, res) => {
+  try {
+    const meId = req.user.id;
+    const otherId = req.params.id;
+
+    if (meId === otherId) return res.status(400).json({ message: "Cannot follow yourself" });
+
+    const me = await User.findById(meId);
+    const other = await User.findById(otherId);
+
+    if (!me || !other) return res.status(404).json({ message: "User not found" });
+
+    if (!other.followers.map(String).includes(meId)) other.followers.push(meId);
+    if (!me.following.map(String).includes(otherId)) me.following.push(otherId);
+
+    await me.save();
+    await other.save();
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error("POST /follow error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+/* ---------------------------------------------
+   6) UNFOLLOW USER
+--------------------------------------------- */
+router.post("/:id/unfollow", auth, async (req, res) => {
+  try {
+    const meId = req.user.id;
+    const otherId = req.params.id;
+
+    const me = await User.findById(meId);
+    const other = await User.findById(otherId);
+
+    if (!me || !other) return res.status(404).json({ message: "User not found" });
+
+    me.following = me.following.filter((f) => String(f) !== String(otherId));
+    other.followers = other.followers.filter((f) => String(f) !== String(meId));
+
+    await me.save();
+    await other.save();
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error("POST /unfollow error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+/* ---------------------------------------------
+   7) START 1:1 CONVERSATION
+--------------------------------------------- */
+router.post("/conversations/start", auth, async (req, res) => {
+  try {
+    const me = req.user.id;
+    const { partnerId } = req.body;
+
+    if (!partnerId) return res.status(400).json({ message: "partnerId required" });
+
+    let conv = await Conversation.findOne({
+      participants: { $all: [me, partnerId] },
+      isGroup: false,
+    });
+
+    if (!conv) {
+      conv = await Conversation.create({
+        participants: [me, partnerId],
+        isGroup: false,
+      });
+    }
+
+    const populated = await Conversation.findById(conv._id).populate(
+      "participants",
+      "username avatar email"
+    );
+
+    res.json(populated);
+  } catch (err) {
+    console.error("POST /conversations/start error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+export default router;

@@ -1,0 +1,333 @@
+/* =========================================================
+   BANJA GLOBAL STYLES — solid-box friendly (dark + light)
+   Replace your existing CSS with this file.
+   ========================================================= */
+
+/* Tailwind directives (keep if using Tailwind) */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------------------------------------------------------
+   THEME VARIABLES
+   --------------------------------------------------------- */
+
+/* Light Theme */
+:root.light {
+  --bg: #f5f6f7;
+  --sidebar: #ffffff;
+  --text: #0f172a;
+  --muted: #64748b;
+
+  --card: #ffffff;
+  --card-solid: #ffffff;
+  --border: #e6e8ec;
+
+  --bubble-mine: #d3f8c6;
+  --bubble-other: #ffffff;
+
+  --date-pill: #e9eef3;
+
+  --accent-start: #22d3ee;
+  --accent-end: #7c3aed;
+  --btn-text: #0b1220;
+}
+
+/* Dark Theme — fully solid boxes (no see-through) */
+:root.dark {
+  --bg: #071029;
+  --sidebar: #071829;            /* solid sidebar */
+  --text: #e6eef8;
+  --muted: #9aa7bb;
+
+  --card: #0f172a;               /* main card/bg for panels */
+  --card-solid: #0f172a;         /* explicit solid color */
+  --border: rgba(255,255,255,0.06);
+
+  --bubble-mine: rgba(34,211,238,0.12);
+  --bubble-other: rgba(255,255,255,0.03);
+
+  --date-pill: rgba(148,163,184,0.10);
+
+  --accent-start: #22d3ee;
+  --accent-end: #7c3aed;
+  --btn-text: #071029;
+}
+
+/* =========================================================
+   BASE RESET
+   ========================================================= */
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  transition: background 0.18s ease, color 0.18s ease;
+  margin: 0;
+}
+
+/* utility: consistent box look for any card/panel/modal */
+.box {
+  background: var(--card-solid) !important;  /* force solid box color */
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 0.85rem !important;
+  padding: 1rem !important;
+  box-shadow: 0 6px 30px rgba(2,6,23,0.35);
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+/* make sure common layout containers use .box to get consistent appearance */
+.sidebar { padding: 1rem; }
+.main { padding: 1rem; }
+
+/* =========================================================
+   SIDEBAR + MAIN
+   ========================================================= */
+.sidebar {
+  background: var(--sidebar);
+  border: 1px solid var(--border);
+  border-radius: 0.85rem;
+  color: var(--text);
+  /* ensure full solid background in dark */
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  padding: 1rem;
+}
+
+/* force sidebar as solid box in dark too */
+:root.dark .sidebar { background: var(--sidebar); }
+
+/* profile avatar in sidebar */
+.sidebar img {
+  border-radius: 0.6rem;
+  object-fit: cover;
+  border: 1px solid var(--border);
+}
+
+/* main chat panel — also a box */
+.main {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 0.85rem;
+  color: var(--text);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+/* =========================================================
+   BUTTONS, INPUTS, UTILITIES
+   ========================================================= */
+.btn {
+  background: linear-gradient(90deg, var(--accent-start), var(--accent-end));
+  color: var(--btn-text);
+  font-weight: 600;
+  padding: 0.55rem 1rem;
+  border-radius: 0.6rem;
+  transition: transform .15s ease, box-shadow .15s ease;
+  border: 1px solid rgba(0,0,0,0.08);
+}
+.btn:hover { transform: translateY(-1px); box-shadow: 0 8px 30px rgba(31,41,55,0.16); }
+
+.input {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.7rem;
+  border-radius: 0.6rem;
+}
+.input::placeholder { color: var(--muted); }
+
+/* small text utility */
+.text-muted { color: var(--muted); }
+
+/* =========================================================
+   MESSAGE BUBBLES
+   ========================================================= */
+.message {
+  max-width: 70%;
+  padding: 0.65rem 0.9rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--bubble-other);
+  color: var(--text);
+  line-height: 1.38rem;
+  border-top-left-radius: 0.25rem;
+}
+
+/* my messages */
+.msg-mine {
+  background: var(--bubble-mine);
+  margin-left: auto;
+  border-top-right-radius: 0.25rem;
+  border-top-left-radius: 0.75rem;
+}
+
+/* Avatar next to message */
+.avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border);
+  object-fit: cover;
+}
+
+/* date pill */
+.card-date {
+  background: var(--date-pill);
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  display: inline-block;
+  margin: 1rem auto;
+}
+
+/* unread */
+.unread-pill {
+  background: #f97316;
+  color: white;
+  padding: 0.25rem 0.7rem;
+  border-radius: 0.4rem;
+  font-size: 0.7rem;
+}
+
+/* composer area */
+.composer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+/* reacted class */
+.reacted {
+  background: linear-gradient(90deg, var(--accent-start), var(--accent-end));
+  color: #071029;
+  border-radius: 999px;
+  padding: 0.1rem 0.55rem;
+}
+
+/* =========================================================
+   MODALS — FORCE SOLID NON-WASHED-OUT STYLE
+   ========================================================= */
+
+/* overlay */
+.profile-overlay,
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  background: rgba(0,0,0,0.55) !important;
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+}
+
+/* generic modal box */
+.profile-modal,
+.modal-box {
+  width: 100%;
+  max-width: 640px;
+  border-radius: 1rem;
+  padding: 1.25rem;
+  background: var(--card-solid) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 10px 50px rgba(2,6,23,0.55);
+  opacity: 1 !important;
+  filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* ensure all modal children are visible */
+.profile-modal * , .modal-box * {
+  opacity: 1 !important;
+  color: inherit !important;
+  filter: none !important;
+}
+
+/* small-size profile modal */
+.profile-modal.small {
+  max-width: 360px;
+}
+
+/* special: make close link readable */
+.profile-modal .close-link,
+.modal-box .close-link {
+  color: var(--muted);
+  opacity: 1;
+}
+
+/* =========================================================
+   GLOBAL OVERRIDES (prevent accidental transparency)
+   ========================================================= */
+
+/* If any element used the old semi-transparent card variable, force solid fallback */
+* {
+  transition: background-color .12s ease, color .12s ease !important;
+}
+
+/* crate a defensive rule to avoid rgba leaks on main panels */
+.layout .sidebar,
+.layout .main,
+.layout .box,
+.profile-modal,
+.modal-box,
+.card {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media (max-width: 820px) {
+  .layout { flex-direction: column; }
+  .sidebar { width: 100%; }
+  .message { max-width: 92%; }
+}
+
+/* =========================================================
+   OPTIONAL: helper you can add to any element you want to be a solid card
+   Usage: add class="box" to the element
+   ========================================================= */
+/* ============================================= */
+/* FIX: Remove Glass/Opacity Effect From Profile Modal */
+/* ============================================= */
+
+.profile-modal,
+.profile-modal * {
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+.profile-modal .modal-box {
+  background: #ffffff !important;          /* light mode */
+}
+
+.dark .profile-modal .modal-box {
+  background: #0f172a !important;          /* TRUE solid dark (no fade) */
+  color: #e6eef8 !important;
+  border: 1px solid rgba(255,255,255,0.12) !important;
+}
+
+/* Remove glass effect inherited from main card */
+.profile-modal .modal-box {
+  backdrop-filter: none !important;
+  box-shadow: 0 10px 35px rgba(0,0,0,0.45) !important;
+}

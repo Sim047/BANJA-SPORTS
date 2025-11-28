@@ -223,20 +223,21 @@ export default function AllUsers({ token, onOpenConversation, currentUserId }: a
         <div>No users found.</div>
       ) : listMode === "grid" ? (
         /* -------------------- GRID MODE -------------------- */
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {users.map((u) => (
             <div
               key={u._id}
               className="
-                bg-white dark:bg-slate-900 
-                rounded-xl border border-gray-200 dark:border-gray-800
-                p-4 flex flex-col items-center text-center 
-                shadow-sm hover:shadow-md transition
+                bg-white dark:bg-slate-800
+                rounded-xl border border-gray-200 dark:border-gray-700
+                p-5 flex flex-col items-center text-center 
+                shadow-sm hover:shadow-lg transition-all
+                min-h-[280px]
               "
             >
               {/* Avatar */}
               <div
-                className="w-24 h-24 rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-700 cursor-pointer"
+                className="w-20 h-20 rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-700 cursor-pointer mb-3 flex-shrink-0"
                 onClick={() => openProfile(u._id)}
               >
                 <img
@@ -248,21 +249,21 @@ export default function AllUsers({ token, onOpenConversation, currentUserId }: a
 
               {/* Username */}
               <div
-                className="mt-3 font-semibold cursor-pointer truncate w-full"
+                className="mt-1 font-semibold cursor-pointer truncate w-full text-slate-900 dark:text-slate-100"
                 onClick={() => openProfile(u._id)}
               >
                 {u.username}
               </div>
 
               {/* Email */}
-              <div className="text-xs opacity-60 truncate w-full">
+              <div className="text-xs text-slate-600 dark:text-slate-400 truncate w-full mb-4">
                 {u.email}
               </div>
 
               {/* Buttons */}
-              <div className="flex gap-2 mt-3">
+              <div className="flex flex-col gap-2 mt-auto w-full">
                 <button
-                  className="px-4 py-1 rounded-md bg-gradient-to-r from-cyan-400 to-purple-500 text-white text-sm"
+                  className="w-full px-4 py-2 rounded-md bg-gradient-to-r from-cyan-400 to-purple-500 text-white text-sm font-medium hover:shadow-md transition-shadow"
                   onClick={() => startConversation(u)}
                   disabled={processingId === u._id}
                 >
@@ -271,7 +272,7 @@ export default function AllUsers({ token, onOpenConversation, currentUserId }: a
 
                 {u._id !== currentUserId && (
                   <button
-                    className="px-4 py-1 rounded-md bg-gray-200 dark:bg-gray-700 text-black dark:text-white text-sm"
+                    className="w-full px-4 py-2 rounded-md bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-slate-100 text-sm font-medium hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
                     onClick={() => followToggle(u, !u.isFollowed)}
                     disabled={processingId === u._id}
                   >
@@ -340,43 +341,50 @@ export default function AllUsers({ token, onOpenConversation, currentUserId }: a
          PROFILE MODAL (works with your new dark/light theme)
       ------------------------------------------------------------------- */}
       {profileOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
+        <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
           <div
             className="absolute inset-0 bg-black/50"
             onClick={() => setProfileOpen(false)}
           />
 
-          <div className="relative bg-white dark:bg-slate-900 rounded-xl p-6 w-11/12 md:w-1/2 lg:w-1/3 shadow-xl">
+          <div className="relative bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-xl p-6 w-full max-w-md shadow-2xl">
 
             {profileLoading ? (
-              <div>Loading profile…</div>
+              <div className="text-slate-900 dark:text-slate-100">Loading profile…</div>
             ) : !profileUser ? (
-              <div>Profile unavailable</div>
+              <div className="text-slate-900 dark:text-slate-100">Profile unavailable</div>
             ) : (
               <>
                 {/* Avatar and main info */}
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4 mb-4">
                   <img
                     src={avatarUrl(profileUser)}
-                    className="w-20 h-20 rounded-lg object-cover"
+                    className="w-20 h-20 rounded-lg object-cover flex-shrink-0"
                   />
 
-                  <div>
-                    <div className="text-lg font-semibold">{profileUser.username}</div>
-                    <div className="text-xs opacity-60">{profileUser.email}</div>
+                  <div className="flex-1">
+                    <div className="text-lg font-semibold text-slate-900 dark:text-slate-100">{profileUser.username}</div>
+                    <div className="text-sm text-slate-600 dark:text-slate-400">{profileUser.email}</div>
 
-                    <div className="mt-2 text-sm">
-                      <div>Followers: <b>{profileUser.followersCount}</b></div>
-                      <div>Following: <b>{profileUser.followingCount}</b></div>
+                    <div className="mt-2 text-sm text-slate-700 dark:text-slate-300">
+                      <div>Followers: <b className="text-slate-900 dark:text-slate-100">{profileUser.followersCount}</b></div>
+                      <div>Following: <b className="text-slate-900 dark:text-slate-100">{profileUser.followingCount}</b></div>
                     </div>
                   </div>
                 </div>
 
                 {/* Buttons */}
-                <div className="flex items-center gap-3 mt-4">
+                <div className="flex flex-col gap-2 mt-4">
+                  <button
+                    className="w-full px-4 py-2 rounded-md bg-gradient-to-r from-cyan-400 to-purple-500 text-white font-medium hover:shadow-md transition-shadow"
+                    onClick={() => startConversation(profileUser)}
+                  >
+                    Message
+                  </button>
+                  
                   {profileUser._id !== currentUserId && (
                     <button
-                      className="px-4 py-1 rounded-md bg-gray-300 dark:bg-gray-700"
+                      className="w-full px-4 py-2 rounded-md bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-slate-100 font-medium hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
                       onClick={() =>
                         followToggle(profileUser, !profileUser.isFollowed)
                       }
@@ -386,14 +394,7 @@ export default function AllUsers({ token, onOpenConversation, currentUserId }: a
                   )}
 
                   <button
-                    className="px-4 py-1 rounded-md bg-gradient-to-r from-cyan-400 to-purple-500 text-white"
-                    onClick={() => startConversation(profileUser)}
-                  >
-                    Message
-                  </button>
-
-                  <button
-                    className="px-3 py-1 rounded-md border ml-auto"
+                    className="w-full px-4 py-2 rounded-md border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                     onClick={() => setProfileOpen(false)}
                   >
                     Close

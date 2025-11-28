@@ -70,6 +70,8 @@ export default function App() {
   const [messages, setMessages] = useState<any[]>([]);
   const [text, setText] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
+  const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [imagePreviewOpen, setImagePreviewOpen] = useState(false);
   const [typingUsers, setTypingUsers] = useState<Record<string, boolean>>({});
 
   // STATUS ------------------------------------
@@ -324,40 +326,61 @@ const myStatus =
   // SEND MESSAGE -------------------------------------------------
   async function sendMessage(e?: React.FormEvent) {
     e?.preventDefault();
-    if (!text && !file) return;
+    if (!text && selectedImages.length === 0) return;
 
-    let fileUrl = "";
+    const fileUrls: string[] = [];
 
-    if (file) {
-      const fd = new FormData();
-      fd.append("file", file);
+    if (selectedImages.length > 0) {
+      for (const img of selectedImages) {
+        const fd = new FormData();
+        fd.append("file", img);
 
-      try {
-        const r = await axios.post(API + "/api/files/upload", fd, {
-          headers: {
-            Authorization: "Bearer " + token,
-            "Content-Type": "multipart/form-data"
-          }
-        });
-        fileUrl = r.data.url || "";
-      } catch {}
+        try {
+          const r = await axios.post(API + "/api/files/upload", fd, {
+            headers: {
+              Authorization: "Bearer " + token,
+              "Content-Type": "multipart/form-data"
+            }
+          });
+          if (r.data.url) fileUrls.push(r.data.url);
+        } catch (e) {
+          console.error("Image upload failed:", e);
+        }
+      }
     }
 
     const targetRoom =
       inDM && activeConversation ? activeConversation._id : room;
 
-    socket.emit("send_message", {
-      room: targetRoom,
-      message: {
-        sender: user,
-        text,
-        room: targetRoom,
-        fileUrl,
-        createdAt: new Date().toISOString()
+    // Send message with all uploaded images
+    if (fileUrls.length > 0) {
+      for (const fileUrl of fileUrls) {
+        socket.emit("send_message", {
+          room: targetRoom,
+          message: {
+            sender: user,
+            text: fileUrls.indexOf(fileUrl) === 0 ? text : "",
+            room: targetRoom,
+            fileUrl,
+            createdAt: new Date().toISOString()
+          }
+        });
       }
-    });
+    } else if (text) {
+      socket.emit("send_message", {
+        room: targetRoom,
+        message: {
+          sender: user,
+          text,
+          room: targetRoom,
+          fileUrl: "",
+          createdAt: new Date().toISOString()
+        }
+      });
+    }
 
     setText("");
+    setSelectedImages([]);
     setFile(null);
     scrollToBottom();
   }
@@ -371,6 +394,25 @@ const myStatus =
       userId: user?._id,
       typing: !!e.target.value
     });
+  }
+
+  // IMAGE HANDLING -----------------------------------------------
+  function handleImageSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      setSelectedImages((prev) => [...prev, ...files]);
+      setImagePreviewOpen(true);
+    }
+    e.target.value = ""; // Reset input
+  }
+
+  function removeImage(index: number) {
+    setSelectedImages((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  function clearAllImages() {
+    setSelectedImages([]);
+    setImagePreviewOpen(false);
   }
 
   // REACTIONS ----------------------------------------------------
@@ -990,22 +1032,70 @@ const myStatus =
 
             {/* MESSAGE COMPOSER */}
             <form
-              className="composer mt-4 flex items-center gap-2"
+              className="composer mt-4 flex flex-col gap-2"
               onSubmit={sendMessage}
             >
-              <input
-                className="input flex-1 p-3 rounded-md"
-                value={text}
-                onChange={onComposerChange}
-                placeholder={inDM ? "Message..." : "Say something..."}
-              />
-              <input
-                type="file"
-                onChange={(e) => setFile(e.target.files?.[0] || null)}
-              />
-              <button className="btn px-4 py-2" type="submit">
-                Send
-              </button>
+              {/* Image Preview Bar */}
+              {selectedImages.length > 0 && (
+                <div className="flex gap-2 p-2 bg-slate-800/30 rounded-md overflow-x-auto">
+                  {selectedImages.map((img, idx) => (
+                    <div key={idx} className="relative flex-shrink-0">
+                      <img
+                        src={URL.createObjectURL(img)}
+                        alt={`Preview ${idx + 1}`}
+                        className="w-20 h-20 object-cover rounded-md cursor-pointer"
+                        onClick={() => setImagePreviewOpen(true)}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(idx)}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="flex items-center gap-2">
+                <input
+                  className="input flex-1 p-3 rounded-md"
+                  value={text}
+                  onChange={onComposerChange}
+                  placeholder={inDM ? "Message..." : "Say something..."}
+                />
+                
+                {/* Image Button with Icon */}
+                <label className="cursor-pointer p-3 rounded-md border border-slate-600 hover:bg-slate-700/40 transition-colors">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                    <circle cx="8.5" cy="8.5" r="1.5" />
+                    <polyline points="21 15 16 10 5 21" />
+                  </svg>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleImageSelect}
+                    className="hidden"
+                  />
+                </label>
+
+                <button className="btn px-4 py-2" type="submit">
+                  Send
+                </button>
+              </div>
             </form>
           </>
         )}
@@ -1081,6 +1171,70 @@ const myStatus =
             ) : (
               <div className="text-center p-6">Profile not available</div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* ---------------- IMAGE PREVIEW MODAL ---------------- */}
+      {imagePreviewOpen && selectedImages.length > 0 && (
+        <div
+          className="fixed inset-0 flex items-center justify-center z-50"
+          style={{ background: "rgba(0,0,0,0.75)" }}
+          onClick={() => setImagePreviewOpen(false)}
+        >
+          <div
+            className="bg-white dark:bg-slate-900 rounded-lg p-6 w-full max-w-3xl shadow-2xl max-h-[90vh] overflow-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold">
+                {selectedImages.length} Image{selectedImages.length > 1 ? "s" : ""} Selected
+              </h3>
+              <button
+                onClick={() => setImagePreviewOpen(false)}
+                className="text-2xl opacity-60 hover:opacity-100"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              {selectedImages.map((img, idx) => (
+                <div key={idx} className="relative group">
+                  <img
+                    src={URL.createObjectURL(img)}
+                    alt={`Image ${idx + 1}`}
+                    className="w-full h-48 object-cover rounded-lg"
+                  />
+                  <div className="absolute top-2 right-2 flex gap-2">
+                    <button
+                      onClick={() => removeImage(idx)}
+                      className="bg-red-500 text-white px-3 py-1 rounded-md text-sm opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                  <div className="absolute bottom-2 left-2 bg-black/60 text-white px-2 py-1 rounded text-xs">
+                    {img.name}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={clearAllImages}
+                className="px-4 py-2 border rounded-md"
+              >
+                Clear All
+              </button>
+              <button
+                onClick={() => setImagePreviewOpen(false)}
+                className="btn px-4 py-2"
+              >
+                Done
+              </button>
+            </div>
           </div>
         </div>
       )}

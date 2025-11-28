@@ -91,7 +91,10 @@ export default function App() {
   // dynamic pages
   const [view, setView] = useState<
     "chat" | "all-users" | "followers" | "following" | "rooms" | "direct-messages"
-  >("chat");
+  >(() => {
+    // Start with all-users on mobile, chat on desktop
+    return window.innerWidth <= 820 ? "all-users" : "chat";
+  });
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   // editing messages
@@ -953,17 +956,15 @@ const myStatus =
             )}
           </button>
           
-          {/* Copyright */}
-          {!isFullPageView && (
-            <div className="mt-4 pt-4 border-t border-slate-700 text-center">
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                © {new Date().getFullYear()}
-              </p>
-              <p className="text-xs font-semibold text-slate-600 dark:text-slate-300 mt-1">
-                SIMON KATHULU
-              </p>
-            </div>
-          )}
+          {/* Copyright - always visible on mobile, hidden when collapsed on desktop */}
+          <div className="mt-4 pt-4 border-t border-slate-700 text-center sidebar-copyright">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              © {new Date().getFullYear()}
+            </p>
+            <p className="text-xs font-semibold text-slate-600 dark:text-slate-300 mt-1">
+              SIMON KATHULU
+            </p>
+          </div>
         </div>
       </aside>
 

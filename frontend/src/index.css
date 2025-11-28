@@ -116,6 +116,11 @@ body {
   overflow: hidden;
 }
 
+/* Hide copyright when sidebar is collapsed on desktop */
+.sidebar-collapsed .sidebar-copyright {
+  display: none;
+}
+
 /* force sidebar as solid box in dark too */
 :root.dark .sidebar { background: var(--sidebar); }
 
@@ -409,6 +414,12 @@ body {
     min-width: 100% !important;
     margin-bottom: 1rem;
     flex-shrink: 0;
+  }
+  
+  /* Always show copyright on mobile */
+  .sidebar .sidebar-copyright,
+  .sidebar-collapsed .sidebar-copyright {
+    display: block !important;
   }
   
   /* Only apply height restrictions when chat is active */

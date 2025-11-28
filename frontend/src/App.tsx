@@ -761,7 +761,7 @@ const myStatus =
   }
   
   // Check if current view should show full-page (collapsed sidebar)
-  const isFullPageView = ["all-users", "followers", "following", "rooms", "direct-messages"].includes(view);
+  const isFullPageView = ["all-users", "rooms", "direct-messages"].includes(view);
   
   // ---- MAIN LAYOUT ----
   return (
@@ -786,7 +786,9 @@ const myStatus =
                 className="w-20 h-20 rounded-xl object-cover shadow-lg"
                 alt="logo"
               />
-              <h2 className="text-2xl font-bold tracking-wide">BANJA</h2>
+              <h2 className="text-3xl font-extrabold tracking-wider bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
+                BANJA
+              </h2>
             </div>
           </div>
 

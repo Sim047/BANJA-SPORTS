@@ -76,14 +76,13 @@ export default function SearchUsers({
 
   return (
     <div>
-      <div className="flex gap-2">
+      <div className="flex flex-col gap-2">
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Search users by name or email..."
-          className="input flex-1"
+          placeholder="Search users..."
+          className="input w-full"
         />
-        <button className="btn">Search</button>
       </div>
 
       {loading && <div className="text-sm text-muted mt-2">Searching…</div>}

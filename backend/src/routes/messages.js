@@ -140,4 +140,24 @@ router.delete("/:id/force", auth, async (req, res) => {
   }
 });
 
+/**
+ * DELETE /api/messages/room/:roomId/clear
+ * Clear all messages in a room/chat
+ */
+router.delete("/room/:roomId/clear", auth, async (req, res) => {
+  try {
+    const { roomId } = req.params;
+    await Message.deleteMany({ room: roomId });
+    
+    // broadcast clear event to room
+    const io = req.app.get("io");
+    if (io) io.to(roomId).emit("chat_cleared", { room: roomId });
+    
+    res.json({ success: true });
+  } catch (err) {
+    console.error("[messages/clearRoom]", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 export default router;

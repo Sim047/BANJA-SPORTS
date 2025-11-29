@@ -95,7 +95,6 @@ export default function App() {
     // Start with all-users on mobile, chat on desktop
     return window.innerWidth <= 820 ? "all-users" : "chat";
   });
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   // editing messages
   const [editingMessageId, setEditingMessageId] =
@@ -726,7 +725,7 @@ const myStatus =
               )}
 
               <div className="flex gap-2 mt-2 items-center text-sm">
-                {["❤️", "🔥", "😂", "😌"].map((emoji) => (
+                {["❤️", "🔥", "😂", "😔"].map((emoji) => (
                   <button
                     key={emoji}
                     className={clsx(
@@ -815,14 +814,11 @@ const myStatus =
     );
   }
   
-  // Check if current view should show full-page (collapsed sidebar)
-  const isFullPageView = ["all-users", "rooms", "direct-messages"].includes(view);
-  
   // ---- MAIN LAYOUT ----
   return (
     <div className={`layout container flex gap-4 p-4 min-h-screen relative ${view === 'chat' ? 'chat-active' : ''}`}>
       {/* ---------------- SIDEBAR ---------------- */}
-      <aside className={`sidebar transition-all duration-300 ${isFullPageView ? 'sidebar-collapsed' : 'sidebar-expanded'}`}>
+      <aside className="sidebar">
         <div>
           {/* Header / Logo / Theme toggle */}
           <div className="flex flex-col items-center mb-6">
@@ -1133,6 +1129,68 @@ const myStatus =
                     onClick={jumpToUnread}
                   >
                     Jump to unread
+                  </button>
+                )}
+                
+                {/* Clear Chat Button */}
+                <button
+                  className="text-xs px-3 py-1 bg-orange-500 hover:bg-orange-600 rounded-full text-white transition-colors"
+                  onClick={async () => {
+                    if (!confirm("Clear all messages in this chat?")) return;
+                    
+                    try {
+                      if (inDM && activeConversation) {
+                        await axios.delete(
+                          `${API}/api/conversations/${activeConversation._id}/messages`,
+                          { headers: { Authorization: `Bearer ${token}` } }
+                        );
+                      } else {
+                        await axios.delete(
+                          `${API}/api/messages/room/${room}/clear`,
+                          { headers: { Authorization: `Bearer ${token}` } }
+                        );
+                      }
+                      setMessages([]);
+                    } catch (e) {
+                      console.error("Clear chat error", e);
+                      alert("Failed to clear chat");
+                    }
+                  }}
+                  title="Clear all messages"
+                >
+                  🗑️ Clear
+                </button>
+                
+                {/* Delete Chat Button (DM only) */}
+                {inDM && activeConversation && (
+                  <button
+                    className="text-xs px-3 py-1 bg-red-500 hover:bg-red-600 rounded-full text-white transition-colors"
+                    onClick={async () => {
+                      if (!confirm("Delete this conversation permanently?")) return;
+                      
+                      try {
+                        await axios.delete(
+                          `${API}/api/conversations/${activeConversation._id}`,
+                          { headers: { Authorization: `Bearer ${token}` } }
+                        );
+                        setActiveConversation(null);
+                        setInDM(false);
+                        setMessages([]);
+                        setView("direct-messages");
+                        
+                        // Refresh conversations list
+                        const res = await axios.get(`${API}/api/conversations`, {
+                          headers: { Authorization: `Bearer ${token}` }
+                        });
+                        setConversations(res.data || []);
+                      } catch (e) {
+                        console.error("Delete conversation error", e);
+                        alert("Failed to delete conversation");
+                      }
+                    }}
+                    title="Delete conversation"
+                  >
+                    ❌ Delete
                   </button>
                 )}
               </div>

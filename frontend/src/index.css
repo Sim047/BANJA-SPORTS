@@ -104,21 +104,10 @@ body {
   transition: all 0.3s ease;
 }
 
-/* Sidebar states */
-.sidebar-expanded {
+/* Sidebar width */
+.sidebar {
   width: 280px;
   min-width: 280px;
-}
-
-.sidebar-collapsed {
-  width: 80px;
-  min-width: 80px;
-  overflow: hidden;
-}
-
-/* Hide copyright when sidebar is collapsed on desktop */
-.sidebar-collapsed .sidebar-copyright {
-  display: none;
 }
 
 /* force sidebar as solid box in dark too */
@@ -408,8 +397,7 @@ body {
   
   /* Default sidebar behavior - NOT scrollable on normal pages */
   .sidebar,
-  .sidebar-expanded,
-  .sidebar-collapsed { 
+  .sidebar { 
     width: 100% !important;
     min-width: 100% !important;
     margin-bottom: 1rem;
@@ -417,8 +405,7 @@ body {
   }
   
   /* Always show copyright on mobile */
-  .sidebar .sidebar-copyright,
-  .sidebar-collapsed .sidebar-copyright {
+  .sidebar .sidebar-copyright {
     display: block !important;
   }
   
@@ -436,9 +423,7 @@ body {
     overflow: hidden;
   }
   
-  .layout.chat-active .sidebar,
-  .layout.chat-active .sidebar-expanded,
-  .layout.chat-active .sidebar-collapsed { 
+  .layout.chat-active .sidebar { 
     max-height: 40vh;
     overflow-y: auto;
     margin-bottom: 0;

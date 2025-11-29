@@ -21,10 +21,7 @@ export default function AllUsers({ token, onOpenConversation, currentUserId }: a
   const [search, setSearch] = useState("");
   const [processingId, setProcessingId] = useState<string | null>(null);
 
-  const [listMode, setListMode] = useState<"grid" | "list">(() => {
-    // Default to grid on mobile, list on desktop
-    return window.innerWidth <= 820 ? "grid" : "grid";
-  });
+  const [listMode, setListMode] = useState<"grid" | "list">("list");
 
   // Profile Modal
   const [profileOpen, setProfileOpen] = useState(false);
@@ -340,22 +337,23 @@ export default function AllUsers({ token, onOpenConversation, currentUserId }: a
         </div>
       ) : (
         /* -------------------- LIST MODE -------------------- */
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2 sm:gap-3">
           {users.map((u) => (
             <div
               key={u._id}
               className="
-                flex items-center justify-between 
-                p-3 rounded-lg 
-                bg-slate-200 dark:bg-slate-800
-                border border-gray-300 dark:border-gray-700
+                flex flex-col sm:flex-row sm:items-center sm:justify-between 
+                p-3 sm:p-4 rounded-lg 
+                bg-white dark:bg-slate-800
+                border border-gray-200 dark:border-gray-700
+                gap-3
               "
             >
               <div className="flex items-center gap-3">
-                <div className="relative group">
+                <div className="relative group flex-shrink-0">
                   <Avatar
                     src={avatarUrl(u)}
-                    className="w-12 h-12 rounded-md object-cover cursor-pointer transition-transform group-hover:scale-105"
+                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-md object-cover cursor-pointer transition-transform group-hover:scale-105"
                     onClick={() => previewImage(u)}
                     alt={u.username}
                   />
@@ -380,29 +378,31 @@ export default function AllUsers({ token, onOpenConversation, currentUserId }: a
                   </div>
                 </div>
 
-                <div>
+                <div className="flex-1 min-w-0">
                   <div
-                    className="font-bold cursor-pointer"
+                    className="font-bold cursor-pointer text-slate-900 dark:text-slate-100 truncate"
                     onClick={() => openProfile(u._id)}
                   >
                     {u.username}
                   </div>
-                  <div className="text-xs opacity-60">{u.email}</div>
+                  <div className="text-xs text-slate-600 dark:text-slate-400 truncate">{u.email}</div>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-shrink-0">
                 <button
-                  className="px-3 py-1 rounded-md bg-gradient-to-r from-cyan-400 to-purple-500 text-white"
+                  className="flex-1 sm:flex-none px-4 py-2 rounded-md bg-gradient-to-r from-cyan-400 to-purple-500 text-white text-sm font-medium hover:shadow-md transition-shadow disabled:opacity-50"
                   onClick={() => startConversation(u)}
+                  disabled={processingId === u._id}
                 >
-                  Chat
+                  {processingId === u._id ? "..." : "Message"}
                 </button>
 
                 {u._id !== currentUserId && (
                   <button
-                    className="px-3 py-1 rounded-md bg-gray-300 dark:bg-gray-700 text-black dark:text-white"
+                    className="flex-1 sm:flex-none px-4 py-2 rounded-md bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-slate-100 text-sm font-medium hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors disabled:opacity-50"
                     onClick={() => followToggle(u, !u.isFollowed)}
+                    disabled={processingId === u._id}
                   >
                     {u.isFollowed ? "Unfollow" : "Follow"}
                   </button>

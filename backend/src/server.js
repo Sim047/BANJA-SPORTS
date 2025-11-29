@@ -235,6 +235,49 @@ io.on("connection", (socket) => {
     socket.to(room).emit("typing", { userId, typing });
   });
 
+  // MESSAGE DELIVERED
+  socket.on("message_delivered", async ({ messageId, userId }) => {
+    try {
+      const message = await Message.findById(messageId);
+      if (message && !message.deliveredTo.includes(userId)) {
+        message.deliveredTo.push(userId);
+        await message.save();
+        
+        const populated = await Message.findById(messageId)
+          .populate("sender", "username avatar")
+          .populate("deliveredTo", "username")
+          .populate("readBy", "username");
+        
+        io.to(message.room).emit("message_status_update", populated);
+      }
+    } catch (err) {
+      console.error("message_delivered error:", err);
+    }
+  });
+
+  // MESSAGE READ
+  socket.on("message_read", async ({ messageId, userId }) => {
+    try {
+      const message = await Message.findById(messageId);
+      if (message && !message.readBy.includes(userId)) {
+        if (!message.deliveredTo.includes(userId)) {
+          message.deliveredTo.push(userId);
+        }
+        message.readBy.push(userId);
+        await message.save();
+        
+        const populated = await Message.findById(messageId)
+          .populate("sender", "username avatar")
+          .populate("deliveredTo", "username")
+          .populate("readBy", "username");
+        
+        io.to(message.room).emit("message_status_update", populated);
+      }
+    } catch (err) {
+      console.error("message_read error:", err);
+    }
+  });
+
   socket.on("disconnect", () => {
     for (const [uid, sid] of onlineUsers.entries()) {
       if (sid === socket.id) {

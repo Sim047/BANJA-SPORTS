@@ -19,6 +19,7 @@ const MessageSchema = new mongoose.Schema(
     replyTo: { type: mongoose.Schema.Types.ObjectId, ref: "Message", default: null },
     reactions: [ReactionSchema],
     readBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    deliveredTo: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
 
     // NEW: hide messages for particular users (per-user "deleted" or "cleared")
     hiddenFor: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],

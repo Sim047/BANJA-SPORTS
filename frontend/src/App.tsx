@@ -201,6 +201,20 @@ const myStatus =
     socket.on("receive_message", (msg: any) => {
       setMessages((m) => [...m, msg]);
       scrollToBottom();
+      
+      // Mark as delivered if not sender
+      if (msg.sender?._id !== user?._id) {
+        socket.emit("message_delivered", { messageId: msg._id, userId: user?._id });
+        
+        // Also mark as read immediately if chat is visible (view === "chat")
+        if (view === "chat") {
+          socket.emit("message_read", { messageId: msg._id, userId: user?._id });
+        }
+      }
+    });
+
+    socket.on("message_status_update", (updatedMsg: any) => {
+      setMessages((m) => m.map((x) => (x._id === updatedMsg._id ? updatedMsg : x)));
     });
 
     socket.on("reaction_update", (msg: any) => {
@@ -238,7 +252,7 @@ const myStatus =
       socket.removeAllListeners();
       socket.disconnect();
     };
-  }, [token, user, room]);
+  }, [token, user, room, view]);
 
   // LOAD ROOM MESSAGES ------------------------------------------
   useEffect(() => {
@@ -248,9 +262,20 @@ const myStatus =
       .get(API + "/api/messages/" + room, {
         headers: { Authorization: "Bearer " + token }
       })
-      .then((r) => setMessages(r.data || []))
+      .then((r) => {
+        setMessages(r.data || []);
+        
+        // Mark messages as read when loading chat
+        if (user && socket) {
+          (r.data || []).forEach((msg: any) => {
+            if (msg.sender?._id !== user._id && !msg.readBy?.some((id: any) => String(id) === String(user._id))) {
+              socket.emit("message_read", { messageId: msg._id, userId: user._id });
+            }
+          });
+        }
+      })
       .catch(() => {});
-  }, [room, token, view, inDM]);
+  }, [room, token, view, inDM, user, socket]);
 
   // LOAD DM MESSAGES --------------------------------------------
   useEffect(() => {
@@ -261,9 +286,20 @@ const myStatus =
         API + "/api/conversations/" + activeConversation._id + "/messages",
         { headers: { Authorization: "Bearer " + token } }
       )
-      .then((r) => setMessages(r.data || []))
+      .then((r) => {
+        setMessages(r.data || []);
+        
+        // Mark messages as read when loading DM conversation
+        if (user && socket) {
+          (r.data || []).forEach((msg: any) => {
+            if (msg.sender?._id !== user._id && !msg.readBy?.some((id: any) => String(id) === String(user._id))) {
+              socket.emit("message_read", { messageId: msg._id, userId: user._id });
+            }
+          });
+        }
+      })
       .catch((e) => console.error("DM load error", e));
-  }, [token, inDM, activeConversation]);
+  }, [token, inDM, activeConversation, user, socket]);
 
   // LOAD ALL STATUSES -------------------------------------------
   useEffect(() => {
@@ -634,6 +670,22 @@ const myStatus =
 
                 {m.edited && (
                   <span className="text-xs opacity-50 ml-1">(edited)</span>
+                )}
+
+                {/* Message Status Ticks - only show for sender */}
+                {String(m.sender?._id) === String(user?._id) && (
+                  <span className="ml-2 text-xs flex items-center gap-0.5">
+                    {m.readBy && m.readBy.length > 0 ? (
+                      // Double blue tick for read
+                      <span className="text-blue-500" title="Read">✓✓</span>
+                    ) : m.deliveredTo && m.deliveredTo.length > 0 ? (
+                      // Double gray tick for delivered
+                      <span className="text-gray-400" title="Delivered">✓✓</span>
+                    ) : (
+                      // Single gray tick for sent
+                      <span className="text-gray-400" title="Sent">✓</span>
+                    )}
+                  </span>
                 )}
 
                 {senderStatus && (

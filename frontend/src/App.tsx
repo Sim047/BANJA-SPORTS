@@ -16,6 +16,7 @@ import ConversationsList from "./components/ConversationsList";
 import AllUsers from "./pages/AllUsers";
 import FollowersList from "./pages/FollowersList";
 import FollowingList from "./pages/FollowingList";
+import Discover from "./pages/Discover";
 import Avatar from "./components/Avatar";
 import logo from "./assets/logo.png";
 
@@ -90,10 +91,10 @@ export default function App() {
 
   // dynamic pages
   const [view, setView] = useState<
-    "chat" | "all-users" | "followers" | "following" | "rooms" | "direct-messages"
+    "discover" | "chat" | "all-users" | "followers" | "following" | "rooms" | "direct-messages"
   >(() => {
-    // Start with all-users on mobile, chat on desktop
-    return window.innerWidth <= 820 ? "all-users" : "chat";
+    // Start with discover on mobile, chat on desktop
+    return window.innerWidth <= 820 ? "discover" : "chat";
   });
 
   // editing messages
@@ -875,7 +876,18 @@ const myStatus =
           {/* USERS / FOLLOWERS / FOLLOWING */}
           <div className="mt-4 p-2">
             <button
-              className="w-full text-left px-2 py-2 rounded-md hover:bg-slate-800/40"
+              className="w-full text-left px-2 py-2 rounded-md hover:bg-slate-800/40 flex items-center gap-2"
+              onClick={() => {
+                setView("discover");
+                setInDM(false);
+                setActiveConversation(null);
+              }}
+            >
+              🔍 Discover
+            </button>
+            
+            <button
+              className="w-full text-left px-2 py-2 rounded-md hover:bg-slate-800/40 mt-2"
               onClick={() => {
                 setView("all-users");
                 setInDM(false);
@@ -998,6 +1010,14 @@ const myStatus =
 
       {/* ---------------- MAIN VIEW ---------------- */}
       <main className="main flex-1 flex flex-col">
+        {/* DISCOVER PAGE */}
+        {view === "discover" && (
+          <Discover
+            token={token}
+            onViewProfile={showProfile}
+          />
+        )}
+
         {/* FOLLOWERS PAGE */}
         {view === "followers" && (
           <FollowersList

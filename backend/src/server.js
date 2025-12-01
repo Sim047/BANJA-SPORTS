@@ -115,9 +115,16 @@ app.set("onlineUsers", onlineUsers);
 app.use(
   cors({
     origin: function (origin, callback) {
+      console.log('CORS check - Origin:', origin);
+      console.log('Allowed origins:', allowedOrigins);
+      
       // allow non-browser requests (eg. server-to-server, curl) when origin is undefined
       if (!origin) return callback(null, true);
-      if (isOriginAllowed(origin)) return callback(null, true);
+      
+      const allowed = isOriginAllowed(origin);
+      console.log('Origin allowed:', allowed);
+      
+      if (allowed) return callback(null, true);
       return callback(new Error('CORS origin not allowed'), false);
     },
     credentials: true,

@@ -230,25 +230,25 @@ function UserCard({
 }: any) {
   if (viewMode === "list") {
     return (
-      <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-4 border border-gray-200 dark:border-gray-800 hover:shadow-lg transition-shadow">
-        <div className="flex items-center gap-4">
+      <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-5 border border-gray-200 dark:border-gray-800 hover:shadow-xl transition-all duration-300 hover:scale-[1.01]">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
           <img
             src={avatarUrl}
             alt={user.username}
-            className="w-14 h-14 rounded-full object-cover ring-2 ring-teal-500/20 cursor-pointer"
+            className="w-14 h-14 rounded-full object-cover ring-2 ring-teal-500/20 cursor-pointer shrink-0"
             onClick={onViewProfile}
           />
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <h3 
-                className="font-semibold text-gray-900 dark:text-white truncate cursor-pointer hover:text-teal-500"
+                className="font-semibold text-gray-900 dark:text-white truncate cursor-pointer hover:text-teal-500 transition"
                 onClick={onViewProfile}
               >
                 {user.username}
               </h3>
               {user.verified && (
-                <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                <Star className="w-4 h-4 text-yellow-500 fill-yellow-500 shrink-0" />
               )}
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
@@ -257,11 +257,11 @@ function UserCard({
           </div>
 
           {!isCurrentUser && (
-            <div className="flex gap-2">
+            <div className="flex gap-2 w-full sm:w-auto shrink-0">
               <button
                 onClick={onMessage}
                 disabled={isProcessing}
-                className="p-2.5 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition disabled:opacity-50"
+                className="flex-1 sm:flex-initial p-2.5 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-300 disabled:opacity-50"
                 title="Send message"
               >
                 <MessageCircle className="w-5 h-5 text-gray-700 dark:text-gray-300" />
@@ -270,10 +270,10 @@ function UserCard({
               <button
                 onClick={onFollow}
                 disabled={isProcessing}
-                className={`p-2.5 rounded-lg transition disabled:opacity-50 ${
+                className={`flex-1 sm:flex-initial p-2.5 rounded-xl transition-all duration-300 disabled:opacity-50 ${
                   user.isFollowed
                     ? "bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
-                    : "bg-teal-500 hover:bg-teal-600"
+                    : "bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 shadow-lg shadow-teal-500/30"
                 }`}
                 title={user.isFollowed ? "Unfollow" : "Follow"}
               >
@@ -292,18 +292,18 @@ function UserCard({
 
   // Grid view
   return (
-    <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-6 border border-gray-200 dark:border-gray-800 hover:shadow-lg transition-all group">
+    <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-6 border border-gray-200 dark:border-gray-800 hover:shadow-xl transition-all duration-300 group hover:scale-[1.02]">
       <div className="flex flex-col items-center text-center">
         <img
           src={avatarUrl}
           alt={user.username}
-          className="w-20 h-20 rounded-full object-cover ring-2 ring-teal-500/20 mb-3 cursor-pointer group-hover:scale-105 transition"
+          className="w-20 h-20 rounded-full object-cover ring-2 ring-teal-500/20 mb-3 cursor-pointer group-hover:scale-110 transition-transform duration-300"
           onClick={onViewProfile}
         />
 
         <div className="flex items-center gap-2 mb-1">
           <h3 
-            className="font-semibold text-gray-900 dark:text-white cursor-pointer hover:text-teal-500"
+            className="font-semibold text-gray-900 dark:text-white cursor-pointer hover:text-teal-500 transition"
             onClick={onViewProfile}
           >
             {user.username}
@@ -314,12 +314,12 @@ function UserCard({
         </div>
 
         {user.sport && (
-          <p className="text-xs text-teal-600 dark:text-teal-400 mb-2">
+          <p className="text-xs text-teal-600 dark:text-teal-400 mb-2 font-medium">
             {user.sport}
           </p>
         )}
 
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2 min-h-[40px]">
           {user.bio || user.email || "No bio available"}
         </p>
 
@@ -353,30 +353,30 @@ function UserCard({
             <button
               onClick={onMessage}
               disabled={isProcessing}
-              className="flex-1 px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium transition disabled:opacity-50 flex items-center justify-center gap-2"
+              className="flex-1 px-4 py-2 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2"
             >
               <MessageCircle className="w-4 h-4" />
-              Message
+              <span className="text-sm">Message</span>
             </button>
             
             <button
               onClick={onFollow}
               disabled={isProcessing}
-              className={`flex-1 px-4 py-2 rounded-lg font-medium transition disabled:opacity-50 flex items-center justify-center gap-2 ${
+              className={`flex-1 px-4 py-2 rounded-xl font-medium transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 ${
                 user.isFollowed
                   ? "bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
-                  : "bg-teal-500 hover:bg-teal-600 text-white"
+                  : "bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white shadow-lg shadow-teal-500/30"
               }`}
             >
               {user.isFollowed ? (
                 <>
                   <UserMinus className="w-4 h-4" />
-                  Unfollow
+                  <span className="text-sm">Unfollow</span>
                 </>
               ) : (
                 <>
                   <UserPlus className="w-4 h-4" />
-                  Follow
+                  <span className="text-sm">Follow</span>
                 </>
               )}
             </button>

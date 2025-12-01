@@ -178,14 +178,28 @@ export default function Discover({ token, onViewProfile }: any) {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-[#071029]">
-      {/* Header */}
-      <div className="bg-white dark:bg-[#0f172a] border-b border-gray-200 dark:border-gray-800 sticky top-0 z-10">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-[#071029] dark:via-[#0a1435] dark:to-[#071029]">
+      {/* Hero Section */}
+      <div className="bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-500 dark:from-teal-600 dark:via-cyan-600 dark:to-blue-600">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="text-center">
+            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+              Discover Your Next Sport
+            </h1>
+            <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
+              Find expert coaches, join exciting events, and book personalized training sessions
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Search Bar */}
+      <div className="bg-white dark:bg-[#0f172a] border-b border-gray-200 dark:border-gray-800 sticky top-0 z-10 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Discover
-            </h1>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+              Explore
+            </h2>
             <button className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition">
               <Filter className="w-5 h-5 text-gray-600 dark:text-gray-400" />
             </button>
@@ -225,24 +239,31 @@ export default function Discover({ token, onViewProfile }: any) {
             </button>
           </div>
           
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
             {SPORTS.map((sport) => (
               <button
                 key={sport.name}
                 onClick={() => setSelectedSport(selectedSport === sport.name ? null : sport.name)}
                 className={`
-                  relative overflow-hidden rounded-2xl p-6 text-center transition-all
+                  relative overflow-hidden rounded-2xl p-6 text-center transition-all duration-300
                   ${selectedSport === sport.name 
-                    ? 'ring-2 ring-teal-500 scale-105' 
-                    : 'hover:scale-105'
+                    ? 'ring-4 ring-teal-500 scale-105 shadow-2xl shadow-teal-500/50' 
+                    : 'hover:scale-105 hover:shadow-xl'
                   }
                 `}
               >
-                <div className={`absolute inset-0 bg-gradient-to-br ${sport.color} opacity-90`} />
+                <div className={`absolute inset-0 bg-gradient-to-br ${sport.color} opacity-90 group-hover:opacity-100 transition-opacity`} />
                 <div className="relative z-10">
-                  <div className="text-4xl mb-2">{sport.icon}</div>
-                  <div className="text-sm font-medium text-white">{sport.name}</div>
+                  <div className="text-4xl mb-2 transform transition-transform duration-300 hover:scale-110">{sport.icon}</div>
+                  <div className="text-sm font-semibold text-white">{sport.name}</div>
                 </div>
+                {selectedSport === sport.name && (
+                  <div className="absolute top-2 right-2 w-6 h-6 bg-white rounded-full flex items-center justify-center">
+                    <svg className="w-4 h-4 text-teal-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                )}
               </button>
             ))}
           </div>
@@ -393,16 +414,16 @@ function CoachCard({ coach, onViewProfile }: { coach: Coach; onViewProfile: any 
         </div>
       )}
 
-      <div className="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-800">
+      <div className="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-800 gap-3">
         {coach.hourlyRate && (
           <div className="text-lg font-bold text-gray-900 dark:text-white">
             ${coach.hourlyRate}
-            <span className="text-sm font-normal text-gray-500">/hr</span>
+            <span className="text-sm font-normal text-gray-500 dark:text-gray-400">/hr</span>
           </div>
         )}
         <button
           onClick={() => onViewProfile && onViewProfile(coach)}
-          className="px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white text-sm font-medium rounded-lg transition group-hover:scale-105"
+          className="px-4 py-2 bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white text-sm font-medium rounded-xl transition-all duration-300 shadow-lg shadow-teal-500/30 hover:shadow-teal-500/50 whitespace-nowrap"
         >
           View Profile
         </button>
@@ -414,30 +435,30 @@ function CoachCard({ coach, onViewProfile }: { coach: Coach; onViewProfile: any 
 // Event Card Component
 function EventCard({ event, onJoin }: { event: Event; onJoin: (id: string) => void }) {
   return (
-    <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-4 border border-gray-200 dark:border-gray-800 hover:shadow-lg transition-shadow">
-      <div className="flex items-start gap-4">
-        <div className="w-16 h-16 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-xl flex flex-col items-center justify-center text-white shrink-0">
+    <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-5 border border-gray-200 dark:border-gray-800 hover:shadow-xl hover:scale-[1.02] transition-all duration-300">
+      <div className="flex flex-col sm:flex-row items-start gap-4">
+        <div className="w-16 h-16 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-xl flex flex-col items-center justify-center text-white shrink-0 shadow-lg shadow-teal-500/30">
           <Calendar className="w-6 h-6 mb-1" />
           <div className="text-xs font-medium">
-            {event.date.split('-')[0]}
+            {event.date.split(' ')[0]}
           </div>
         </div>
 
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
+          <h3 className="font-semibold text-gray-900 dark:text-white mb-2 text-lg">
             {event.title}
           </h3>
-          <div className="space-y-1 text-sm text-gray-600 dark:text-gray-400">
+          <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
             <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4" />
-              <span>{event.date} · {event.time}</span>
+              <Clock className="w-4 h-4 shrink-0" />
+              <span className="truncate">{event.date} · {event.time}</span>
             </div>
             <div className="flex items-center gap-2">
-              <MapPin className="w-4 h-4" />
-              <span>{event.location}</span>
+              <MapPin className="w-4 h-4 shrink-0" />
+              <span className="truncate">{event.location}</span>
             </div>
             <div className="flex items-center gap-2">
-              <Users className="w-4 h-4" />
+              <Users className="w-4 h-4 shrink-0" />
               <span>{event.participants}/{event.maxParticipants} joined</span>
             </div>
           </div>
@@ -445,9 +466,9 @@ function EventCard({ event, onJoin }: { event: Event; onJoin: (id: string) => vo
 
         <button 
           onClick={() => onJoin(event._id)}
-          className="px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white text-sm font-medium rounded-lg transition"
+          className="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white text-sm font-medium rounded-xl transition-all duration-300 whitespace-nowrap shadow-lg shadow-teal-500/30 hover:shadow-teal-500/50"
         >
-          Join
+          Join Event
         </button>
       </div>
     </div>
@@ -457,22 +478,22 @@ function EventCard({ event, onJoin }: { event: Event; onJoin: (id: string) => vo
 // Service Card Component
 function ServiceCard({ service, onBook }: { service: Service; onBook: (type: string, item: any) => void }) {
   return (
-    <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-4 border border-gray-200 dark:border-gray-800 hover:shadow-lg transition-shadow">
-      <div className="flex items-center justify-between">
-        <div className="flex-1">
-          <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
+    <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-5 border border-gray-200 dark:border-gray-800 hover:shadow-xl hover:scale-[1.02] transition-all duration-300">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex-1 min-w-0">
+          <h3 className="font-semibold text-gray-900 dark:text-white mb-2 text-lg">
             {service.name}
           </h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 line-clamp-2">
             {service.description}
           </p>
           <p className="text-xs text-gray-500 dark:text-gray-500">
-            {service.provider}
+            by {service.provider}
           </p>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="text-right">
+        <div className="flex items-center gap-4 shrink-0 w-full sm:w-auto">
+          <div className="text-left sm:text-right flex-1 sm:flex-initial">
             <div className="text-2xl font-bold text-gray-900 dark:text-white">
               ${service.price}
             </div>
@@ -480,7 +501,7 @@ function ServiceCard({ service, onBook }: { service: Service; onBook: (type: str
           </div>
           <button 
             onClick={() => onBook('service', service)}
-            className="px-6 py-2.5 bg-teal-500 hover:bg-teal-600 text-white text-sm font-medium rounded-lg transition whitespace-nowrap"
+            className="px-6 py-2.5 bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white text-sm font-medium rounded-xl transition-all duration-300 whitespace-nowrap shadow-lg shadow-teal-500/30 hover:shadow-teal-500/50"
           >
             Book Now
           </button>

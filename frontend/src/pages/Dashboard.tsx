@@ -11,15 +11,11 @@ import {
   XCircle,
   AlertCircle,
   ArrowRight,
-  TrendingUp,
   BookOpen,
   Star,
   Plus,
   Trophy,
-  Globe,
   Award,
-  Target,
-  Zap,
   Sparkles
 } from "lucide-react";
 import dayjs from "dayjs";
@@ -156,142 +152,6 @@ const ALL_SPORTS = [
   { name: "Bowling", category: "Individual Sports", icon: "🎳", popular: false },
   { name: "Billiards/Pool", category: "Individual Sports", icon: "🎱", popular: false },
   { name: "Snooker", category: "Individual Sports", icon: "🎱", popular: false },
-];
-
-// Major Sports Events (World Cup & Olympics level)
-const MAJOR_SPORTS_EVENTS = [
-  {
-    id: 1,
-    name: "FIFA World Cup 2026",
-    sport: "Football",
-    icon: "⚽",
-    date: "June 2026",
-    location: "USA, Canada, Mexico",
-    type: "World Cup",
-    color: "from-blue-600 to-cyan-500",
-    participants: "32 teams",
-  },
-  {
-    id: 2,
-    name: "Summer Olympics 2028",
-    sport: "Multi-Sport",
-    icon: "🏅",
-    date: "July 2028",
-    location: "Los Angeles, USA",
-    type: "Olympics",
-    color: "from-yellow-500 to-orange-500",
-    participants: "206 countries",
-  },
-  {
-    id: 3,
-    name: "ICC Cricket World Cup 2027",
-    sport: "Cricket",
-    icon: "🏏",
-    date: "October 2027",
-    location: "India, Bangladesh, Sri Lanka",
-    type: "World Cup",
-    color: "from-green-600 to-emerald-500",
-    participants: "10 teams",
-  },
-  {
-    id: 4,
-    name: "Winter Olympics 2026",
-    sport: "Winter Sports",
-    icon: "⛷️",
-    date: "February 2026",
-    location: "Milan & Cortina, Italy",
-    type: "Olympics",
-    color: "from-indigo-600 to-purple-500",
-    participants: "92 countries",
-  },
-  {
-    id: 5,
-    name: "Rugby World Cup 2027",
-    sport: "Rugby",
-    icon: "🏉",
-    date: "September 2027",
-    location: "Australia",
-    type: "World Cup",
-    color: "from-red-600 to-pink-500",
-    participants: "20 teams",
-  },
-  {
-    id: 6,
-    name: "FIBA Basketball World Cup 2027",
-    sport: "Basketball",
-    icon: "🏀",
-    date: "August 2027",
-    location: "Qatar",
-    type: "World Cup",
-    color: "from-orange-600 to-red-500",
-    participants: "32 teams",
-  },
-  {
-    id: 7,
-    name: "World Athletics Championships 2027",
-    sport: "Athletics",
-    icon: "🏃",
-    date: "August 2027",
-    location: "Tokyo, Japan",
-    type: "Championship",
-    color: "from-teal-600 to-cyan-500",
-    participants: "200+ countries",
-  },
-  {
-    id: 8,
-    name: "Wimbledon Championships",
-    sport: "Tennis",
-    icon: "🎾",
-    date: "July (Annual)",
-    location: "London, UK",
-    type: "Grand Slam",
-    color: "from-green-500 to-lime-500",
-    participants: "128 players",
-  },
-  {
-    id: 9,
-    name: "World Chess Championship",
-    sport: "Chess",
-    icon: "♟️",
-    date: "November (Annual)",
-    location: "Various",
-    type: "Championship",
-    color: "from-gray-700 to-gray-500",
-    participants: "Top players",
-  },
-  {
-    id: 10,
-    name: "Tour de France",
-    sport: "Cycling",
-    icon: "🚴",
-    date: "July (Annual)",
-    location: "France",
-    type: "Grand Tour",
-    color: "from-yellow-400 to-yellow-600",
-    participants: "176 riders",
-  },
-  {
-    id: 11,
-    name: "World Swimming Championships",
-    sport: "Swimming",
-    icon: "🏊",
-    date: "July 2027",
-    location: "Singapore",
-    type: "World Championship",
-    color: "from-blue-400 to-cyan-400",
-    participants: "180+ countries",
-  },
-  {
-    id: 12,
-    name: "World Gymnastics Championships",
-    sport: "Gymnastics",
-    icon: "🤸",
-    date: "October 2026",
-    location: "Cairo, Egypt",
-    type: "World Championship",
-    color: "from-purple-400 to-pink-400",
-    participants: "90+ countries",
-  },
 ];
 
 type Booking = {
@@ -554,67 +414,122 @@ export default function Dashboard({ token, onNavigate }: any) {
           </div>
         )}
 
-        {/* Major Sports Events Section */}
-        <div className="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-3xl p-8 text-white relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full blur-3xl"></div>
-          
-          <div className="relative z-10">
+        {/* Upcoming Events Section */}
+        {upcomingEvents.length > 0 && (
+          <div className="bg-white dark:bg-[#0f172a] rounded-3xl p-8 border border-gray-200 dark:border-gray-800">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl">
-                  <Globe className="w-6 h-6" />
+                <div className="p-3 bg-gradient-to-br from-slate-600 to-slate-700 dark:from-slate-700 dark:to-slate-800 rounded-xl shadow-lg">
+                  <Calendar className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold">Major Sports Events</h2>
-                  <p className="text-white/80 text-sm">World Cup, Olympics & Championships</p>
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Upcoming Events</h2>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm">Events happening in the next 30 days</p>
                 </div>
               </div>
+              <button
+                onClick={() => setCreateEventModalOpen(true)}
+                className="px-4 py-2 bg-slate-700 hover:bg-slate-800 dark:bg-slate-600 dark:hover:bg-slate-700 text-white font-medium rounded-xl transition-all duration-300 flex items-center gap-2 shadow-lg"
+              >
+                <Plus className="w-4 h-4" />
+                Create Event
+              </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {MAJOR_SPORTS_EVENTS.map((event) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {upcomingEvents.slice(0, 6).map((event) => (
                 <div
-                  key={event.id}
-                  className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105 cursor-pointer group"
+                  key={event._id}
+                  className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900/50 dark:to-gray-800/50 rounded-2xl p-5 border border-gray-200 dark:border-gray-700 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer group"
                 >
                   <div className="flex items-start justify-between mb-3">
-                    <div className={`w-12 h-12 bg-gradient-to-br ${event.color} rounded-xl flex items-center justify-center text-2xl shadow-lg`}>
-                      {event.icon}
+                    <div className="w-12 h-12 bg-gradient-to-br from-slate-600 to-slate-700 dark:from-slate-700 dark:to-slate-800 rounded-xl flex items-center justify-center shadow-lg">
+                      <Calendar className="w-6 h-6 text-white" />
                     </div>
-                    <span className="px-2 py-1 bg-white/20 rounded-lg text-xs font-medium">
-                      {event.type}
-                    </span>
+                    {event.sport && (
+                      <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-medium border border-slate-200 dark:border-slate-700">
+                        {event.sport}
+                      </span>
+                    )}
                   </div>
                   
-                  <h3 className="font-bold text-white mb-2 group-hover:text-yellow-300 transition-colors">
-                    {event.name}
+                  <h3 className="font-bold text-gray-900 dark:text-white mb-3 line-clamp-2 group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors">
+                    {event.title}
                   </h3>
                   
-                  <div className="space-y-1 text-sm text-white/80">
+                  <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
                     <div className="flex items-center gap-2">
-                      <Calendar className="w-3 h-3 shrink-0" />
-                      <span className="truncate">{event.date}</span>
+                      <Clock className="w-4 h-4 shrink-0 text-slate-500" />
+                      <span className="truncate">
+                        {dayjs(event.startDate).format('MMM D, YYYY')}
+                        {event.time && ` at ${event.time}`}
+                      </span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <MapPin className="w-3 h-3 shrink-0" />
-                      <span className="truncate">{event.location}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Users className="w-3 h-3 shrink-0" />
-                      <span className="truncate">{event.participants}</span>
-                    </div>
+                    {event.location?.city && (
+                      <div className="flex items-center gap-2">
+                        <MapPin className="w-4 h-4 shrink-0 text-slate-500" />
+                        <span className="truncate">
+                          {event.location.city}
+                          {event.location.state && `, ${event.location.state}`}
+                        </span>
+                      </div>
+                    )}
+                    {event.capacity && (
+                      <div className="flex items-center gap-2">
+                        <Users className="w-4 h-4 shrink-0 text-slate-500" />
+                        <span className="truncate">
+                          {event.capacity.current || 0} / {event.capacity.max} participants
+                        </span>
+                      </div>
+                    )}
                   </div>
 
-                  <div className="mt-3 pt-3 border-t border-white/20 flex items-center gap-2 text-xs">
-                    <Trophy className="w-3 h-3" />
-                    <span className="font-medium">{event.sport}</span>
+                  <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                    <span className="text-xs text-gray-500 dark:text-gray-500">
+                      {dayjs(event.startDate).fromNow()}
+                    </span>
+                    <ArrowRight className="w-4 h-4 text-slate-500 group-hover:text-slate-700 dark:group-hover:text-slate-300 group-hover:translate-x-1 transition-all" />
                   </div>
                 </div>
               ))}
             </div>
+
+            {upcomingEvents.length > 6 && (
+              <div className="mt-6 text-center">
+                <button
+                  className="px-6 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium rounded-xl transition-all duration-300 inline-flex items-center gap-2"
+                >
+                  View All {upcomingEvents.length} Events
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
           </div>
-        </div>
+        )}
+
+        {/* Empty State for Events */}
+        {upcomingEvents.length === 0 && (
+          <div className="bg-white dark:bg-[#0f172a] rounded-3xl p-12 border border-gray-200 dark:border-gray-800 text-center">
+            <div className="max-w-md mx-auto">
+              <div className="w-20 h-20 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <Calendar className="w-10 h-10 text-slate-500" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                No Upcoming Events
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">
+                There are no events scheduled for the next 30 days. Create one to get started!
+              </p>
+              <button
+                onClick={() => setCreateEventModalOpen(true)}
+                className="px-6 py-3 bg-slate-700 hover:bg-slate-800 dark:bg-slate-600 dark:hover:bg-slate-700 text-white font-medium rounded-xl transition-all duration-300 inline-flex items-center gap-2 shadow-lg"
+              >
+                <Plus className="w-4 h-4" />
+                Create Your First Event
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* All Sports Categories Section */}
         <div className="bg-white dark:bg-[#0f172a] rounded-3xl p-8 border border-gray-200 dark:border-gray-800">

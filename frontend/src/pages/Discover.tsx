@@ -275,23 +275,25 @@ export default function Discover({ token, onViewProfile }: any) {
           </div>
         )}
 
-        {/* Sports Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-          {displaySports.map((sport) => (
-            <div
-              key={sport.name}
-              onClick={() => setSelectedSport(sport.name)}
-              className="cursor-pointer group"
-            >
-              <div className="bg-gradient-to-br from-slate-800/80 to-slate-700/80 backdrop-blur rounded-2xl p-4 border border-slate-600 hover:border-slate-400 transition-all duration-300 hover:scale-105 text-center min-h-[120px] flex flex-col items-center justify-center">
-                <div className="text-3xl mb-2">{sport.icon}</div>
-                <h3 className="font-semibold text-sm text-slate-200 group-hover:text-white transition-colors line-clamp-2 px-1">
-                  {sport.name}
-                </h3>
+        {/* Sports Grid - only show when expanded, category selected, or searching */}
+        {(showAllSports || searchQuery.trim()) && (
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {displaySports.map((sport) => (
+              <div
+                key={sport.name}
+                onClick={() => setSelectedSport(sport.name)}
+                className="cursor-pointer group"
+              >
+                <div className="bg-gradient-to-br from-slate-800/80 to-slate-700/80 backdrop-blur rounded-2xl p-4 border border-slate-600 hover:border-slate-400 transition-all duration-300 hover:scale-105 text-center min-h-[120px] flex flex-col items-center justify-center">
+                  <div className="text-3xl mb-2">{sport.icon}</div>
+                  <h3 className="font-semibold text-sm text-slate-200 group-hover:text-white transition-colors line-clamp-2 px-1">
+                    {sport.name}
+                  </h3>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Events Section */}

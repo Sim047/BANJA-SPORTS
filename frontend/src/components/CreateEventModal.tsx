@@ -5,11 +5,44 @@ import { X, Calendar, MapPin, Users, DollarSign, Clock, Trophy } from "lucide-re
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
+// Comprehensive Sports List (matching Dashboard)
 const SPORTS = [
-  "Football", "Basketball", "Tennis", "Swimming", "Volleyball",
-  "Hockey", "Baseball", "Cricket", "Rugby", "Golf",
-  "Badminton", "Table Tennis", "Boxing", "Athletics", "Cycling",
-  "Yoga", "Martial Arts", "Gymnastics", "Skiing", "Skating"
+  "Football/Soccer", "Basketball", "Volleyball", "Tennis", "Swimming",
+  "Athletics/Track & Field", "Gymnastics", "Boxing", "Cycling", "Baseball",
+  "Cricket", "Rugby", "Hockey (Ice)", "Hockey (Field)", "Golf",
+  "Wrestling", "Judo", "Karate", "Taekwondo", "Kung Fu",
+  "Mixed Martial Arts (MMA)", "Kickboxing", "Muay Thai", "Fencing",
+  "Badminton", "Table Tennis/Ping Pong", "Squash", "Racquetball", "Pickleball",
+  "Diving", "Water Polo", "Synchronized Swimming", "Surfing", "Rowing", "Canoeing/Kayaking", "Sailing",
+  "Skiing (Alpine)", "Skiing (Cross-Country)", "Snowboarding", "Ice Skating", "Figure Skating", "Speed Skating", "Curling", "Bobsled", "Luge",
+  "Yoga", "Pilates", "CrossFit", "Aerobics", "Zumba", "Bodybuilding", "Powerlifting", "Weightlifting",
+  "Skateboarding", "BMX", "Rock Climbing", "Parkour", "Bungee Jumping", "Skydiving", "Paragliding",
+  "Archery", "Shooting", "Darts",
+  "Formula 1 Racing", "MotoGP", "NASCAR", "Rally Racing", "Karting",
+  "Horse Racing", "Show Jumping", "Dressage", "Polo",
+  "American Football", "Australian Rules Football", "Handball", "Lacrosse", "Netball", "Softball",
+  "Chess", "Checkers", "Go (Baduk/Weiqi)", "Poker", "Bridge", "Esports/Gaming",
+  "Ballroom Dancing", "Hip Hop Dance", "Ballet", "Breakdancing/Breaking",
+  "Triathlon", "Marathon Running", "Decathlon", "Pentathlon", "Bowling", "Billiards/Pool", "Snooker"
+].sort();
+
+const CURRENCIES = [
+  { code: "USD", symbol: "$", name: "US Dollar" },
+  { code: "EUR", symbol: "€", name: "Euro" },
+  { code: "GBP", symbol: "£", name: "British Pound" },
+  { code: "KES", symbol: "KSh", name: "Kenyan Shilling" },
+  { code: "NGN", symbol: "₦", name: "Nigerian Naira" },
+  { code: "ZAR", symbol: "R", name: "South African Rand" },
+  { code: "GHS", symbol: "GH₵", name: "Ghanaian Cedi" },
+  { code: "TZS", symbol: "TSh", name: "Tanzanian Shilling" },
+  { code: "UGX", symbol: "USh", name: "Ugandan Shilling" },
+  { code: "INR", symbol: "₹", name: "Indian Rupee" },
+  { code: "JPY", symbol: "¥", name: "Japanese Yen" },
+  { code: "CNY", symbol: "¥", name: "Chinese Yuan" },
+  { code: "AUD", symbol: "A$", name: "Australian Dollar" },
+  { code: "CAD", symbol: "C$", name: "Canadian Dollar" },
+  { code: "BRL", symbol: "R$", name: "Brazilian Real" },
+  { code: "MXN", symbol: "MX$", name: "Mexican Peso" },
 ];
 
 const EVENT_TYPES = [
@@ -31,7 +64,7 @@ export default function CreateEventModal({ isOpen, onClose, token, onSuccess }: 
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    sport: "Football",
+    sport: "Football/Soccer",
     eventType: "tournament",
     startDate: "",
     endDate: "",
@@ -44,6 +77,7 @@ export default function CreateEventModal({ isOpen, onClose, token, onSuccess }: 
     maxCapacity: 20,
     pricingType: "free",
     amount: 0,
+    currency: "USD",
     skillLevel: "all",
   });
   const [loading, setLoading] = useState(false);
@@ -77,7 +111,7 @@ export default function CreateEventModal({ isOpen, onClose, token, onSuccess }: 
         pricing: {
           type: formData.pricingType,
           amount: formData.pricingType === "paid" ? Number(formData.amount) : 0,
-          currency: "USD",
+          currency: formData.pricingType === "paid" ? formData.currency : "USD",
         },
         skillLevel: formData.skillLevel,
         status: "published",
@@ -94,7 +128,7 @@ export default function CreateEventModal({ isOpen, onClose, token, onSuccess }: 
       setFormData({
         title: "",
         description: "",
-        sport: "Football",
+        sport: "Football/Soccer",
         eventType: "tournament",
         startDate: "",
         endDate: "",
@@ -107,6 +141,7 @@ export default function CreateEventModal({ isOpen, onClose, token, onSuccess }: 
         maxCapacity: 20,
         pricingType: "free",
         amount: 0,
+        currency: "USD",
         skillLevel: "all",
       });
     } catch (err: any) {
@@ -390,20 +425,39 @@ export default function CreateEventModal({ isOpen, onClose, token, onSuccess }: 
               {formData.pricingType === "paid" && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Price (USD)
+                    Currency
                   </label>
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={formData.amount}
-                    onChange={(e) => setFormData({ ...formData, amount: Number(e.target.value) })}
+                  <select
+                    value={formData.currency}
+                    onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
                     className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none text-gray-900 dark:text-white"
-                    placeholder="0.00"
-                  />
+                  >
+                    {CURRENCIES.map((curr) => (
+                      <option key={curr.code} value={curr.code}>
+                        {curr.symbol} {curr.code} - {curr.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               )}
             </div>
+
+            {formData.pricingType === "paid" && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Price ({CURRENCIES.find(c => c.code === formData.currency)?.symbol || '$'})
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={formData.amount}
+                  onChange={(e) => setFormData({ ...formData, amount: Number(e.target.value) })}
+                  className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none text-gray-900 dark:text-white"
+                  placeholder="0.00"
+                />
+              </div>
+            )}
           </div>
 
           {/* Buttons */}

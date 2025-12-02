@@ -317,7 +317,15 @@ export default function Discover({ token, onViewProfile }: any) {
                   </div>
                   <div className="flex items-center text-sm text-slate-300 mb-3">
                     <MapPin className="w-4 h-4 mr-2 text-slate-400" />
-                    {event.location}
+                    {event.location?.city ? (
+                      <span>
+                        {event.location.name && `${event.location.name}, `}
+                        {event.location.city}
+                        {event.location.state && `, ${event.location.state}`}
+                      </span>
+                    ) : (
+                      <span className="text-slate-500">Location TBD</span>
+                    )}
                   </div>
                   <p className="text-slate-300 text-sm mb-4 line-clamp-2">
                     {event.description}
@@ -386,7 +394,15 @@ export default function Discover({ token, onViewProfile }: any) {
                   </div>
                   <div className="flex items-center text-sm text-slate-300 mb-3">
                     <MapPin className="w-4 h-4 mr-2 text-slate-400" />
-                    {event.location}
+                    {event.location?.city ? (
+                      <span>
+                        {event.location.name && `${event.location.name}, `}
+                        {event.location.city}
+                        {event.location.state && `, ${event.location.state}`}
+                      </span>
+                    ) : (
+                      <span className="text-slate-500">Location TBD</span>
+                    )}
                   </div>
                   <p className="text-slate-300 text-sm mb-4 line-clamp-2">
                     {event.description}

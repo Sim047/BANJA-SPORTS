@@ -83,6 +83,10 @@ const eventSchema = new mongoose.Schema(
         type: String,
         default: "USD",
       },
+      paymentInstructions: {
+        type: String,
+        maxlength: 1000,
+      },
     },
     skillLevel: {
       type: String,

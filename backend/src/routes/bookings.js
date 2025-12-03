@@ -118,6 +118,8 @@ router.post("/", auth, async (req, res) => {
       scheduledTime,
       location,
       notes,
+      transactionCode,
+      transactionDetails,
     } = req.body;
 
     let bookingData = {
@@ -127,6 +129,7 @@ router.post("/", auth, async (req, res) => {
       scheduledTime,
       location,
       clientNotes: notes,
+      status: "payment-pending",
     };
 
     // Handle different booking types
@@ -141,6 +144,8 @@ router.post("/", auth, async (req, res) => {
       bookingData.pricing = {
         amount: service.pricing.amount,
         currency: service.pricing.currency,
+        transactionCode,
+        transactionDetails,
       };
       bookingData.duration = service.duration;
 
@@ -158,10 +163,17 @@ router.post("/", auth, async (req, res) => {
       bookingData.pricing = {
         amount: event.pricing.amount,
         currency: event.pricing.currency,
+        transactionCode,
+        transactionDetails,
+        paymentInstructions: event.pricing.paymentInstructions,
       };
     } else if (bookingType === "coach-session") {
       bookingData.provider = providerId;
-      bookingData.pricing = req.body.pricing;
+      bookingData.pricing = {
+        ...req.body.pricing,
+        transactionCode,
+        transactionDetails,
+      };
       bookingData.duration = req.body.duration;
     }
 
@@ -252,4 +264,68 @@ router.post("/:id/rate", auth, async (req, res) => {
   }
 });
 
+// POST verify payment and approve booking (provider only)
+router.post("/:id/verify-payment", auth, async (req, res) => {
+  try {
+    const booking = await Booking.findById(req.params.id)
+      .populate("client", "username email avatar")
+      .populate("provider", "username email avatar")
+      .populate("event", "title sport");
+
+    if (!booking) {
+      return res.status(404).json({ error: "Booking not found" });
+    }
+
+    // Only the provider (event organizer) can verify payment
+    if (booking.provider._id.toString() !== req.user.id) {
+      return res.status(403).json({ error: "Only the event organizer can verify payment" });
+    }
+
+    booking.paymentVerified = true;
+    booking.verifiedAt = new Date();
+    booking.verifiedBy = req.user.id;
+    booking.status = "confirmed";
+
+    await booking.save();
+
+    res.json(booking);
+  } catch (err) {
+    console.error("Verify payment error:", err);
+    res.status(500).json({ error: "Failed to verify payment" });
+  }
+});
+
+// POST reject booking payment (provider only)
+router.post("/:id/reject-payment", auth, async (req, res) => {
+  try {
+    const { reason } = req.body;
+    const booking = await Booking.findById(req.params.id)
+      .populate("client", "username email avatar")
+      .populate("provider", "username email avatar")
+      .populate("event", "title sport");
+
+    if (!booking) {
+      return res.status(404).json({ error: "Booking not found" });
+    }
+
+    // Only the provider can reject payment
+    if (booking.provider._id.toString() !== req.user.id) {
+      return res.status(403).json({ error: "Only the event organizer can reject payment" });
+    }
+
+    booking.status = "cancelled";
+    booking.cancelledBy = req.user.id;
+    booking.cancelledAt = new Date();
+    booking.cancellationReason = reason || "Payment verification failed";
+
+    await booking.save();
+
+    res.json(booking);
+  } catch (err) {
+    console.error("Reject payment error:", err);
+    res.status(500).json({ error: "Failed to reject payment" });
+  }
+});
+
 export default router;
+

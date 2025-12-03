@@ -39,6 +39,12 @@ const UserSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
+
+    favoriteSports: [
+      {
+        type: String,
+      },
+    ],
   },
   { timestamps: true }
 );

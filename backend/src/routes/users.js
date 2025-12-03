@@ -96,7 +96,7 @@ router.get("/all", auth, async (req, res) => {
 router.get("/me", auth, async (req, res) => {
   try {
     const me = await User.findById(req.user.id)
-      .select("username email avatar followers following bio about location")
+      .select("username email avatar followers following bio about location favoriteSports")
       .populate("followers", "username avatar email")
       .populate("following", "username avatar email");
 
@@ -251,4 +251,64 @@ router.post("/conversations/start", auth, async (req, res) => {
   }
 });
 
+/* ---------------------------------------------
+   FAVORITE SPORTS ROUTES
+--------------------------------------------- */
+// Add a sport to favorites
+router.post("/favorite-sports", auth, async (req, res) => {
+  try {
+    const { sport } = req.body;
+    if (!sport) return res.status(400).json({ message: "Sport name required" });
+
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    if (!user.favoriteSports) user.favoriteSports = [];
+    
+    if (!user.favoriteSports.includes(sport)) {
+      user.favoriteSports.push(sport);
+      await user.save();
+    }
+
+    res.json({ favoriteSports: user.favoriteSports });
+  } catch (err) {
+    console.error("POST /api/users/favorite-sports error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Remove a sport from favorites
+router.delete("/favorite-sports/:sport", auth, async (req, res) => {
+  try {
+    const { sport } = req.params;
+    const user = await User.findById(req.user.id);
+    
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    if (!user.favoriteSports) user.favoriteSports = [];
+    
+    user.favoriteSports = user.favoriteSports.filter(s => s !== sport);
+    await user.save();
+
+    res.json({ favoriteSports: user.favoriteSports });
+  } catch (err) {
+    console.error("DELETE /api/users/favorite-sports error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Get user's favorite sports
+router.get("/favorite-sports/list", auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("favoriteSports");
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    res.json({ favoriteSports: user.favoriteSports || [] });
+  } catch (err) {
+    console.error("GET /api/users/favorite-sports/list error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 export default router;
+

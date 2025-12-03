@@ -78,6 +78,7 @@ export default function CreateEventModal({ isOpen, onClose, token, onSuccess, ed
     pricingType: "free",
     amount: 0,
     currency: "USD",
+    paymentInstructions: "",
     skillLevel: "all",
   });
   const [loading, setLoading] = useState(false);
@@ -103,6 +104,7 @@ export default function CreateEventModal({ isOpen, onClose, token, onSuccess, ed
         pricingType: editingEvent.pricing?.type || "free",
         amount: editingEvent.pricing?.amount || 0,
         currency: editingEvent.pricing?.currency || "USD",
+        paymentInstructions: editingEvent.pricing?.paymentInstructions || "",
         skillLevel: editingEvent.skillLevel || "all",
       });
     } else if (!editingEvent && isOpen) {
@@ -124,6 +126,7 @@ export default function CreateEventModal({ isOpen, onClose, token, onSuccess, ed
         pricingType: "free",
         amount: 0,
         currency: "USD",
+        paymentInstructions: "",
         skillLevel: "all",
       });
     }
@@ -158,6 +161,7 @@ export default function CreateEventModal({ isOpen, onClose, token, onSuccess, ed
           type: formData.pricingType,
           amount: formData.pricingType === "paid" ? Number(formData.amount) : 0,
           currency: formData.pricingType === "paid" ? formData.currency : "USD",
+          paymentInstructions: formData.pricingType === "paid" ? formData.paymentInstructions : "",
         },
         skillLevel: formData.skillLevel,
         status: "published",
@@ -514,6 +518,24 @@ export default function CreateEventModal({ isOpen, onClose, token, onSuccess, ed
                   className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none text-gray-900 dark:text-white"
                   placeholder="0.00"
                 />
+              </div>
+            )}
+
+            {formData.pricingType === "paid" && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Payment Instructions
+                </label>
+                <textarea
+                  value={formData.paymentInstructions}
+                  onChange={(e) => setFormData({ ...formData, paymentInstructions: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none text-gray-900 dark:text-white resize-none"
+                  rows={3}
+                  placeholder="E.g., Send M-Pesa payment to 0712345678, Account Name: John Doe. Include your name in the description."
+                />
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  Provide clear instructions for how participants should pay (bank transfer, mobile money, etc.)
+                </p>
               </div>
             )}
           </div>

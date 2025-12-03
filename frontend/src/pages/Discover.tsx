@@ -12,7 +12,8 @@ import {
   Award,
   Sparkles,
   DollarSign,
-  ArrowRight
+  ArrowRight,
+  Star
 } from "lucide-react";
 
 dayjs.extend(relativeTime);
@@ -148,10 +149,43 @@ export default function Discover({ token, onViewProfile }: any) {
   const [loading, setLoading] = useState(true);
   const [showAllSports, setShowAllSports] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [favoriteSports, setFavoriteSports] = useState<string[]>([]);
 
   useEffect(() => {
     loadEvents();
+    loadFavoriteSports();
   }, [token, selectedSport]);
+
+  async function loadFavoriteSports() {
+    if (!token) return;
+    try {
+      const res = await axios.get(`${API}/api/users/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setFavoriteSports(res.data.favoriteSports || []);
+    } catch (err) {
+      console.error("Error loading favorite sports:", err);
+    }
+  }
+
+  async function toggleFavoriteSport(sportName: string) {
+    try {
+      if (favoriteSports.includes(sportName)) {
+        await axios.delete(`${API}/api/users/favorite-sports/${encodeURIComponent(sportName)}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setFavoriteSports(favoriteSports.filter(s => s !== sportName));
+      } else {
+        await axios.post(`${API}/api/users/favorite-sports`, 
+          { sport: sportName },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setFavoriteSports([...favoriteSports, sportName]);
+      }
+    } catch (err) {
+      console.error("Error toggling favorite sport:", err);
+    }
+  }
 
   async function loadEvents() {
     if (!token) return;
@@ -281,15 +315,29 @@ export default function Discover({ token, onViewProfile }: any) {
             {displaySports.map((sport) => (
               <div
                 key={sport.name}
-                onClick={() => setSelectedSport(sport.name)}
-                className="cursor-pointer group"
+                className="cursor-pointer group relative"
               >
-                <div className="bg-gradient-to-br from-slate-800/80 to-slate-700/80 backdrop-blur rounded-2xl p-4 border border-slate-600 hover:border-slate-400 transition-all duration-300 hover:scale-105 text-center min-h-[120px] flex flex-col items-center justify-center">
+                <div 
+                  onClick={() => setSelectedSport(sport.name)}
+                  className="bg-gradient-to-br from-slate-800/80 to-slate-700/80 backdrop-blur rounded-2xl p-4 border border-slate-600 hover:border-slate-400 transition-all duration-300 hover:scale-105 text-center min-h-[120px] flex flex-col items-center justify-center"
+                >
                   <div className="text-3xl mb-2">{sport.icon}</div>
                   <h3 className="font-semibold text-sm text-slate-200 group-hover:text-white transition-colors line-clamp-2 px-1">
                     {sport.name}
                   </h3>
                 </div>
+                {/* Favorite Star Button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleFavoriteSport(sport.name);
+                  }}
+                  className="absolute top-2 right-2 p-1.5 rounded-full bg-slate-900/80 hover:bg-slate-800 transition-all z-10"
+                >
+                  <Star 
+                    className={`w-4 h-4 ${favoriteSports.includes(sport.name) ? 'fill-yellow-400 text-yellow-400' : 'text-slate-400'}`}
+                  />
+                </button>
               </div>
             ))}
           </div>
@@ -324,6 +372,18 @@ export default function Discover({ token, onViewProfile }: any) {
                     <h3 className="text-xl font-bold text-white">{event.title}</h3>
                     <Award className="w-6 h-6 text-slate-400" />
                   </div>
+                  
+                  {/* Organizer Info */}
+                  {event.organizer && (
+                    <div 
+                      onClick={() => onViewProfile && onViewProfile(event.organizer._id)}
+                      className="flex items-center text-sm text-slate-400 mb-3 cursor-pointer hover:text-slate-200 transition-colors"
+                    >
+                      <Users className="w-4 h-4 mr-1" />
+                      <span>Organized by <span className="font-semibold">{event.organizer.username}</span></span>
+                    </div>
+                  )}
+                  
                   <div className="flex items-center text-sm text-slate-300 mb-2">
                     <Calendar className="w-4 h-4 mr-2 text-slate-400" />
                     {dayjs(event.startDate).format("MMM D, YYYY • h:mm A")}
@@ -401,6 +461,18 @@ export default function Discover({ token, onViewProfile }: any) {
                     </div>
                     <Award className="w-6 h-6 text-slate-400" />
                   </div>
+                  
+                  {/* Organizer Info */}
+                  {event.organizer && (
+                    <div 
+                      onClick={() => onViewProfile && onViewProfile(event.organizer._id)}
+                      className="flex items-center text-sm text-slate-400 mb-3 mt-2 cursor-pointer hover:text-slate-200 transition-colors"
+                    >
+                      <Users className="w-4 h-4 mr-1" />
+                      <span>Organized by <span className="font-semibold">{event.organizer.username}</span></span>
+                    </div>
+                  )}
+                  
                   <div className="flex items-center text-sm text-slate-300 mb-2 mt-3">
                     <Calendar className="w-4 h-4 mr-2 text-slate-400" />
                     {dayjs(event.startDate).format("MMM D, YYYY • h:mm A")}

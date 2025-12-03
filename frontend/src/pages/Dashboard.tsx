@@ -15,6 +15,7 @@ import {
   Plus,
   Sparkles,
   Trophy,
+  Star,
 } from "lucide-react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";

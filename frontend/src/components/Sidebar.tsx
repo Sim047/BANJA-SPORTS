@@ -44,8 +44,11 @@ export default function Sidebar({ token, onNavigate }: SidebarProps) {
       const user = res.data;
       setFollowers(Array.isArray(user.followers) ? user.followers.length : 0);
       setFollowing(Array.isArray(user.following) ? user.following.length : 0);
-    } catch (err) {
-      console.error("Sidebar stats error:", err);
+    } catch (err: any) {
+      // Silently handle error - backend may not be deployed yet
+      if (err?.response?.status !== 404) {
+        console.error("Sidebar stats error:", err);
+      }
       setError(true);
       // Set defaults on error
       setFollowers(0);

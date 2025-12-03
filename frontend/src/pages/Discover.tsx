@@ -20,7 +20,7 @@ dayjs.extend(relativeTime);
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
-// Comprehensive Sports List (matching Dashboard)
+// Comprehensive Sports List
 const ALL_SPORTS = [
   // Olympic Sports
   { name: "Football/Soccer", category: "Team Sports", icon: "⚽", popular: true },

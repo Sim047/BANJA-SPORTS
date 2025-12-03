@@ -106,6 +106,27 @@ router.get("/:id", auth, async (req, res) => {
   }
 });
 
+// GET pending approval requests (for coaches/providers)
+router.get("/pending-approvals/list", auth, async (req, res) => {
+  try {
+    const pendingBookings = await Booking.find({
+      provider: req.user.id,
+      status: "pending-approval",
+      approvalStatus: "pending",
+    })
+      .populate("client", "username email avatar")
+      .populate("provider", "username email avatar")
+      .populate("service")
+      .populate("event")
+      .sort({ createdAt: -1 });
+
+    res.json({ bookings: pendingBookings, count: pendingBookings.length });
+  } catch (err) {
+    console.error("Get pending approvals error:", err);
+    res.status(500).json({ error: "Failed to fetch pending approvals" });
+  }
+});
+
 // POST create booking
 router.post("/", auth, async (req, res) => {
   try {
@@ -167,6 +188,9 @@ router.post("/", auth, async (req, res) => {
         transactionDetails,
         paymentInstructions: event.pricing.paymentInstructions,
       };
+      // Event bookings require coach approval
+      bookingData.status = "pending-approval";
+      bookingData.approvalStatus = "pending";
     } else if (bookingType === "coach-session") {
       bookingData.provider = providerId;
       bookingData.pricing = {
@@ -224,6 +248,46 @@ router.put("/:id/status", auth, async (req, res) => {
   } catch (err) {
     console.error("Update booking status error:", err);
     res.status(500).json({ error: "Failed to update booking status" });
+  }
+});
+
+// POST approve/reject booking (for coaches/providers)
+router.post("/:id/approve", auth, async (req, res) => {
+  try {
+    const { approved, rejectionReason } = req.body;
+
+    const booking = await Booking.findById(req.params.id);
+
+    if (!booking) {
+      return res.status(404).json({ error: "Booking not found" });
+    }
+
+    // Check if user is the provider
+    if (booking.provider.toString() !== req.user.id) {
+      return res.status(403).json({ error: "Only the provider can approve/reject bookings" });
+    }
+
+    if (approved) {
+      booking.approvalStatus = "approved";
+      booking.approvedAt = new Date();
+      booking.approvedBy = req.user.id;
+      booking.status = "payment-pending"; // Move to payment verification
+    } else {
+      booking.approvalStatus = "rejected";
+      booking.status = "rejected";
+      booking.rejectionReason = rejectionReason || "No reason provided";
+    }
+
+    await booking.save();
+    await booking.populate("client provider service event");
+
+    // TODO: Send notification to client about approval/rejection
+    // Could emit socket event or send email here
+
+    res.json(booking);
+  } catch (err) {
+    console.error("Approve/reject booking error:", err);
+    res.status(500).json({ error: "Failed to process approval" });
   }
 });
 

@@ -63,7 +63,7 @@ const bookingSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "payment-pending", "confirmed", "cancelled", "completed", "no-show"],
+      enum: ["pending", "pending-approval", "payment-pending", "confirmed", "cancelled", "completed", "no-show", "rejected"],
       default: "payment-pending",
     },
     paymentVerified: {
@@ -75,6 +75,17 @@ const bookingSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
+    approvalStatus: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: "pending",
+    },
+    approvedAt: Date,
+    approvedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+    rejectionReason: String,
     notes: String,
     clientNotes: String,
     cancellationReason: String,

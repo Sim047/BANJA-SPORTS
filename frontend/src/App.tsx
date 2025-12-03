@@ -20,6 +20,7 @@ import Discover from "./pages/Discover";
 import Dashboard from "./pages/Dashboard";
 import MyEvents from "./pages/MyEvents";
 import Avatar from "./components/Avatar";
+import Sidebar from "./components/Sidebar";
 import logo from "./assets/logo.png";
 
 dayjs.extend(localizedFormat);
@@ -114,14 +115,6 @@ export default function App() {
     useState<number | null>(null);
   const [profileIsFollowed, setProfileIsFollowed] =
     useState<boolean>(false);
-
-  // SIDEBAR COUNTS
-  const [sidebarFollowers, setSidebarFollowers] = useState<number | null>(
-    null
-  );
-  const [sidebarFollowing, setSidebarFollowing] = useState<number | null>(
-    null
-  );
 
   // DM collapse
   const [dmOpen, setDmOpen] = useState<boolean>(true);
@@ -342,27 +335,6 @@ const myStatus =
         headers: { Authorization: "Bearer " + token }
       })
       .then((r) => setConversations(r.data || []))
-      .catch(() => {});
-  }, [token]);
-
-  // LOAD SIDEBAR FOLLOWERS / FOLLOWING ---------------------------
-  useEffect(() => {
-    if (!token) return;
-
-    axios
-      .get(API + "/api/users/me", {
-        headers: { Authorization: "Bearer " + token }
-      })
-      .then((res) => {
-        const u = res.data;
-
-        setSidebarFollowers(
-          Array.isArray(u.followers) ? u.followers.length : 0
-        );
-        setSidebarFollowing(
-          Array.isArray(u.following) ? u.following.length : 0
-        );
-      })
       .catch(() => {});
   }, [token]);
 
@@ -938,33 +910,6 @@ const myStatus =
             >
               📋 All Users
             </button>
-
-            <div className="mt-3 text-sm">
-              <div className="flex justify-between">
-                <span className="opacity-70">Followers:</span>
-                <span className="font-semibold">{sidebarFollowers ?? "—"}</span>
-              </div>
-
-              <div className="flex justify-between mt-1">
-                <span className="opacity-70">Following:</span>
-                <span className="font-semibold">{sidebarFollowing ?? "—"}</span>
-              </div>
-
-              <div className="mt-2 flex gap-2">
-                <button
-                  className="px-2 py-1 border rounded-md text-sm"
-                  onClick={() => setView("followers")}
-                >
-                  View Followers
-                </button>
-                <button
-                  className="px-2 py-1 border rounded-md text-sm"
-                  onClick={() => setView("following")}
-                >
-                  View Following
-                </button>
-              </div>
-            </div>
           </div>
 
           {/* AVATAR UPLOAD */}
@@ -1488,6 +1433,9 @@ const myStatus =
           </div>
         </div>
       )}
+
+      {/* Right Sidebar */}
+      {token && <Sidebar token={token} onNavigate={(v) => setView(v)} />}
     </div>
   );
 }

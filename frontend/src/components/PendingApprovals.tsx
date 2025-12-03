@@ -63,6 +63,7 @@ export default function PendingApprovals({ token }: { token: string }) {
       const res = await axios.get(`${API}/api/bookings/pending-approvals/list`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      console.log("Pending approvals response:", res.data);
       setBookings(res.data.bookings || []);
     } catch (err: any) {
       console.error("Load pending approvals error:", err);
@@ -100,13 +101,50 @@ export default function PendingApprovals({ token }: { token: string }) {
       <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
         <div className="flex items-center justify-center py-8">
           <RefreshCw className="w-6 h-6 text-gray-400 animate-spin" />
+          <span className="ml-2 text-gray-600 dark:text-gray-400">Checking for pending approvals...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
+        <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400">
+          <p className="font-medium">Error loading pending approvals</p>
+          <p className="text-sm mt-1">{error}</p>
+          <button
+            onClick={loadPendingApprovals}
+            className="mt-2 text-sm underline hover:no-underline"
+          >
+            Try again
+          </button>
         </div>
       </div>
     );
   }
 
   if (bookings.length === 0) {
-    return null; // Don't show component if no pending approvals
+    // Show a collapsed/minimal state instead of hiding completely
+    return (
+      <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/10 dark:to-emerald-900/10 rounded-2xl p-4 border border-green-200 dark:border-green-800">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
+            <span className="text-sm text-green-800 dark:text-green-300 font-medium">
+              No pending approvals - all caught up! ✓
+            </span>
+          </div>
+          <button
+            onClick={loadPendingApprovals}
+            className="p-1 hover:bg-green-100 dark:hover:bg-green-900/30 rounded transition-colors"
+            title="Refresh"
+          >
+            <RefreshCw className="w-4 h-4 text-green-600 dark:text-green-400" />
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (

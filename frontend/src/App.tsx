@@ -1381,7 +1381,8 @@ function onMyStatusUpdated(newStatus: any) {
 
               <div className="relative flex items-end">
                 <textarea
-                  className="input w-full p-3 pr-28 rounded-2xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 border border-slate-300 dark:border-slate-600 resize-none overflow-hidden min-h-[48px] max-h-[200px]"
+                  className="input w-full p-3 pr-[120px] rounded-2xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 border border-slate-300 dark:border-slate-600 resize-none overflow-auto min-h-[48px] max-h-[200px]"
+                  style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}
                   value={text}
                   onChange={onComposerChange}
                   onKeyDown={handleKeyPress}
@@ -1393,7 +1394,7 @@ function onMyStatusUpdated(newStatus: any) {
                     e.target.style.height = Math.min(e.target.scrollHeight, 200) + 'px';
                   }}
                 />
-                <div className="absolute right-2 bottom-2 flex items-center gap-1">
+                <div className="absolute right-2 bottom-2 flex items-center gap-1 bg-white dark:bg-slate-800 rounded-full pl-2">
                   {/* Image Button with Icon */}
                   <label className="cursor-pointer p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
                     <svg

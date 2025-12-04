@@ -9,55 +9,47 @@ export const AuralinkLogo = ({ className = "w-16 h-16" }: { className?: string }
     >
       <defs>
         <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#06b6d4" />
-          <stop offset="50%" stopColor="#3b82f6" />
-          <stop offset="100%" stopColor="#8b5cf6" />
+          <stop offset="0%" stopColor="#22d3ee" />
+          <stop offset="50%" stopColor="#6366f1" />
+          <stop offset="100%" stopColor="#a855f7" />
         </linearGradient>
       </defs>
       
-      {/* Outer circle */}
+      {/* Outer ring */}
       <circle 
         cx="100" 
         cy="100" 
-        r="90" 
+        r="85" 
         stroke="url(#logoGradient)" 
-        strokeWidth="8" 
+        strokeWidth="12" 
         fill="none"
       />
       
-      {/* Middle circle */}
+      {/* Middle ring */}
       <circle 
         cx="100" 
         cy="100" 
-        r="70" 
+        r="60" 
         stroke="url(#logoGradient)" 
-        strokeWidth="8" 
+        strokeWidth="12" 
         fill="none"
       />
       
-      {/* Inner circle */}
+      {/* Inner ring */}
       <circle 
         cx="100" 
         cy="100" 
-        r="50" 
+        r="35" 
         stroke="url(#logoGradient)" 
-        strokeWidth="8" 
+        strokeWidth="12" 
         fill="none"
       />
       
-      {/* Center circle (@ center dot) */}
-      <circle 
-        cx="100" 
-        cy="100" 
-        r="30" 
-        fill="url(#logoGradient)"
-      />
-      
-      {/* @ tail */}
+      {/* @ symbol tail extending from inner circle */}
       <path 
-        d="M 100 70 Q 140 70 140 100 Q 140 130 100 130 Q 60 130 60 100 Q 60 70 100 70 M 140 100 L 140 140 Q 140 160 120 160" 
+        d="M 140 100 L 140 135 Q 140 155 115 155" 
         stroke="url(#logoGradient)" 
-        strokeWidth="10" 
+        strokeWidth="12" 
         fill="none"
         strokeLinecap="round"
       />

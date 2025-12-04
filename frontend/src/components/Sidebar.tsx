@@ -257,6 +257,12 @@ export default function Sidebar({
             </div>
           )}
 
+          <StatusPicker
+            token={token}
+            currentStatus={myStatus}
+            onUpdated={onStatusUpdated}
+          />
+
           {/* Avatar Upload - moved here from below */}
           <div className="mt-4 pt-4 border-t border-slate-600">
             <label className="block text-xs mb-2 text-slate-400">Change Profile Picture</label>

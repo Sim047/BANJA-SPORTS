@@ -1365,7 +1365,8 @@ function onMyStatusUpdated(newStatus: any) {
 
             {/* MESSAGE COMPOSER */}
             <form
-              className="composer flex flex-col gap-2 flex-shrink-0 sticky bottom-0"
+              className="composer flex flex-col gap-2 flex-shrink-0 sticky bottom-0 pt-4 pb-2"
+              style={{ background: 'var(--bg)' }}
               onSubmit={sendMessage}
             >
               {/* Image Preview Bar */}
@@ -1391,9 +1392,9 @@ function onMyStatusUpdated(newStatus: any) {
                 </div>
               )}
 
-              <div className="relative flex items-end">
+              <div className="relative flex items-center">
                 <textarea
-                  className="input w-full p-3 pr-[120px] rounded-2xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 border border-slate-300 dark:border-slate-600 resize-none overflow-y-auto overflow-x-hidden min-h-[48px] max-h-[200px]"
+                  className="input w-full p-3 pr-[120px] rounded-2xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 border border-slate-300 dark:border-slate-600 resize-none overflow-y-auto overflow-x-hidden min-h-[48px] max-h-[120px]"
                   wrap="soft"
                   value={text}
                   onChange={onComposerChange}
@@ -1403,10 +1404,10 @@ function onMyStatusUpdated(newStatus: any) {
                   onInput={(e: any) => {
                     // Auto-resize textarea as user types
                     e.target.style.height = 'auto';
-                    e.target.style.height = Math.min(e.target.scrollHeight, 200) + 'px';
+                    e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
                   }}
                 />
-                <div className="absolute right-2 bottom-2 flex items-center gap-1 bg-white dark:bg-slate-800 rounded-full pl-2">
+                <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 bg-white dark:bg-slate-800 rounded-full pl-2">
                   {/* Image Button with Icon */}
                   <label className="cursor-pointer p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
                     <svg

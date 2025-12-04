@@ -384,7 +384,16 @@ router.get("/my-join-requests", auth, async (req, res) => {
 // GET pending join requests for my events (as organizer)
 router.get("/my-events-requests", auth, async (req, res) => {
   try {
-    console.log("Fetching event requests for organizer:", req.user.id);
+    console.log("=== FETCHING EVENT REQUESTS ===");
+    console.log("Organizer ID:", req.user.id);
+    
+    // First, let's see ALL events by this organizer
+    const allMyEvents = await Event.find({ organizer: req.user.id });
+    console.log("Total events I organize:", allMyEvents.length);
+    
+    allMyEvents.forEach(event => {
+      console.log(`  - ${event.title}: ${event.joinRequests?.length || 0} join requests`);
+    });
     
     // Find all events organized by this user that have any join requests
     const events = await Event.find({
@@ -393,7 +402,7 @@ router.get("/my-events-requests", auth, async (req, res) => {
     })
       .populate("joinRequests.user", "username avatar email");
 
-    console.log("Found events with join requests:", events.length);
+    console.log("Events with join requests:", events.length);
 
     const pendingRequests = [];
     events.forEach(event => {

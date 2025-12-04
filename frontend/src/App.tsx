@@ -1061,7 +1061,7 @@ function onMyStatusUpdated(newStatus: any) {
       )}
 
       {/* ---------------- MAIN VIEW ---------------- */}
-      <main className="flex-1 flex flex-col p-4 lg:p-6 overflow-auto" style={{ color: 'var(--text)' }}>
+      <main className={clsx("flex-1 flex flex-col p-4 lg:p-6", view === "chat" ? "overflow-hidden" : "overflow-auto")} style={{ color: 'var(--text)' }}>
         {/* DASHBOARD PAGE */}
         {view === "dashboard" && (
           <Dashboard
@@ -1153,8 +1153,8 @@ function onMyStatusUpdated(newStatus: any) {
 
         {/* CHAT / DM PAGE */}
         {view === "chat" && (
-          <div className="flex flex-col h-full max-h-full">
-            <header className="flex items-center justify-between pb-4 flex-shrink-0">
+          <div className="absolute inset-0 flex flex-col">
+            <header className="flex items-center justify-between p-4 flex-shrink-0 border-b" style={{ borderColor: 'var(--border)' }}>
               {inDM && activeConversation ? (
                 <div className="flex items-center gap-3">
                   {(() => {
@@ -1356,7 +1356,7 @@ function onMyStatusUpdated(newStatus: any) {
             </header>
 
             {/* MESSAGE LIST */}
-            <section className="flex-1 overflow-y-auto p-2 min-h-0 mb-4">
+            <section className="flex-1 overflow-y-auto p-4 min-h-0">
               <div className="flex flex-col gap-4">
                 {renderMessages()}
                 <div ref={messagesEndRef} />
@@ -1365,8 +1365,8 @@ function onMyStatusUpdated(newStatus: any) {
 
             {/* MESSAGE COMPOSER */}
             <form
-              className="composer flex flex-col gap-2 flex-shrink-0 sticky bottom-0 pt-4 pb-2"
-              style={{ background: 'var(--bg)' }}
+              className="composer flex flex-col gap-2 flex-shrink-0 p-4 border-t"
+              style={{ background: 'var(--bg)', borderColor: 'var(--border)' }}
               onSubmit={sendMessage}
             >
               {/* Image Preview Bar */}

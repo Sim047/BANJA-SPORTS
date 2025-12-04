@@ -79,12 +79,17 @@ export default function Sidebar({
     try {
       setLoading(true);
       setError(false);
+      console.log("Loading user stats from:", `${API}/api/users/me`);
+      
       const res = await axios.get(`${API}/api/users/me`, {
         headers: { Authorization: `Bearer ${token}` },
         validateStatus: (status) => status < 500,
       });
       
+      console.log("User stats response:", res.status, res.data);
+      
       if (res.status === 404) {
+        console.warn("User endpoint not found (404)");
         setFollowers(0);
         setFollowing(0);
         setError(true);
@@ -92,8 +97,12 @@ export default function Sidebar({
       }
       
       const userData = res.data;
-      setFollowers(Array.isArray(userData.followers) ? userData.followers.length : 0);
-      setFollowing(Array.isArray(userData.following) ? userData.following.length : 0);
+      const followersCount = Array.isArray(userData.followers) ? userData.followers.length : 0;
+      const followingCount = Array.isArray(userData.following) ? userData.following.length : 0;
+      
+      console.log("Setting followers:", followersCount, "following:", followingCount);
+      setFollowers(followersCount);
+      setFollowing(followingCount);
     } catch (err: any) {
       console.error("Sidebar stats error:", err);
       setError(true);

@@ -42,9 +42,13 @@ router.post("/avatar", auth, upload.single("avatar"), async (req, res) => {
 
     const avatarUrl = `/uploads/avatars/${filename}`;
 
-    await User.findByIdAndUpdate(userId, { avatar: avatarUrl });
+    const updatedUser = await User.findByIdAndUpdate(
+      userId, 
+      { avatar: avatarUrl },
+      { new: true }
+    ).select("_id username email avatar role");
 
-    res.json({ success: true, avatar: avatarUrl });
+    res.json({ success: true, avatar: avatarUrl, user: updatedUser });
   } catch (err) {
     console.error("POST /api/users/avatar ERROR:", err);
     res.status(500).json({ message: "Avatar upload failed" });

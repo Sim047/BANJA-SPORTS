@@ -796,6 +796,7 @@ function onMyStatusUpdated(newStatus: any) {
       {/* Unified Sidebar */}
       {token && (
         <Sidebar
+          key={`${user?._id}-${user?.avatar}-${myStatus?.mood}`}
           token={token}
           user={user}
           theme={theme}

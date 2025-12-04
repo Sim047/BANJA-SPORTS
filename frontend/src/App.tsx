@@ -137,12 +137,22 @@ export default function App() {
   // Missing states and helpers added
   const [selectedAvatar, setSelectedAvatar] = useState<File | null>(null);
   const [unreadIndex, setUnreadIndex] = useState<number>(-1);
+  const [enterToSend, setEnterToSend] = useState<boolean>(() => {
+    const saved = localStorage.getItem("enterToSend");
+    return saved ? JSON.parse(saved) : false;
+  });
 
 function shouldShowAvatar(index: number) {
   if (index === 0) return true;
   return (
     messages[index - 1]?.sender?._id !== messages[index]?.sender?._id
   );
+}
+
+function toggleEnterToSend() {
+  const newValue = !enterToSend;
+  setEnterToSend(newValue);
+  localStorage.setItem("enterToSend", JSON.stringify(newValue));
 }
 
 function jumpToUnread() {
@@ -430,6 +440,22 @@ function onMyStatusUpdated(newStatus: any) {
       userId: user?._id,
       typing: !!e.target.value
     });
+  }
+
+  // Handle Enter key press
+  function handleKeyPress(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter") {
+      if (enterToSend && !e.shiftKey && !e.ctrlKey) {
+        // Enter alone sends if setting is enabled
+        e.preventDefault();
+        sendMessage();
+      } else if (!enterToSend && (e.ctrlKey || e.metaKey)) {
+        // Ctrl+Enter or Cmd+Enter sends if setting is disabled
+        e.preventDefault();
+        sendMessage();
+      }
+      // Shift+Enter always allows new line (browser default)
+    }
   }
 
   // IMAGE HANDLING -----------------------------------------------
@@ -967,24 +993,37 @@ function onMyStatusUpdated(newStatus: any) {
                 <h3 className="text-lg font-semibold">#{room}</h3>
               )}
 
-              <div className="text-sm opacity-80 flex items-center gap-3">
+              <div className="text-sm opacity-80 flex items-center gap-2">
                 {Object.values(typingUsers).some(Boolean)
                   ? "Someone is typing..."
                   : ""}
                 {unreadIndex >= 0 && (
                   <button
-                    className="text-xs px-3 py-1 bg-cyan-500 rounded-full text-white"
+                    className="text-xs px-3 py-1.5 bg-cyan-500 hover:bg-cyan-600 rounded-lg text-white font-medium transition-all shadow-sm"
                     onClick={jumpToUnread}
                   >
                     Jump to unread
                   </button>
                 )}
                 
+                {/* Settings Toggle */}
+                <button
+                  className="text-xs px-3 py-1.5 rounded-lg font-medium transition-all shadow-sm"
+                  style={{
+                    backgroundColor: enterToSend ? '#10b981' : '#6b7280',
+                    color: 'white'
+                  }}
+                  onClick={toggleEnterToSend}
+                  title={enterToSend ? "Enter sends message (Click to require Ctrl+Enter)" : "Ctrl+Enter sends message (Click to use Enter)"}
+                >
+                  ⚡ {enterToSend ? 'Enter' : 'Ctrl+↵'}
+                </button>
+                
                 {/* Clear Chat Button */}
                 <button
-                  className="text-xs px-3 py-1 bg-orange-500 hover:bg-orange-600 rounded-full text-white transition-colors"
+                  className="text-xs px-3 py-1.5 bg-orange-500 hover:bg-orange-600 rounded-lg text-white font-medium transition-all shadow-sm flex items-center gap-1"
                   onClick={async () => {
-                    if (!confirm("Clear all messages in this chat?")) return;
+                    if (!confirm("Clear all messages in this chat? This cannot be undone.")) return;
                     
                     try {
                       if (inDM && activeConversation) {
@@ -1006,15 +1045,18 @@ function onMyStatusUpdated(newStatus: any) {
                   }}
                   title="Clear all messages"
                 >
-                  🗑️ Clear
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  Clear
                 </button>
                 
                 {/* Delete Chat Button (DM only) */}
                 {inDM && activeConversation && (
                   <button
-                    className="text-xs px-3 py-1 bg-red-500 hover:bg-red-600 rounded-full text-white transition-colors"
+                    className="text-xs px-3 py-1.5 bg-red-500 hover:bg-red-600 rounded-lg text-white font-medium transition-all shadow-sm flex items-center gap-1"
                     onClick={async () => {
-                      if (!confirm("Delete this conversation permanently?")) return;
+                      if (!confirm("Delete this entire conversation permanently? This cannot be undone.")) return;
                       
                       try {
                         await axios.delete(
@@ -1038,7 +1080,10 @@ function onMyStatusUpdated(newStatus: any) {
                     }}
                     title="Delete conversation"
                   >
-                    ❌ Delete
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Delete
                   </button>
                 )}
               </div>
@@ -1085,10 +1130,9 @@ function onMyStatusUpdated(newStatus: any) {
                   className="input w-full p-3 pr-24 rounded-full bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 border border-slate-300 dark:border-slate-600"
                   value={text}
                   onChange={onComposerChange}
-                  placeholder={inDM ? "Message..." : "Say something..."}
-                />
-                
-                <div className="absolute right-2 flex items-center gap-1">
+                  onKeyDown={handleKeyPress}
+                  placeholder={inDM ? (enterToSend ? "Message... (Enter to send)" : "Message... (Ctrl+Enter to send)") : (enterToSend ? "Say something... (Enter to send)" : "Say something... (Ctrl+Enter to send)")}
+                />                <div className="absolute right-2 flex items-center gap-1">
                   {/* Image Button with Icon */}
                   <label className="cursor-pointer p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
                     <svg

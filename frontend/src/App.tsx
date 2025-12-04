@@ -1254,10 +1254,7 @@ function onMyStatusUpdated(newStatus: any) {
                           {({ active }) => (
                             <button
                               onClick={toggleEnterToSend}
-                              className={clsx(
-                                'w-full text-left px-4 py-2.5 text-sm flex items-center gap-2 transition-colors',
-                                active ? 'bg-slate-100 dark:bg-slate-700' : ''
-                              )}
+                              className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2 hover:opacity-80 transition-opacity"
                               style={{ color: 'var(--text)' }}
                             >
                               <Zap className={clsx('w-4 h-4', enterToSend ? 'text-green-500' : 'text-gray-400')} />
@@ -1307,10 +1304,7 @@ function onMyStatusUpdated(newStatus: any) {
                                   alert("Failed to clear chat");
                                 }
                               }}
-                              className={clsx(
-                                'w-full text-left px-4 py-2.5 text-sm flex items-center gap-2 transition-colors',
-                                active ? 'bg-slate-100 dark:bg-slate-700' : ''
-                              )}
+                              className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2 hover:opacity-80 transition-opacity"
                               style={{ color: 'var(--text)' }}
                             >
                               <Trash2 className="w-4 h-4 text-orange-500" />
@@ -1352,10 +1346,7 @@ function onMyStatusUpdated(newStatus: any) {
                                       alert("Failed to delete conversation");
                                     }
                                   }}
-                                  className={clsx(
-                                    'w-full text-left px-4 py-2.5 text-sm flex items-center gap-2 transition-colors',
-                                    active ? 'bg-slate-100 dark:bg-slate-700' : ''
-                                  )}
+                                  className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2 hover:opacity-80 transition-opacity"
                                   style={{ color: 'var(--text)' }}
                                 >
                                   <X className="w-4 h-4 text-red-500" />

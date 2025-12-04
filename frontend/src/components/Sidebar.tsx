@@ -205,11 +205,8 @@ export default function Sidebar({
       <div className="p-4 border-b border-slate-700">
         {!isCollapsed ? (
           <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center flex-1">
               <img src={logo} alt="Auralink" className="w-16 h-16 object-contain" />
-              <h2 className="text-2xl font-extrabold tracking-wider bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
-                AURALINK
-              </h2>
             </div>
             {/* Theme Toggle */}
             <button

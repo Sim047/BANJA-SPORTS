@@ -22,6 +22,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import CreateEventModal from "../components/CreateEventModal";
 import PendingApprovals from "../components/PendingApprovals";
 import JoinRequestsManager from "../components/JoinRequestsManager";
+import MyJoinRequests from "../components/MyJoinRequests";
 import SportEvents from "./SportEvents";
 
 dayjs.extend(relativeTime);
@@ -417,7 +418,10 @@ export default function Dashboard({ token, onNavigate }: any) {
         {/* Pending Approvals */}
         <PendingApprovals token={token} />
 
-        {/* Join Requests Manager */}
+        {/* My Join Requests (Events I've requested to join) */}
+        <MyJoinRequests token={token} />
+
+        {/* Join Requests Manager (Requests for events I organize) */}
         <JoinRequestsManager token={token} />
 
         {/* Upcoming Events Section */}

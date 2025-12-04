@@ -91,64 +91,60 @@ export default function JoinRequestsManager({ token }: { token: string }) {
   }
 
   if (requests.length === 0) {
-    return (
-      <div className="text-center py-8 bg-slate-800/50 rounded-2xl border border-slate-700">
-        <Clock className="w-12 h-12 text-slate-500 mx-auto mb-3" />
-        <p className="text-slate-400">No pending join requests</p>
-      </div>
-    );
+    return null; // Don't show section if no pending requests
   }
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent mb-4">
-        Pending Join Requests ({requests.length})
+    <div className="bg-white dark:bg-[#0f172a] rounded-3xl p-8 border border-gray-200 dark:border-gray-800">
+      <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
+        Events Awaiting Your Approval ({requests.length})
       </h2>
 
+      <div className="space-y-4">
       {requests.map((req) => (
         <div
           key={req.requestId}
-          className="bg-slate-800/50 border border-slate-700 rounded-xl p-5 hover:border-cyan-500/50 transition-all"
+          className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900/50 dark:to-gray-800/50 rounded-2xl p-5 border border-gray-200 dark:border-gray-700"
         >
           <div className="flex items-start justify-between gap-4 mb-4">
             <div className="flex-1">
-              <h3 className="font-bold text-white text-lg mb-1">{req.event.title}</h3>
-              <div className="flex items-center gap-2 text-sm text-slate-400 mb-2">
+              <h3 className="font-bold text-gray-900 dark:text-white text-lg mb-1">{req.event.title}</h3>
+              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2">
                 <Calendar className="w-4 h-4" />
                 <span>{dayjs(req.event.startDate).format("MMM D, YYYY")}</span>
               </div>
-              <div className="flex items-center gap-2 text-sm text-slate-400">
+              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                 <Clock className="w-4 h-4" />
                 <span>Requested {dayjs(req.requestedAt).fromNow()}</span>
               </div>
             </div>
           </div>
 
-          <div className="bg-slate-900/50 rounded-lg p-4 mb-4 border border-slate-700">
+          <div className="bg-white dark:bg-gray-900/50 rounded-lg p-4 mb-4 border border-gray-200 dark:border-gray-700">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 rounded-full bg-gradient-to-r from-cyan-500 to-purple-500 flex items-center justify-center text-white font-bold">
                 {req.user.username.charAt(0).toUpperCase()}
               </div>
               <div>
-                <p className="font-semibold text-white">{req.user.username}</p>
+                <p className="font-semibold text-gray-900 dark:text-white">{req.user.username}</p>
                 {req.user.email && (
-                  <p className="text-xs text-slate-400">{req.user.email}</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">{req.user.email}</p>
                 )}
               </div>
             </div>
 
-            <div className="bg-slate-800 rounded-lg p-3 border border-slate-600">
+            <div className="bg-gray-100 dark:bg-slate-800 rounded-lg p-3 border border-gray-200 dark:border-slate-600">
               <div className="flex items-center gap-2 mb-2">
                 <CreditCard className="w-4 h-4 text-cyan-400" />
-                <span className="text-sm font-medium text-slate-300">Transaction Code:</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-slate-300">Transaction Code:</span>
               </div>
-              <p className="text-white font-mono text-sm bg-slate-900/50 px-3 py-2 rounded border border-slate-700">
+              <p className="text-gray-900 dark:text-white font-mono text-sm bg-white dark:bg-slate-900/50 px-3 py-2 rounded border border-gray-200 dark:border-slate-700">
                 {req.transactionCode}
               </p>
             </div>
 
             {req.event.pricing?.amount && (
-              <p className="text-sm text-slate-400 mt-2">
+              <p className="text-sm text-gray-600 dark:text-slate-400 mt-2">
                 Event Fee: {req.event.pricing.amount} {req.event.pricing.currency || 'USD'}
               </p>
             )}
@@ -157,7 +153,7 @@ export default function JoinRequestsManager({ token }: { token: string }) {
           <div className="flex gap-3">
             <button
               onClick={() => handleReject(req.event._id, req.requestId)}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-600/50 rounded-lg font-medium transition-all"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-red-50 dark:bg-red-600/20 hover:bg-red-100 dark:hover:bg-red-600/30 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-600/50 rounded-lg font-medium transition-all"
             >
               <XCircle className="w-5 h-5" />
               Reject
@@ -172,6 +168,7 @@ export default function JoinRequestsManager({ token }: { token: string }) {
           </div>
         </div>
       ))}
+      </div>
     </div>
   );
 }

@@ -109,7 +109,7 @@ export default function App() {
   const [file, setFile] = useState<File | null>(null);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [imagePreviewOpen, setImagePreviewOpen] = useState(false);
-  const [typingUsers, setTypingUsers] = useState<Record<string, boolean>>({});
+  const [typingUsers, setTypingUsers] = useState<Record<string, any>>({});
 
   // STATUS ------------------------------------
   const [statuses, setStatuses] = useState<Record<string, any>>({});
@@ -332,8 +332,25 @@ function onMyStatusUpdated(newStatus: any) {
       setMessages((m) => m.map((x) => (x._id === msg._id ? msg : x)));
     });
 
-    socket.on("typing", ({ userId, typing }: any) => {
-      setTypingUsers((t) => ({ ...t, [userId]: typing }));
+    socket.on("typing", ({ userId, typing, user: typingUser }: any) => {
+      if (typing) {
+        setTypingUsers((t) => ({ ...t, [userId]: typingUser || { username: 'Someone' } }));
+        
+        // Clear typing indicator after 3 seconds of inactivity
+        setTimeout(() => {
+          setTypingUsers((t) => {
+            const updated = { ...t };
+            delete updated[userId];
+            return updated;
+          });
+        }, 3000);
+      } else {
+        setTypingUsers((t) => {
+          const updated = { ...t };
+          delete updated[userId];
+          return updated;
+        });
+      }
     });
 
     socket.on("message_edited", (updatedMsg: any) => {
@@ -558,6 +575,7 @@ function onMyStatusUpdated(newStatus: any) {
     socket.emit("typing", {
       room: inDM && activeConversation ? activeConversation._id : room,
       userId: user?._id,
+      user: { _id: user?._id, username: user?.username, avatar: user?.avatar },
       typing: !!e.target.value
     });
   }
@@ -1140,9 +1158,23 @@ function onMyStatusUpdated(newStatus: any) {
               )}
 
               <div className="text-sm opacity-80 flex items-center gap-2">
-                {Object.values(typingUsers).some(Boolean)
-                  ? "Someone is typing..."
-                  : ""}
+                {Object.keys(typingUsers).length > 0 && (
+                  <div className="flex items-center gap-1.5 text-cyan-500 animate-pulse">
+                    <div className="flex gap-0.5">
+                      <span className="w-1.5 h-1.5 bg-cyan-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                      <span className="w-1.5 h-1.5 bg-cyan-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                      <span className="w-1.5 h-1.5 bg-cyan-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                    </div>
+                    <span className="text-xs font-medium">
+                      {Object.keys(typingUsers).length === 1
+                        ? `${Object.values(typingUsers)[0]?.username || 'Someone'} is typing...`
+                        : Object.keys(typingUsers).length === 2
+                        ? `${Object.values(typingUsers).map((u: any) => u?.username || 'Someone').join(' and ')} are typing...`
+                        : `${Object.keys(typingUsers).length} people are typing...`
+                      }
+                    </span>
+                  </div>
+                )}
                 {unreadIndex >= 0 && (
                   <button
                     className="text-xs px-3 py-1.5 bg-cyan-500 hover:bg-cyan-600 rounded-lg text-white font-medium transition-all shadow-sm"

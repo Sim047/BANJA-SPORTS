@@ -1247,7 +1247,12 @@ function onMyStatusUpdated(newStatus: any) {
                     leaveFrom="transform opacity-100 scale-100"
                     leaveTo="transform opacity-0 scale-95"
                   >
-                    <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" style={{ background: 'var(--sidebar)', border: '1px solid var(--border)' }}>
+                    <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none backdrop-blur-md" style={{ background: 'rgba(255, 255, 255, 0.95)', border: '1px solid var(--border)' }}>
+                      <style>{`
+                        .dark .headlessui-menu-items {
+                          background: rgba(30, 41, 59, 0.95) !important;
+                        }
+                      `}</style>
                       <div className="py-1">
                         {/* Enter Key Toggle */}
                         <Menu.Item>

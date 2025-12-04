@@ -8,6 +8,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.9",
     "axios": "^1.4.0",
     "clsx": "^1.2.1",
     "dayjs": "^1.11.9",

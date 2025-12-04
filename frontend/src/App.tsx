@@ -7,6 +7,8 @@ import localizedFormat from "dayjs/plugin/localizedFormat";
 import relativeTime from "dayjs/plugin/relativeTime";
 import updateLocale from "dayjs/plugin/updateLocale";
 import clsx from "clsx";
+import { Menu, Transition } from "@headlessui/react";
+import { Settings, Send, Trash2, X, Zap } from "lucide-react";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -1006,86 +1008,147 @@ function onMyStatusUpdated(newStatus: any) {
                   </button>
                 )}
                 
-                {/* Settings Toggle */}
-                <button
-                  className="text-xs px-3 py-1.5 rounded-lg font-medium transition-all shadow-sm"
-                  style={{
-                    backgroundColor: enterToSend ? '#10b981' : '#6b7280',
-                    color: 'white'
-                  }}
-                  onClick={toggleEnterToSend}
-                  title={enterToSend ? "Enter sends message (Click to require Ctrl+Enter)" : "Ctrl+Enter sends message (Click to use Enter)"}
-                >
-                  ⚡ {enterToSend ? 'Enter' : 'Ctrl+↵'}
-                </button>
-                
-                {/* Clear Chat Button */}
-                <button
-                  className="text-xs px-3 py-1.5 bg-orange-500 hover:bg-orange-600 rounded-lg text-white font-medium transition-all shadow-sm flex items-center gap-1"
-                  onClick={async () => {
-                    if (!confirm("Clear all messages in this chat? This cannot be undone.")) return;
-                    
-                    try {
-                      if (inDM && activeConversation) {
-                        await axios.delete(
-                          `${API}/api/conversations/${activeConversation._id}/messages`,
-                          { headers: { Authorization: `Bearer ${token}` } }
-                        );
-                      } else {
-                        await axios.delete(
-                          `${API}/api/messages/room/${room}/clear`,
-                          { headers: { Authorization: `Bearer ${token}` } }
-                        );
-                      }
-                      setMessages([]);
-                    } catch (e) {
-                      console.error("Clear chat error", e);
-                      alert("Failed to clear chat");
-                    }
-                  }}
-                  title="Clear all messages"
-                >
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                  Clear
-                </button>
-                
-                {/* Delete Chat Button (DM only) */}
-                {inDM && activeConversation && (
-                  <button
-                    className="text-xs px-3 py-1.5 bg-red-500 hover:bg-red-600 rounded-lg text-white font-medium transition-all shadow-sm flex items-center gap-1"
-                    onClick={async () => {
-                      if (!confirm("Delete this entire conversation permanently? This cannot be undone.")) return;
-                      
-                      try {
-                        await axios.delete(
-                          `${API}/api/conversations/${activeConversation._id}`,
-                          { headers: { Authorization: `Bearer ${token}` } }
-                        );
-                        setActiveConversation(null);
-                        setInDM(false);
-                        setMessages([]);
-                        setView("direct-messages");
-                        
-                        // Refresh conversations list
-                        const res = await axios.get(`${API}/api/conversations`, {
-                          headers: { Authorization: `Bearer ${token}` }
-                        });
-                        setConversations(res.data || []);
-                      } catch (e) {
-                        console.error("Delete conversation error", e);
-                        alert("Failed to delete conversation");
-                      }
-                    }}
-                    title="Delete conversation"
+                {/* Settings Dropdown */}
+                <Menu as="div" className="relative inline-block text-left">
+                  <Menu.Button className="text-xs px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-white font-medium transition-all shadow-sm flex items-center gap-1.5">
+                    <Settings className="w-3.5 h-3.5" />
+                    Settings
+                  </Menu.Button>
+                  
+                  <Transition
+                    as={Fragment}
+                    enter="transition ease-out duration-100"
+                    enterFrom="transform opacity-0 scale-95"
+                    enterTo="transform opacity-100 scale-100"
+                    leave="transition ease-in duration-75"
+                    leaveFrom="transform opacity-100 scale-100"
+                    leaveTo="transform opacity-0 scale-95"
                   >
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                    Delete
-                  </button>
-                )}
+                    <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" style={{ background: 'var(--sidebar)', border: '1px solid var(--border)' }}>
+                      <div className="py-1">
+                        {/* Enter Key Toggle */}
+                        <Menu.Item>
+                          {({ active }) => (
+                            <button
+                              onClick={toggleEnterToSend}
+                              className={clsx(
+                                'w-full text-left px-4 py-2.5 text-sm flex items-center gap-2 transition-colors',
+                                active ? 'bg-slate-100 dark:bg-slate-700' : ''
+                              )}
+                              style={{ color: 'var(--text)' }}
+                            >
+                              <Zap className={clsx('w-4 h-4', enterToSend ? 'text-green-500' : 'text-gray-400')} />
+                              <div className="flex-1">
+                                <div className="font-medium">Send on Enter</div>
+                                <div className="text-xs opacity-70">
+                                  {enterToSend ? 'Enabled (Press Enter)' : 'Disabled (Press Ctrl+Enter)'}
+                                </div>
+                              </div>
+                              <div className={clsx(
+                                'w-10 h-5 rounded-full transition-colors relative',
+                                enterToSend ? 'bg-green-500' : 'bg-gray-400'
+                              )}>
+                                <div className={clsx(
+                                  'absolute top-0.5 w-4 h-4 bg-white rounded-full transition-transform',
+                                  enterToSend ? 'left-5' : 'left-0.5'
+                                )} />
+                              </div>
+                            </button>
+                          )}
+                        </Menu.Item>
+                        
+                        <div className="border-t" style={{ borderColor: 'var(--border)' }} />
+                        
+                        {/* Clear Chat */}
+                        <Menu.Item>
+                          {({ active }) => (
+                            <button
+                              onClick={async () => {
+                                if (!confirm("Clear all messages in this chat? This cannot be undone.")) return;
+                                
+                                try {
+                                  if (inDM && activeConversation) {
+                                    await axios.delete(
+                                      `${API}/api/conversations/${activeConversation._id}/messages`,
+                                      { headers: { Authorization: `Bearer ${token}` } }
+                                    );
+                                  } else {
+                                    await axios.delete(
+                                      `${API}/api/messages/room/${room}/clear`,
+                                      { headers: { Authorization: `Bearer ${token}` } }
+                                    );
+                                  }
+                                  setMessages([]);
+                                } catch (e) {
+                                  console.error("Clear chat error", e);
+                                  alert("Failed to clear chat");
+                                }
+                              }}
+                              className={clsx(
+                                'w-full text-left px-4 py-2.5 text-sm flex items-center gap-2 transition-colors',
+                                active ? 'bg-slate-100 dark:bg-slate-700' : ''
+                              )}
+                              style={{ color: 'var(--text)' }}
+                            >
+                              <Trash2 className="w-4 h-4 text-orange-500" />
+                              <div>
+                                <div className="font-medium">Clear Chat</div>
+                                <div className="text-xs opacity-70">Remove all messages</div>
+                              </div>
+                            </button>
+                          )}
+                        </Menu.Item>
+                        
+                        {/* Delete Conversation (DM only) */}
+                        {inDM && activeConversation && (
+                          <>
+                            <div className="border-t" style={{ borderColor: 'var(--border)' }} />
+                            <Menu.Item>
+                              {({ active }) => (
+                                <button
+                                  onClick={async () => {
+                                    if (!confirm("Delete this entire conversation permanently? This cannot be undone.")) return;
+                                    
+                                    try {
+                                      await axios.delete(
+                                        `${API}/api/conversations/${activeConversation._id}`,
+                                        { headers: { Authorization: `Bearer ${token}` } }
+                                      );
+                                      setActiveConversation(null);
+                                      setInDM(false);
+                                      setMessages([]);
+                                      setView("direct-messages");
+                                      
+                                      // Refresh conversations list
+                                      const res = await axios.get(`${API}/api/conversations`, {
+                                        headers: { Authorization: `Bearer ${token}` }
+                                      });
+                                      setConversations(res.data || []);
+                                    } catch (e) {
+                                      console.error("Delete conversation error", e);
+                                      alert("Failed to delete conversation");
+                                    }
+                                  }}
+                                  className={clsx(
+                                    'w-full text-left px-4 py-2.5 text-sm flex items-center gap-2 transition-colors',
+                                    active ? 'bg-slate-100 dark:bg-slate-700' : ''
+                                  )}
+                                  style={{ color: 'var(--text)' }}
+                                >
+                                  <X className="w-4 h-4 text-red-500" />
+                                  <div>
+                                    <div className="font-medium text-red-500">Delete Conversation</div>
+                                    <div className="text-xs opacity-70">Permanently remove chat</div>
+                                  </div>
+                                </button>
+                              )}
+                            </Menu.Item>
+                          </>
+                        )}
+                      </div>
+                    </Menu.Items>
+                  </Transition>
+                </Menu>
               </div>
             </header>
 

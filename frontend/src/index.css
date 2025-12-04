@@ -17,6 +17,13 @@
   --theme-transition: 0.3s;
 }
 
+/* Faster transitions on mobile for better performance */
+@media (max-width: 768px) {
+  :root {
+    --theme-transition: 0.15s;
+  }
+}
+
 /* Light Theme */
 :root.light {
   --bg: linear-gradient(to bottom right, #f8fafc, #f1f5f9, #e2e8f0);
@@ -86,7 +93,14 @@ body {
   margin: 0;
 }
 
-* {
+/* Optimize transitions - only apply to specific elements to improve mobile performance */
+.sidebar,
+.btn,
+button,
+input,
+textarea,
+.card,
+.modal {
   transition: background-color var(--theme-transition) ease, 
               border-color var(--theme-transition) ease, 
               color var(--theme-transition) ease;

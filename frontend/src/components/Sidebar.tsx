@@ -167,16 +167,39 @@ export default function Sidebar({
 
   // Mobile toggle button
   const MobileToggle = () => (
-    <button
-      onClick={() => setIsMobileOpen(!isMobileOpen)}
-      className="lg:hidden fixed top-4 left-4 z-50 p-3 bg-slate-800 hover:bg-slate-700 rounded-xl border border-slate-600 shadow-lg transition-all"
-    >
-      {isMobileOpen ? (
-        <X className="w-5 h-5 text-white" />
-      ) : (
-        <Menu className="w-5 h-5 text-white" />
-      )}
-    </button>
+    <>
+      <button
+        onClick={() => setIsMobileOpen(!isMobileOpen)}
+        className="lg:hidden fixed top-4 left-4 z-50 p-3 rounded-xl border shadow-lg transition-all"
+        style={{
+          backgroundColor: theme === 'dark' ? '#1e293b' : '#ffffff',
+          borderColor: theme === 'dark' ? '#475569' : '#cbd5e1'
+        }}
+      >
+        {isMobileOpen ? (
+          <X className="w-5 h-5" style={{ color: theme === 'dark' ? '#ffffff' : '#1e293b' }} />
+        ) : (
+          <Menu className="w-5 h-5" style={{ color: theme === 'dark' ? '#ffffff' : '#1e293b' }} />
+        )}
+      </button>
+      
+      {/* Theme Toggle for Mobile - Always Visible */}
+      <button
+        onClick={onThemeToggle}
+        className="lg:hidden fixed top-4 right-4 z-50 p-3 rounded-xl border shadow-lg transition-all group"
+        style={{
+          backgroundColor: theme === 'dark' ? '#1e293b' : '#ffffff',
+          borderColor: theme === 'dark' ? '#475569' : '#cbd5e1'
+        }}
+        title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+      >
+        {theme === "dark" ? (
+          <Sun className="w-5 h-5 text-yellow-400 group-hover:text-yellow-300 transition-colors" />
+        ) : (
+          <Moon className="w-5 h-5 text-slate-700 group-hover:text-slate-600 transition-colors" />
+        )}
+      </button>
+    </>
   );
 
   // Desktop collapse toggle

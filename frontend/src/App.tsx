@@ -189,6 +189,10 @@ export default function App() {
     return saved ? JSON.parse(saved) : false;
   });
 
+  // Conversation refresh key
+  const [conversationRefreshKey, setConversationRefreshKey] = useState<number>(0);
+  const refreshConversations = () => setConversationRefreshKey((k) => k + 1);
+
 function shouldShowAvatar(index: number) {
   if (index === 0) return true;
   return (
@@ -293,7 +297,7 @@ function onMyStatusUpdated(newStatus: any) {
     socket.emit("join_room", initialRoom);
     console.log("[Socket] Joined room:", initialRoom);
 
-    socket.on("receive_message", (msg: any) => {
+    socket.on("receive_message", async (msg: any) => {
       setMessages((m) => {
         // Remove any pending/optimistic messages from the same user with similar timestamp
         const filtered = m.filter((existing) => {
@@ -322,10 +326,23 @@ function onMyStatusUpdated(newStatus: any) {
         // Also mark as read immediately if chat is visible (view === "chat")
         if (view === "chat") {
           socket.emit("message_read", { messageId: msg._id, userId: user?._id });
+          
+          // Mark conversation as read if it's a DM and we're viewing it
+          if (inDM && activeConversation?._id && token) {
+            try {
+              await axios.post(
+                `${API}/api/conversations/${activeConversation._id}/read`,
+                {},
+                { headers: { Authorization: "Bearer " + token } }
+              );
+            } catch (err) {
+              console.error("Failed to mark conversation as read:", err);
+            }
+          }
         }
         
-        // Show browser notification for messages from others
-        if ("Notification" in window && Notification.permission === "granted") {
+        // Show browser notification for messages from others (only if not currently viewing chat)
+        if (view !== "chat" && "Notification" in window && Notification.permission === "granted") {
           const senderName = msg.sender?.username || "Someone";
           const messageText = msg.text || (msg.fileUrl ? "Sent an image" : "New message");
           const notification = new Notification(`${senderName}`, {
@@ -646,6 +663,11 @@ function onMyStatusUpdated(newStatus: any) {
     }, 0);
     
     scrollToBottom();
+    
+    // Refresh conversations if this was a DM (to update lastMessage and unread counts)
+    if (inDM) {
+      refreshConversations();
+    }
   }
 
   // TYPING -------------------------------------------------------
@@ -833,7 +855,7 @@ function onMyStatusUpdated(newStatus: any) {
     }
   }
   // OPEN A DM FROM ANYWHERE --------------------------------------
-  function openConversation(conv: any) {
+  async function openConversation(conv: any) {
     setActiveConversation(conv);
     setInDM(true);
     setView("chat");
@@ -842,6 +864,19 @@ function onMyStatusUpdated(newStatus: any) {
       const roomId = conv._id || conv.id;
       console.log("[Socket] Opening conversation, joining room:", roomId);
       socket.emit("join_room", roomId);
+    }
+
+    // Mark conversation as read
+    if (token && conv._id) {
+      try {
+        await axios.post(
+          `${API}/api/conversations/${conv._id}/read`,
+          {},
+          { headers: { Authorization: "Bearer " + token } }
+        );
+      } catch (err) {
+        console.error("Failed to mark conversation as read:", err);
+      }
     }
   }
 
@@ -1216,6 +1251,7 @@ function onMyStatusUpdated(newStatus: any) {
           <div className="p-6">
             <h2 className="text-2xl font-bold mb-6">💬 Direct Messages</h2>
             <ConversationsList
+              key={conversationRefreshKey}
               token={token}
               currentUserId={user?._id}
               onShowProfile={(u: any) => showProfile(u)}

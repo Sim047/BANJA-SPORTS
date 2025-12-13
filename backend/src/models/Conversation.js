@@ -23,6 +23,13 @@ const ConversationSchema = new mongoose.Schema(
       default: null,
     },
 
+    // Track last read timestamp per user
+    lastReadAt: {
+      type: Map,
+      of: Date,
+      default: new Map(),
+    },
+
     // optional metadata
     meta: { type: mongoose.Schema.Types.Mixed, default: {} },
   },

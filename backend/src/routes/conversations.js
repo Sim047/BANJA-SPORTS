@@ -8,7 +8,7 @@ const router = express.Router();
 
 /**
  * GET /api/conversations
- * returns conversations for current user (populated participants + lastMessage)
+ * returns conversations for current user (populated participants + lastMessage + unread count)
  */
 router.get('/', auth, async (req, res) => {
   try {
@@ -21,7 +21,27 @@ router.get('/', auth, async (req, res) => {
       })
       .sort({ updatedAt: -1 });
 
-    res.json(convs);
+    // Calculate unread count for each conversation
+    const convsWithUnread = await Promise.all(
+      convs.map(async (conv) => {
+        const lastReadAt = conv.lastReadAt?.get(userId.toString()) || new Date(0);
+        
+        // Count messages after lastReadAt that are not hidden and not sent by current user
+        const unreadCount = await Message.countDocuments({
+          room: conv._id.toString(),
+          createdAt: { $gt: lastReadAt },
+          sender: { $ne: userId },
+          hiddenFor: { $ne: userId },
+        });
+
+        return {
+          ...conv.toObject(),
+          unreadCount,
+        };
+      })
+    );
+
+    res.json(convsWithUnread);
   } catch (err) {
     console.error('[conversations/get]', err);
     res.status(500).json({ message: 'Server error' });
@@ -80,13 +100,18 @@ router.post('/', auth, async (req, res) => {
 
 /**
  * GET /api/conversations/:id/messages
- * returns messages for the conversation room ID
+ * returns messages for the conversation room ID (excluding hidden ones for current user)
  */
 router.get('/:id/messages', auth, async (req, res) => {
   try {
+    const userId = req.user.id;
     const convId = req.params.id;
 
-    const msgs = await Message.find({ room: convId })
+    // Only return messages not hidden for this user
+    const msgs = await Message.find({ 
+      room: convId,
+      hiddenFor: { $ne: userId },
+    })
       .populate('sender', 'username avatar')
       .populate('replyTo')
       .populate('readBy', 'username')
@@ -149,10 +174,36 @@ router.delete('/:id/messages', auth, async (req, res) => {
       { room: convId },
       { $addToSet: { hiddenFor: userId } }
     );
+
+    // Update lastReadAt to mark as read
+    await Conversation.findByIdAndUpdate(convId, {
+      [`lastReadAt.${userId}`]: new Date(),
+    });
     
     res.json({ success: true });
   } catch (err) {
     console.error('[conversations/clearMessages]', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+/**
+ * POST /api/conversations/:id/read
+ * mark conversation as read for current user
+ */
+router.post('/:id/read', auth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const convId = req.params.id;
+
+    // Update lastReadAt timestamp for this user
+    await Conversation.findByIdAndUpdate(convId, {
+      [`lastReadAt.${userId}`]: new Date(),
+    });
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error('[conversations/markRead]', err);
     res.status(500).json({ message: 'Server error' });
   }
 });

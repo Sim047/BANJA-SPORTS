@@ -180,6 +180,13 @@ type Event = {
   location?: any;
   capacity?: any;
   sport?: string;
+  organizer?: {
+    _id: string;
+    username: string;
+    avatar?: string;
+  };
+  participants?: any[];
+  maxParticipants?: number;
 };
 
 export default function Dashboard({ token, onNavigate }: any) {
@@ -472,6 +479,20 @@ export default function Dashboard({ token, onNavigate }: any) {
                   <h3 className="font-bold text-gray-900 dark:text-white mb-3 line-clamp-2 group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors">
                     {event.title}
                   </h3>
+                  
+                  {/* Organizer Info */}
+                  {event.organizer && (
+                    <div 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onNavigate && onNavigate('profile', event.organizer._id);
+                      }}
+                      className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-3 cursor-pointer hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+                    >
+                      <Users className="w-4 h-4 mr-1.5" />
+                      <span>Organized by <span className="font-semibold">{event.organizer.username}</span></span>
+                    </div>
+                  )}
                   
                   <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
                     <div className="flex items-center gap-2">

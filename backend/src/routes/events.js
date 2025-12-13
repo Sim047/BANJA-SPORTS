@@ -228,29 +228,38 @@ router.post("/:id/join", auth, async (req, res) => {
     await event.populate("joinRequests.user", "username avatar");
 
     // Create a booking for this join request
+    console.log("📝 Creating booking for event join...");
     const Booking = (await import("../models/Booking.js")).default;
-    const booking = await Booking.create({
-      client: req.user.id,
-      provider: event.organizer,
-      bookingType: "event",
-      event: event._id,
-      scheduledDate: event.startDate,
-      scheduledTime: event.time || "TBD",
-      location: event.location?.name || "TBD",
-      locationDetails: event.location?.address || "",
-      pricing: {
-        amount: event.pricing.amount || 0,
-        currency: event.pricing.currency || "USD",
-        transactionCode: transactionCode || "FREE_EVENT",
-        transactionDetails: transactionDetails || "",
-        paymentInstructions: event.pricing.paymentInstructions || "",
-      },
-      status: "pending-approval",
-      approvalStatus: "pending",
-      paymentVerified: false,
-    });
+    
+    let booking;
+    try {
+      booking = await Booking.create({
+        client: req.user.id,
+        provider: event.organizer,
+        bookingType: "event",
+        event: event._id,
+        scheduledDate: event.startDate,
+        scheduledTime: event.time || "TBD",
+        location: event.location?.name || "TBD",
+        locationDetails: event.location?.address || "",
+        pricing: {
+          amount: event.pricing.amount || 0,
+          currency: event.pricing.currency || "USD",
+          transactionCode: transactionCode || "FREE_EVENT",
+          transactionDetails: transactionDetails || "",
+          paymentInstructions: event.pricing.paymentInstructions || "",
+        },
+        status: "pending-approval",
+        approvalStatus: "pending",
+        paymentVerified: false,
+      });
 
-    console.log("Booking created for event join request:", booking._id);
+      console.log("✅ Booking created successfully:", booking._id);
+    } catch (bookingErr) {
+      console.error("❌ Failed to create booking:", bookingErr);
+      // Continue anyway - join request was created
+      booking = null;
+    }
 
     // Emit socket notification to event organizer
     const io = req.app.get("io");

@@ -349,35 +349,52 @@ router.post("/:id/reject-request/:requestId", auth, async (req, res) => {
 router.get("/my-join-requests", auth, async (req, res) => {
   try {
     console.log("Fetching join requests for user:", req.user.id);
+    
+    // Find events where user has a join request
     const events = await Event.find({
       "joinRequests.user": req.user.id,
     })
       .populate("organizer", "username avatar")
-      .populate("joinRequests.user", "username avatar");
+      .populate("joinRequests.user", "username avatar")
+      .lean();
 
     console.log("Found events with requests:", events.length);
 
-    const myRequests = events.map(event => {
-      const request = event.joinRequests.find(
-        r => r.user._id.toString() === req.user.id
-      );
-      return {
-        event: {
-          _id: event._id,
-          title: event.title,
-          startDate: event.startDate,
-          location: event.location,
-          organizer: event.organizer,
-        },
-        request,
-      };
-    });
+    // Map to simpler structure
+    const myRequests = events
+      .map(event => {
+        if (!event.joinRequests || !Array.isArray(event.joinRequests)) {
+          return null;
+        }
+        
+        const request = event.joinRequests.find(
+          r => r.user && r.user._id && r.user._id.toString() === req.user.id
+        );
+        
+        if (!request) return null;
+        
+        return {
+          event: {
+            _id: event._id,
+            title: event.title,
+            startDate: event.startDate,
+            location: event.location,
+            organizer: event.organizer,
+          },
+          request,
+        };
+      })
+      .filter(Boolean); // Remove null entries
 
     console.log("Returning requests:", myRequests.length);
     res.json(myRequests);
   } catch (err) {
     console.error("Get my join requests error:", err);
-    res.status(500).json({ error: "Failed to fetch join requests" });
+    console.error("Error stack:", err.stack);
+    res.status(500).json({ 
+      error: "Failed to fetch join requests",
+      message: err.message 
+    });
   }
 });
 
@@ -387,28 +404,34 @@ router.get("/my-events-requests", auth, async (req, res) => {
     console.log("=== FETCHING EVENT REQUESTS ===");
     console.log("Organizer ID:", req.user.id);
     
-    // First, let's see ALL events by this organizer
-    const allMyEvents = await Event.find({ organizer: req.user.id });
-    console.log("Total events I organize:", allMyEvents.length);
-    
-    allMyEvents.forEach(event => {
-      console.log(`  - ${event.title}: ${event.joinRequests?.length || 0} join requests`);
-    });
-    
-    // Find all events organized by this user that have any join requests
+    // Find all events organized by this user
     const events = await Event.find({
       organizer: req.user.id,
-      joinRequests: { $exists: true, $ne: [] }
+      "joinRequests.0": { $exists: true } // Has at least one join request
     })
-      .populate("joinRequests.user", "username avatar email");
+      .populate("joinRequests.user", "username avatar email")
+      .lean();
 
     console.log("Events with join requests:", events.length);
 
+    // Extract pending requests
     const pendingRequests = [];
+    
     events.forEach(event => {
+      if (!event.joinRequests || !Array.isArray(event.joinRequests)) {
+        return;
+      }
+      
       console.log(`Event "${event.title}" has ${event.joinRequests.length} join requests`);
+      
       event.joinRequests.forEach(request => {
-        console.log(`  Request from ${request.user?.username || 'unknown'} - status: ${request.status}`);
+        if (!request.user) {
+          console.log(`  Skipping request with no user`);
+          return;
+        }
+        
+        console.log(`  Request from ${request.user.username || 'unknown'} - status: ${request.status}`);
+        
         if (request.status === "pending") {
           pendingRequests.push({
             requestId: request._id,
@@ -430,7 +453,11 @@ router.get("/my-events-requests", auth, async (req, res) => {
     res.json(pendingRequests);
   } catch (err) {
     console.error("Get events requests error:", err);
-    res.status(500).json({ error: "Failed to fetch event requests" });
+    console.error("Error stack:", err.stack);
+    res.status(500).json({ 
+      error: "Failed to fetch event requests",
+      message: err.message 
+    });
   }
 });
 

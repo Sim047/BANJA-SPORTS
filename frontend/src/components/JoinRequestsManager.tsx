@@ -46,9 +46,11 @@ export default function JoinRequestsManager({ token }: { token: string }) {
         headers: { Authorization: `Bearer ${token}` },
       });
       console.log("JoinRequestsManager: Received data:", res.data);
-      setRequests(res.data);
-    } catch (err) {
+      setRequests(Array.isArray(res.data) ? res.data : []);
+    } catch (err: any) {
       console.error("Error loading join requests:", err);
+      // Silently fail - just show no requests
+      setRequests([]);
     } finally {
       setLoading(false);
     }

@@ -29,6 +29,7 @@ import SimpleApproveRequests from "../components/SimpleApproveRequests";
 import MyJoinRequestsPage from "./MyJoinRequests";
 import PendingApprovalsPage from "./PendingApprovals";
 import AllEvents from "./AllEvents";
+import NotificationsPage from "./Notifications";
 import SportEvents from "./SportEvents";
 
 dayjs.extend(relativeTime);
@@ -199,9 +200,11 @@ export default function Dashboard({ token, onNavigate }: any) {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [createEventModalOpen, setCreateEventModalOpen] = useState(false);
   const [selectedSport, setSelectedSport] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'dashboard' | 'myRequests' | 'approvals' | 'allEvents'>('dashboard');
+  const [viewMode, setViewMode] = useState<'dashboard' | 'myRequests' | 'approvals' | 'allEvents' | 'notifications'>('dashboard');
   const [myRequestsCount, setMyRequestsCount] = useState(0);
   const [approvalsCount, setApprovalsCount] = useState(0);
+  const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
+  const [approvedRequestsCount, setApprovedRequestsCount] = useState(0);
 
   useEffect(() => {
     if (!token) return;
@@ -268,8 +271,12 @@ export default function Dashboard({ token, onNavigate }: any) {
         const myRequestsRes = await axios.get(`${API}/api/bookings-simple/my-requests`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        const pendingRequests = (myRequestsRes.data.bookings || []).filter((b: any) => b.status === "pending");
+        const allRequests = myRequestsRes.data.bookings || [];
+        const pendingRequests = allRequests.filter((b: any) => b.status === "pending");
+        const approvedRequests = allRequests.filter((b: any) => b.status === "approved");
         setMyRequestsCount(pendingRequests.length);
+        setPendingRequestsCount(pendingRequests.length);
+        setApprovedRequestsCount(approvedRequests.length);
         
         const approvalsRes = await axios.get(`${API}/api/bookings-simple/to-approve`, {
           headers: { Authorization: `Bearer ${token}` },
@@ -330,6 +337,10 @@ export default function Dashboard({ token, onNavigate }: any) {
 
   if (viewMode === 'allEvents') {
     return <AllEvents token={token} onBack={() => setViewMode('dashboard')} onNavigate={onNavigate} onViewEvent={(id: string) => console.log('View event:', id)} />;
+  }
+
+  if (viewMode === 'notifications') {
+    return <NotificationsPage token={token} onBack={() => setViewMode('dashboard')} />;
   }
 
   // If viewing a specific sport's events, show that component
@@ -423,7 +434,7 @@ export default function Dashboard({ token, onNavigate }: any) {
               <div>
                 <p className="text-sm text-purple-600 dark:text-purple-400 mb-1 font-medium">All Events</p>
                 <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.upcomingEvents}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">View & manage all</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Upcoming events</p>
               </div>
               <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30 group-hover:rotate-12 transition-transform">
                 <Calendar className="w-6 h-6 text-white" />
@@ -431,196 +442,121 @@ export default function Dashboard({ token, onNavigate }: any) {
             </div>
           </button>
 
-          <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-6 border border-gray-200 dark:border-gray-800 hover:shadow-xl transition-all duration-300">
-            <div className="flex items-center justify-between">
+          {/* Notifications - Clickable */}
+          <button
+            onClick={() => setViewMode('notifications')}
+            className="bg-white dark:bg-[#0f172a] rounded-2xl p-6 border-2 border-orange-200 dark:border-red-800 hover:shadow-xl hover:scale-105 transition-all duration-300 text-left group relative overflow-hidden"
+          >
+            <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500"></div>
+            <div className="relative flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Notifications</p>
+                <p className="text-sm text-orange-600 dark:text-red-400 mb-1 font-medium">Notifications</p>
                 <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.notifications}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">View all updates</p>
               </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/30">
+              <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/30 group-hover:rotate-12 transition-transform">
                 <Bell className="w-6 h-6 text-white" />
               </div>
+            </div>
+          </button>
+        </div>
+
+        {/* Second Row - Additional Quick Stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Pending Requests */}
+          <button
+            onClick={() => setViewMode('myRequests')}
+            className="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 rounded-2xl p-6 border-2 border-amber-200 dark:border-amber-700 hover:shadow-xl hover:scale-105 transition-all duration-300 text-left"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-amber-700 dark:text-amber-400 mb-1 font-medium">Pending Requests</p>
+                <p className="text-3xl font-bold text-amber-900 dark:text-amber-300">{pendingRequestsCount}</p>
+              </div>
+              <Clock className="w-10 h-10 text-amber-600 dark:text-amber-500" />
+            </div>
+          </button>
+
+          {/* Approved Requests */}
+          <button
+            onClick={() => setViewMode('myRequests')}
+            className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-2xl p-6 border-2 border-green-200 dark:border-green-700 hover:shadow-xl hover:scale-105 transition-all duration-300 text-left"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-green-700 dark:text-green-400 mb-1 font-medium">Approved Requests</p>
+                <p className="text-3xl font-bold text-green-900 dark:text-green-300">{approvedRequestsCount}</p>
+              </div>
+              <CheckCircle2 className="w-10 h-10 text-green-600 dark:text-green-500" />
+            </div>
+          </button>
+
+          {/* Total Bookings */}
+          <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-6 border border-gray-200 dark:border-gray-800 hover:shadow-lg transition-all duration-300">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Bookings</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.totalBookings}</p>
+              </div>
+              <BookOpen className="w-10 h-10 text-teal-500" />
+            </div>
+          </div>
+
+          {/* Confirmed Bookings */}
+          <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-6 border border-gray-200 dark:border-gray-800 hover:shadow-lg transition-all duration-300">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Confirmed</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.confirmedBookings}</p>
+              </div>
+              <CheckCircle2 className="w-10 h-10 text-green-500" />
             </div>
           </div>
         </div>
 
-        {/* Notifications */}
-        {notifications.length > 0 && (
-          <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
-            <div className="flex items-center gap-2 mb-4">
-              <Bell className="w-5 h-5 text-teal-500" />
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                Notifications
-              </h2>
+        {/* Ready to Train Banner - Always at the bottom */}
+        <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-3xl p-8 md:p-12 text-white relative overflow-hidden">
+          <div className="absolute inset-0 bg-black/10"></div>
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32"></div>
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full -ml-24 -mb-24"></div>
+          
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-4">
+              <Trophy className="w-8 h-8" />
+              <h2 className="text-3xl font-bold">Ready to Train?</h2>
             </div>
-            <div className="space-y-3">
-              {notifications.map((notif) => (
-                <div
-                  key={notif.id}
-                  className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors"
-                >
-                  <div className="w-2 h-2 bg-teal-500 rounded-full mt-2 shrink-0"></div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-900 dark:text-white mb-1">
-                      {notif.title}
-                    </p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      {notif.message}
-                    </p>
-                  </div>
-                  <span className="text-xs text-gray-500 dark:text-gray-500 shrink-0">
-                    {notif.time}
-                  </span>
-                </div>
-              ))}
+            <p className="text-lg mb-6 text-white/90">
+              Join events, connect with athletes, and take your fitness to the next level!
+            </p>
+            <div className="flex flex-wrap gap-4">
+              <button
+                onClick={() => onNavigate && onNavigate('discover')}
+                className="px-6 py-3 bg-white text-purple-600 font-bold rounded-xl hover:bg-gray-100 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 flex items-center gap-2"
+              >
+                <Sparkles className="w-5 h-5" />
+                Discover Events
+              </button>
+              <button
+                onClick={() => setCreateEventModalOpen(true)}
+                className="px-6 py-3 bg-white/20 backdrop-blur-sm text-white font-bold rounded-xl hover:bg-white/30 transition-all duration-300 border-2 border-white/50 flex items-center gap-2"
+              >
+                <Plus className="w-5 h-5" />
+                Create Event
+              </button>
             </div>
           </div>
-        )}
+        </div>
 
-        {/* ========== NEW SIMPLE BOOKING SYSTEM ========== */}
-        <SimpleApproveRequests token={token} />
-        <SimpleMyRequests />
-        
-        {/* ========== OLD SYSTEM (hidden for now) ========== */}
+        {/* Hidden sections - All scattered content now hidden */}
         <div className="hidden">
+          <SimpleApproveRequests token={token} />
+          <SimpleMyRequests />
           <PendingApprovals token={token} />
           <MyJoinRequests token={token} />
           <JoinRequestsManager token={token} />
           <MyPendingRequests />
-        </div>
-
-        {/* Upcoming Events Section */}
-        {upcomingEvents.length > 0 && (
-          <div className="bg-white dark:bg-[#0f172a] rounded-3xl p-8 border border-gray-200 dark:border-gray-800">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="p-3 bg-gradient-to-br from-slate-600 to-slate-700 dark:from-slate-700 dark:to-slate-800 rounded-xl shadow-lg">
-                  <Calendar className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Upcoming Events</h2>
-                  <p className="text-gray-600 dark:text-gray-400 text-sm">Events happening in the next 30 days</p>
-                </div>
-              </div>
-              <button
-                onClick={() => setCreateEventModalOpen(true)}
-                className="px-4 py-2 bg-slate-700 hover:bg-slate-800 dark:bg-slate-600 dark:hover:bg-slate-700 text-white font-medium rounded-xl transition-all duration-300 flex items-center gap-2 shadow-lg"
-              >
-                <Plus className="w-4 h-4" />
-                Create Event
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {upcomingEvents.slice(0, 6).map((event) => (
-                <div
-                  key={event._id}
-                  className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900/50 dark:to-gray-800/50 rounded-2xl p-5 border border-gray-200 dark:border-gray-700 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer group"
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="w-12 h-12 bg-gradient-to-br from-slate-600 to-slate-700 dark:from-slate-700 dark:to-slate-800 rounded-xl flex items-center justify-center shadow-lg">
-                      <Calendar className="w-6 h-6 text-white" />
-                    </div>
-                    {event.sport && (
-                      <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-medium border border-slate-200 dark:border-slate-700">
-                        {event.sport}
-                      </span>
-                    )}
-                  </div>
-                  
-                  <h3 className="font-bold text-gray-900 dark:text-white mb-3 line-clamp-2 group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors">
-                    {event.title}
-                  </h3>
-                  
-                  {/* Organizer Info */}
-                  {event.organizer && (
-                    <div 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onNavigate && onNavigate('profile', event.organizer._id);
-                      }}
-                      className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-3 cursor-pointer hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
-                    >
-                      <Users className="w-4 h-4 mr-1.5" />
-                      <span>Organized by <span className="font-semibold">{event.organizer.username}</span></span>
-                    </div>
-                  )}
-                  
-                  <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4 shrink-0 text-slate-500" />
-                      <span className="truncate">
-                        {dayjs(event.startDate).format('MMM D, YYYY')}
-                        {event.time && ` at ${event.time}`}
-                      </span>
-                    </div>
-                    {event.location?.city && (
-                      <div className="flex items-center gap-2">
-                        <MapPin className="w-4 h-4 shrink-0 text-slate-500" />
-                        <span className="truncate">
-                          {event.location.city}
-                          {event.location.state && `, ${event.location.state}`}
-                        </span>
-                      </div>
-                    )}
-                    <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4 shrink-0 text-slate-500" />
-                      <span className="truncate">
-                        {event.participants?.length || 0} / {event.maxParticipants} participants
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                    <span className="text-xs text-gray-500 dark:text-gray-500">
-                      {dayjs(event.startDate).fromNow()}
-                    </span>
-                    <ArrowRight className="w-4 h-4 text-slate-500 group-hover:text-slate-700 dark:group-hover:text-slate-300 group-hover:translate-x-1 transition-all" />
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {upcomingEvents.length > 6 && (
-              <div className="mt-6 text-center">
-                <button
-                  className="px-6 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium rounded-xl transition-all duration-300 inline-flex items-center gap-2"
-                >
-                  View All {upcomingEvents.length} Events
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Empty State for Events */}
-        {upcomingEvents.length === 0 && (
-          <div className="bg-white dark:bg-[#0f172a] rounded-3xl p-12 border border-gray-200 dark:border-gray-800 text-center">
-            <div className="max-w-md mx-auto">
-              <div className="w-20 h-20 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Calendar className="w-10 h-10 text-slate-500" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                No Upcoming Events
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-6">
-                There are no events scheduled for the next 30 days. Create one to get started!
-              </p>
-              <button
-                onClick={() => setCreateEventModalOpen(true)}
-                className="px-6 py-3 bg-slate-700 hover:bg-slate-800 dark:bg-slate-600 dark:hover:bg-slate-700 text-white font-medium rounded-xl transition-all duration-300 inline-flex items-center gap-2 shadow-lg"
-              >
-                <Plus className="w-4 h-4" />
-                Create Your First Event
-              </button>
-            </div>
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* My Bookings */}
-          <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                 My Bookings
@@ -740,50 +676,6 @@ export default function Dashboard({ token, onNavigate }: any) {
             )}
           </div>
         </div>
-
-        {/* Quick Actions */}
-        <div className="relative overflow-hidden bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-500 rounded-3xl p-8 text-white">
-          <div className="absolute top-0 right-0 opacity-10">
-            <Sparkles className="w-64 h-64" />
-          </div>
-          
-          <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl">
-                <Trophy className="w-6 h-6" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold mb-1">Ready to train?</h2>
-                <p className="text-white/90">
-                  Discover new coaches, join events, or book your next training session
-                </p>
-              </div>
-            </div>
-            
-            <div className="flex flex-wrap gap-3 mt-6">
-              <button
-                onClick={() => onNavigate && onNavigate('discover')}
-                className="px-6 py-3 bg-white text-teal-600 font-semibold rounded-xl hover:bg-gray-100 transition-all duration-300 shadow-xl flex items-center gap-2"
-              >
-                <Star className="w-5 h-5" />
-                Explore Now
-              </button>
-              <button
-                onClick={() => onNavigate && onNavigate('all-users')}
-                className="px-6 py-3 bg-white/10 backdrop-blur-sm text-white font-semibold rounded-xl hover:bg-white/20 transition-all duration-300 border border-white/30 flex items-center gap-2"
-              >
-                <Users className="w-5 h-5" />
-                Find Coaches
-              </button>
-              <button
-                onClick={() => setCreateEventModalOpen(true)}
-                className="px-6 py-3 bg-white/10 backdrop-blur-sm text-white font-semibold rounded-xl hover:bg-white/20 transition-all duration-300 border border-white/30 flex items-center gap-2"
-              >
-                <Plus className="w-5 h-5" />
-                Create Event
-              </button>
-            </div>
-          </div>
         </div>
       </div>
 

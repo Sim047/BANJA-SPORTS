@@ -146,6 +146,9 @@ export default function Sidebar({
     }
   ];
 
+  // Calculate total unread messages from conversations
+  const totalUnreadMessages = conversations.reduce((sum, conv) => sum + (conv.unreadCount || 0), 0);
+
   // Helper component for navigation buttons
   const NavButton = ({ icon: Icon, label, badge, isCollapsed, onClick }: any) => (
     <button
@@ -374,7 +377,7 @@ export default function Sidebar({
         <NavButton
           icon={MessageCircle}
           label="Direct Messages"
-          badge={conversations.length}
+          badge={totalUnreadMessages}
           isCollapsed={isCollapsed}
           onClick={() => {
             onNavigate?.('direct-messages');

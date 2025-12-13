@@ -21,12 +21,18 @@ router.get('/', auth, async (req, res) => {
       })
       .sort({ updatedAt: -1 });
 
-    // Calculate unread count for each conversation
+    // Calculate unread count for each conversation and filter out empty ones
     const convsWithUnread = await Promise.all(
       convs.map(async (conv) => {
         const lastReadAt = conv.lastReadAt?.get(userId.toString()) || new Date(0);
         
-        // Count messages after lastReadAt that are not hidden and not sent by current user
+        // Count visible messages (not hidden for this user)
+        const totalVisibleMessages = await Message.countDocuments({
+          room: conv._id.toString(),
+          hiddenFor: { $ne: userId },
+        });
+        
+        // Count unread messages (after lastReadAt, not hidden, not sent by current user)
         const unreadCount = await Message.countDocuments({
           room: conv._id.toString(),
           createdAt: { $gt: lastReadAt },
@@ -37,11 +43,15 @@ router.get('/', auth, async (req, res) => {
         return {
           ...conv.toObject(),
           unreadCount,
+          totalVisibleMessages,
         };
       })
     );
 
-    res.json(convsWithUnread);
+    // Filter out conversations with no visible messages (user cleared/deleted everything)
+    const activeConvs = convsWithUnread.filter(c => c.totalVisibleMessages > 0);
+
+    res.json(activeConvs);
   } catch (err) {
     console.error('[conversations/get]', err);
     res.status(500).json({ message: 'Server error' });

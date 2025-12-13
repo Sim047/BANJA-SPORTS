@@ -758,6 +758,8 @@ function onMyStatusUpdated(newStatus: any) {
 
     if (!id) return;
 
+    // Open modal immediately to show loading state
+    setProfileOpen(true);
     setProfileLoading(true);
     setProfileUser(null);
 
@@ -795,10 +797,9 @@ function onMyStatusUpdated(newStatus: any) {
       );
     } catch (err) {
       console.error("Profile load failed:", err);
+    } finally {
+      setProfileLoading(false);
     }
-
-    setProfileLoading(false);
-    setProfileOpen(true);
   }
   // FOLLOW / UNFOLLOW --------------------------------------------
   async function toggleFollowProfile() {

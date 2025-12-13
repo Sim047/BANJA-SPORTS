@@ -975,7 +975,7 @@ function onMyStatusUpdated(newStatus: any) {
 
               {m.fileUrl && (
                 <img
-                  src={API + m.fileUrl}
+                  src={m.fileUrl.startsWith('http') ? m.fileUrl : API + m.fileUrl}
                   className="max-w-full w-auto h-auto rounded-md mt-2"
                   style={{ maxHeight: "400px", objectFit: "contain" }}
                 />

@@ -17,6 +17,18 @@ const MONGO_URI = process.env.MONGO_URI;
 // Sample users data
 const usersData = [
   {
+    username: "Simo",
+    email: "simo@test.com",
+    password: "$2b$10$Znmk1jKp7nSFyshdmL7HweYzOmaqQdCG7puBhTyyvxAemacoNHt0W", // "123456"
+    avatar: "https://randomuser.me/api/portraits/men/10.jpg",
+  },
+  {
+    username: "Sonnie",
+    email: "sonnie@test.com",
+    password: "$2b$10$Znmk1jKp7nSFyshdmL7HweYzOmaqQdCG7puBhTyyvxAemacoNHt0W", // "123456"
+    avatar: "https://randomuser.me/api/portraits/men/11.jpg",
+  },
+  {
     username: "Sarah Johnson",
     email: "sarah@auralink.com",
     password: "$2a$10$XQxQ9h9h9h9h9h9h9h9h9uO", // "password123"

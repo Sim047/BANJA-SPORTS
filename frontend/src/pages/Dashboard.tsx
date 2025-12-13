@@ -26,6 +26,8 @@ import MyJoinRequests from "../components/MyJoinRequests";
 import MyPendingRequests from "../components/MyPendingRequests";
 import SimpleMyRequests from "../components/SimpleMyRequests";
 import SimpleApproveRequests from "../components/SimpleApproveRequests";
+import MyJoinRequestsPage from "./MyJoinRequests";
+import PendingApprovalsPage from "./PendingApprovals";
 import SportEvents from "./SportEvents";
 
 dayjs.extend(relativeTime);
@@ -196,6 +198,9 @@ export default function Dashboard({ token, onNavigate }: any) {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [createEventModalOpen, setCreateEventModalOpen] = useState(false);
   const [selectedSport, setSelectedSport] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'dashboard' | 'myRequests' | 'approvals'>('dashboard');
+  const [myRequestsCount, setMyRequestsCount] = useState(0);
+  const [approvalsCount, setApprovalsCount] = useState(0);
 
   useEffect(() => {
     if (!token) return;
@@ -257,6 +262,21 @@ export default function Dashboard({ token, onNavigate }: any) {
 
       setNotifications([...bookingNotifications, ...eventNotifications].slice(0, 5));
 
+      // Load booking counts for quick stats
+      try {
+        const myRequestsRes = await axios.get(`${API}/api/bookings-simple/my-requests`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const pendingRequests = (myRequestsRes.data.bookings || []).filter((b: any) => b.status === "pending");
+        setMyRequestsCount(pendingRequests.length);
+        
+        const approvalsRes = await axios.get(`${API}/api/bookings-simple/to-approve`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setApprovalsCount(approvalsRes.data.bookings?.length || 0);
+      } catch (err) {
+        console.error("Booking counts error:", err);
+      }
     } catch (err) {
       console.error("Dashboard load error:", err);
     } finally {
@@ -297,6 +317,15 @@ export default function Dashboard({ token, onNavigate }: any) {
     upcomingEvents: upcomingEvents.length,
     notifications: notifications.length,
   };
+
+  // View Mode Routing
+  if (viewMode === 'myRequests') {
+    return <MyJoinRequestsPage onBack={() => setViewMode('dashboard')} onNavigate={onNavigate} />;
+  }
+
+  if (viewMode === 'approvals') {
+    return <PendingApprovalsPage token={token} onBack={() => setViewMode('dashboard')} onNavigate={onNavigate} />;
+  }
 
   // If viewing a specific sport's events, show that component
   if (selectedSport) {
@@ -343,29 +372,41 @@ export default function Dashboard({ token, onNavigate }: any) {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-6 border border-gray-200 dark:border-gray-800 hover:shadow-xl transition-all duration-300">
-            <div className="flex items-center justify-between">
+          {/* My Join Requests - Clickable */}
+          <button
+            onClick={() => setViewMode('myRequests')}
+            className="bg-white dark:bg-[#0f172a] rounded-2xl p-6 border-2 border-blue-200 dark:border-blue-800 hover:shadow-xl hover:scale-105 transition-all duration-300 text-left group relative overflow-hidden"
+          >
+            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500"></div>
+            <div className="relative flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Bookings</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.totalBookings}</p>
+                <p className="text-sm text-blue-600 dark:text-blue-400 mb-1 font-medium">My Join Requests</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white">{myRequestsCount}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Pending approval</p>
               </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg shadow-teal-500/30">
-                <BookOpen className="w-6 h-6 text-white" />
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:rotate-12 transition-transform">
+                <Clock className="w-6 h-6 text-white" />
               </div>
             </div>
-          </div>
+          </button>
 
-          <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-6 border border-gray-200 dark:border-gray-800 hover:shadow-xl transition-all duration-300">
-            <div className="flex items-center justify-between">
+          {/* Pending Approvals - Clickable */}
+          <button
+            onClick={() => setViewMode('approvals')}
+            className="bg-white dark:bg-[#0f172a] rounded-2xl p-6 border-2 border-orange-200 dark:border-orange-800 hover:shadow-xl hover:scale-105 transition-all duration-300 text-left group relative overflow-hidden"
+          >
+            <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500"></div>
+            <div className="relative flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Confirmed</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.confirmedBookings}</p>
+                <p className="text-sm text-orange-600 dark:text-orange-400 mb-1 font-medium">Pending Approvals</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white">{approvalsCount}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Awaiting your review</p>
               </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg shadow-green-500/30">
-                <CheckCircle2 className="w-6 h-6 text-white" />
+              <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/30 group-hover:rotate-12 transition-transform">
+                <AlertCircle className="w-6 h-6 text-white" />
               </div>
             </div>
-          </div>
+          </button>
 
           <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-6 border border-gray-200 dark:border-gray-800 hover:shadow-xl transition-all duration-300">
             <div className="flex items-center justify-between">
@@ -382,15 +423,17 @@ export default function Dashboard({ token, onNavigate }: any) {
           <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-6 border border-gray-200 dark:border-gray-800 hover:shadow-xl transition-all duration-300">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Notifications</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Bookings</p>
                 <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.notifications}</p>
               </div>
               <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/30">
                 <Bell className="w-6 h-6 text-white" />
               </div>
             </div>
-          </div>
-        </div>
+          </div>        </div>
+
+        {/* Notifications */}
+        {notifications.length > 0 && (        </div>
 
         {/* Notifications */}
         {notifications.length > 0 && (

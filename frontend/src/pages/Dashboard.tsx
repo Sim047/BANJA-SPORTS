@@ -23,7 +23,7 @@ import CreateEventModal from "../components/CreateEventModal";
 import PendingApprovals from "../components/PendingApprovals";
 import JoinRequestsManager from "../components/JoinRequestsManager";
 import MyJoinRequests from "../components/MyJoinRequests";
-import MyBookings from "../components/MyBookings";
+import MyPendingRequests from "../components/MyPendingRequests";
 import SportEvents from "./SportEvents";
 
 dayjs.extend(relativeTime);
@@ -425,8 +425,8 @@ export default function Dashboard({ token, onNavigate }: any) {
         {/* Join Requests Manager (Requests for events I organize) */}
         <JoinRequestsManager token={token} />
 
-        {/* My Bookings */}
-        <MyBookings />
+        {/* My Pending Requests (bookings I created) */}
+        <MyPendingRequests />
 
         {/* Upcoming Events Section */}
         {upcomingEvents.length > 0 && (

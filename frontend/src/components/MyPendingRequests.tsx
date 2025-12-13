@@ -2,53 +2,41 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { Calendar, Clock, MapPin, RefreshCw, CheckCircle, XCircle, AlertCircle } from "lucide-react";
+import { Calendar, Clock, MapPin, RefreshCw, CheckCircle, XCircle, AlertCircle, Loader } from "lucide-react";
 
 dayjs.extend(relativeTime);
 
 const API = (import.meta as any).env?.VITE_API_URL || "http://localhost:5000";
 
+// Simple component showing MY pending requests (bookings I created)
+
 interface Booking {
   _id: string;
-  client: {
-    _id: string;
-    username: string;
-    email: string;
-    avatar?: string;
-  };
   provider: {
     _id: string;
     username: string;
     email: string;
     avatar?: string;
   };
-  bookingType: string;
   event?: {
     _id: string;
     title: string;
-  };
-  service?: {
-    _id: string;
-    name: string;
   };
   status: string;
   approvalStatus: string;
   paymentVerified: boolean;
   scheduledDate: string;
   scheduledTime: string;
-  location?: string;
   pricing: {
     amount: number;
     currency: string;
     transactionCode?: string;
-    transactionDetails?: string;
   };
-  clientNotes?: string;
   rejectionReason?: string;
   createdAt: string;
 }
 
-export default function MyBookings() {
+export default function MyPendingRequests() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -63,15 +51,19 @@ export default function MyBookings() {
     try {
       setLoading(true);
       setError("");
-      const { data } = await axios.get<{ bookings: Booking[] }>(`${API}/api/bookings?limit=100`, {
+      console.log("[MyPendingRequests] Loading bookings as client...");
+      
+      // Use my-bookings endpoint which only returns bookings where I'm the client
+      const { data } = await axios.get<{ bookings: Booking[] }>(`${API}/api/bookings/my-bookings?limit=50`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      // Filter to only show bookings where current user is the client
-      const myBookings = data.bookings.filter(b => b.client && typeof b.client === 'object');
-      setBookings(myBookings);
+      
+      console.log(`[MyPendingRequests] Loaded ${data.bookings.length} bookings`);
+      setBookings(data.bookings || []);
     } catch (err: any) {
-      console.error("Load bookings error:", err);
-      setError(err.response?.data?.error || "Failed to load bookings");
+      console.error("[MyPendingRequests] Load error:", err);
+      setError(err.response?.data?.error || "Failed to load your requests");
+      setBookings([]);
     } finally {
       setLoading(false);
     }
@@ -128,23 +120,24 @@ export default function MyBookings() {
 
   if (loading) {
     return (
-      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-800">
+      <div className="bg-white dark:bg-[#0f172a] rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-800">
         <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-800">
+    <div className="bg-white dark:bg-[#0f172a] rounded-2xl shadow-lg p-6 border border-blue-200 dark:border-blue-900/50">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold bg-gradient-to-r from-teal-500 to-cyan-500 bg-clip-text text-transparent">
-            My Bookings
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <Clock className="w-5 h-5 text-blue-500" />
+            My Pending Requests
           </h2>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            {bookings.length} booking{bookings.length !== 1 ? "s" : ""}
+            {bookings.length} request{bookings.length !== 1 ? "s" : ""} sent to others
           </p>
         </div>
         <button
@@ -156,25 +149,26 @@ export default function MyBookings() {
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400 text-sm">
-          {error}
+        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+          <p className="text-red-600 dark:text-red-400 text-sm font-medium">{error}</p>
+          <button onClick={loadBookings} className="text-xs text-red-500 underline mt-1">Try again</button>
         </div>
       )}
 
       {bookings.length === 0 ? (
         <div className="text-center py-12">
-          <Calendar className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-          <p className="text-gray-600 dark:text-gray-400">No bookings yet</p>
+          <CheckCircle className="w-16 h-16 mx-auto text-green-400 mb-4" />
+          <p className="text-gray-600 dark:text-gray-400">No pending requests</p>
           <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">
-            Book an event or service to see it here
+            Join an event to create a booking request
           </p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {bookings.map((booking) => (
             <div
               key={booking._id}
-              className="p-4 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl hover:shadow-lg transition-shadow"
+              className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10 border border-blue-200 dark:border-blue-800 rounded-xl hover:shadow-lg transition-shadow"
             >
               <div className="flex items-start justify-between gap-4 mb-3">
                 <div className="flex-1">

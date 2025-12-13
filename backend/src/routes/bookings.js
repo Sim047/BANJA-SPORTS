@@ -7,7 +7,7 @@ import auth from "../middleware/auth.js";
 
 const router = express.Router();
 
-// GET all bookings for current user (my-bookings endpoint)
+// GET all bookings for current user (my-bookings endpoint - where I'm the CLIENT)
 router.get("/my-bookings", auth, async (req, res) => {
   try {
     const { status, type, limit = 50 } = req.query;
@@ -25,6 +25,7 @@ router.get("/my-bookings", auth, async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(Number(limit));
 
+    console.log(`[my-bookings] User ${req.user.id} has ${bookings.length} bookings as client`);
     res.json({ bookings });
   } catch (err) {
     console.error("Get my bookings error:", err);

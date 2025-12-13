@@ -60,14 +60,18 @@ export default function PendingApprovals({ token }: { token: string }) {
     try {
       setLoading(true);
       setError("");
+      console.log("[PendingApprovals] Loading bookings where I'm the provider...");
+      
       const res = await axios.get(`${API}/api/bookings/pending-approvals/list`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      console.log("Pending approvals response:", res.data);
+      
+      console.log(`[PendingApprovals] Loaded ${res.data.bookings.length} bookings needing approval`);
       setBookings(res.data.bookings || []);
     } catch (err: any) {
-      console.error("Load pending approvals error:", err);
+      console.error("[PendingApprovals] Load error:", err);
       setError(err.response?.data?.error || "Failed to load approval requests");
+      setBookings([]);
     } finally {
       setLoading(false);
     }
@@ -168,7 +172,7 @@ export default function PendingApprovals({ token }: { token: string }) {
           <div className="flex items-center gap-2">
             <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
             <span className="text-sm text-green-800 dark:text-green-300 font-medium">
-              No pending approvals - all caught up! ✓
+              No requests waiting for your approval ✓
             </span>
           </div>
           <button
@@ -192,7 +196,7 @@ export default function PendingApprovals({ token }: { token: string }) {
           </div>
           <div>
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-              Pending Approvals
+              Waiting for My Approval
             </h2>
             <p className="text-sm text-gray-600 dark:text-gray-400">
               {bookings.length} booking request{bookings.length !== 1 ? "s" : ""} awaiting your approval

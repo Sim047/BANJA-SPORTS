@@ -189,7 +189,7 @@ export default function MyEvents({ token }: any) {
               My Activities
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
-              Manage events and services you've created
+              Manage your events, services, and product listings
             </p>
           </div>
           <button

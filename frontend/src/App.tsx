@@ -1201,8 +1201,8 @@ function onMyStatusUpdated(newStatus: any) {
           />
         )}
         
-        {/* MY EVENTS PAGE */}
-        {view === "my-events" && (
+        {/* MY ACTIVITIES PAGE */}
+        {(view === "my-activities" || view === "my-events") && (
           <MyEvents token={token} />
         )}
         

@@ -353,10 +353,10 @@ export default function Sidebar({
         />
         <NavButton
           icon={CalendarDays}
-          label="My Events"
+          label="My Activities"
           isCollapsed={isCollapsed}
           onClick={() => {
-            onNavigate?.('my-events');
+            onNavigate?.('my-activities');
             setIsMobileOpen(false);
           }}
         />

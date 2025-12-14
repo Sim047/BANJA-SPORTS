@@ -540,7 +540,7 @@ export default function Dashboard({ token, onNavigate }: any) {
               <button
                 onClick={() => {
                   if (onNavigate) {
-                    onNavigate('my-events');
+                    onNavigate('my-activities');
                     // Set active tab to services
                     setTimeout(() => {
                       const servicesTab = document.querySelector('[data-tab="services"]') as HTMLElement;
@@ -556,7 +556,7 @@ export default function Dashboard({ token, onNavigate }: any) {
               <button
                 onClick={() => {
                   if (onNavigate) {
-                    onNavigate('my-events');
+                    onNavigate('my-activities');
                     // Set active tab to products
                     setTimeout(() => {
                       const productsTab = document.querySelector('[data-tab="products"]') as HTMLElement;

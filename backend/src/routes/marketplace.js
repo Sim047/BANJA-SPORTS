@@ -5,8 +5,8 @@ import auth from "../middleware/auth.js";
 
 const router = express.Router();
 
-// Get all marketplace items with filters
-router.get("/", auth, async (req, res) => {
+// Get all marketplace items with filters (public route for discovery)
+router.get("/", async (req, res) => {
   try {
     const { category, condition, status, search, minPrice, maxPrice, location } = req.query;
     const page = parseInt(req.query.page) || 1;
@@ -51,8 +51,8 @@ router.get("/", auth, async (req, res) => {
   }
 });
 
-// Get single marketplace item
-router.get("/:id", auth, async (req, res) => {
+// Get single marketplace item (public)
+router.get("/:id", async (req, res) => {
   try {
     const item = await Marketplace.findById(req.params.id)
       .populate("seller", "username avatar email");

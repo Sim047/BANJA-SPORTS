@@ -5,8 +5,8 @@ import auth from "../middleware/auth.js";
 
 const router = express.Router();
 
-// GET all services with filtering
-router.get("/", auth, async (req, res) => {
+// GET all services with filtering (public for discovery)
+router.get("/", async (req, res) => {
   try {
     const {
       search,
@@ -94,8 +94,8 @@ router.get("/", auth, async (req, res) => {
   }
 });
 
-// GET single service
-router.get("/:id", auth, async (req, res) => {
+// GET single service (public for discovery)
+router.get("/:id", async (req, res) => {
   try {
     const service = await Service.findById(req.params.id)
       .populate("provider", "username email avatar")

@@ -23,6 +23,7 @@ import servicesRoutes from "./routes/services.js";
 import bookingsRoutes from "./routes/bookings.js";
 import bookingsSimpleRoutes from "./routes/bookings-simple.js";
 import postsRoutes from "./routes/posts.js";
+import marketplaceRoutes from "./routes/marketplace.js";
 
 // MODELS
 import Message from "./models/Message.js";
@@ -158,6 +159,7 @@ app.use("/api/services", servicesRoutes);
 app.use("/api/bookings-simple", bookingsSimpleRoutes); // NEW SIMPLE SYSTEM
 app.use("/api/bookings", bookingsRoutes); // OLD SYSTEM (keeping for now)
 app.use("/api/posts", postsRoutes);
+app.use("/api/marketplace", marketplaceRoutes);
 
 // lightweight health check (useful for probes / verify deployment)
 app.get('/', (req, res) => res.json({ ok: true, service: 'auralink-backend' }));

@@ -5,8 +5,8 @@ import auth from "../middleware/auth.js";
 
 const router = express.Router();
 
-// GET all events with filtering
-router.get("/", auth, async (req, res) => {
+// GET all events with filtering (public for discovery)
+router.get("/", async (req, res) => {
   try {
     const {
       search,
@@ -85,8 +85,8 @@ router.get("/", auth, async (req, res) => {
   }
 });
 
-// GET single event
-router.get("/:id", auth, async (req, res) => {
+// GET single event (public for discovery)
+router.get("/:id", async (req, res) => {
   try {
     const event = await Event.findById(req.params.id)
       .populate("organizer", "username email avatar")

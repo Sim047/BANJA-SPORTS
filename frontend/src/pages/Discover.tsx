@@ -140,7 +140,7 @@ export default function Discover() {
     try {
       const params = filterCategory ? `?category=${filterCategory}` : "";
       const response = await axios.get(`${API_URL}/services${params}`);
-      setServices(response.data);
+      setServices(response.data.services || response.data);
     } catch (error) {
       console.error("Error fetching services:", error);
     } finally {

@@ -5,9 +5,10 @@ const CommentSchema = new mongoose.Schema(
   {
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     text: { type: String, required: true },
-    reactions: [{
+    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    replies: [{
       user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-      emoji: { type: String },
+      text: { type: String },
       createdAt: { type: Date, default: Date.now }
     }],
     createdAt: { type: Date, default: Date.now },

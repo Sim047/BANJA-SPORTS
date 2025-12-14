@@ -320,13 +320,61 @@ router.put("/:id/comment/:commentId", auth, async (req, res) => {
   }
 });
 
-// React to comment
-router.post("/:id/comment/:commentId/react", auth, async (req, res) => {
+// Like/Unlike comment
+router.post("/:id/comment/:commentId/like", auth, async (req, res) => {
   try {
-    const { emoji } = req.body;
+    const post = await Post.findById(req.params.id);
 
-    if (!emoji) {
-      return res.status(400).json({ error: "Emoji is required" });
+    if (!post) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+
+    const comment = post.comments.id(req.params.commentId);
+
+    if (!comment) {
+      return res.status(404).json({ error: "Comment not found" });
+    }
+
+    // Initialize likes array if it doesn't exist
+    if (!comment.likes) {
+      comment.likes = [];
+    }
+
+    const userId = req.user.id;
+    const likeIndex = comment.likes.indexOf(userId);
+
+    if (likeIndex === -1) {
+      // Like
+      comment.likes.push(userId);
+    } else {
+      // Unlike
+      comment.likes.splice(likeIndex, 1);
+    }
+
+    await post.save();
+    await post.populate("author", "username avatar email");
+    await post.populate("comments.user", "username avatar");
+
+    // Emit socket event
+    const io = req.app.get("io");
+    if (io) {
+      io.emit("comment_liked", { postId: post._id, commentId: req.params.commentId, likes: comment.likes });
+    }
+
+    res.json(post);
+  } catch (err) {
+    console.error("Like comment error:", err);
+    res.status(500).json({ error: "Failed to like comment" });
+  }
+});
+
+// Reply to comment
+router.post("/:id/comment/:commentId/reply", auth, async (req, res) => {
+  try {
+    const { text } = req.body;
+
+    if (!text || text.trim() === "") {
+      return res.status(400).json({ error: "Reply text is required" });
     }
 
     const post = await Post.findById(req.params.id);
@@ -341,42 +389,32 @@ router.post("/:id/comment/:commentId/react", auth, async (req, res) => {
       return res.status(404).json({ error: "Comment not found" });
     }
 
-    // Initialize reactions array if it doesn't exist
-    if (!comment.reactions) {
-      comment.reactions = [];
+    // Initialize replies array if it doesn't exist
+    if (!comment.replies) {
+      comment.replies = [];
     }
 
-    // Check if user already reacted
-    const existingReactionIndex = comment.reactions.findIndex(
-      (r) => r.user.toString() === req.user.id
-    );
-
-    if (existingReactionIndex !== -1) {
-      // Update existing reaction
-      comment.reactions[existingReactionIndex].emoji = emoji;
-    } else {
-      // Add new reaction
-      comment.reactions.push({
-        user: req.user.id,
-        emoji,
-        createdAt: new Date(),
-      });
-    }
+    comment.replies.push({
+      user: req.user.id,
+      text: text.trim(),
+      createdAt: new Date(),
+    });
 
     await post.save();
     await post.populate("author", "username avatar email");
     await post.populate("comments.user", "username avatar");
+    await post.populate("comments.replies.user", "username avatar");
 
     // Emit socket event
     const io = req.app.get("io");
     if (io) {
-      io.emit("comment_reacted", { postId: post._id, commentId: req.params.commentId, reactions: comment.reactions });
+      io.emit("comment_replied", { postId: post._id, commentId: req.params.commentId });
     }
 
     res.json(post);
   } catch (err) {
-    console.error("React to comment error:", err);
-    res.status(500).json({ error: "Failed to react to comment" });
+    console.error("Reply to comment error:", err);
+    res.status(500).json({ error: "Failed to reply to comment" });
   }
 });
 

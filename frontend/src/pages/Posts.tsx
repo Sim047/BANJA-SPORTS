@@ -1,7 +1,7 @@
 // frontend/src/pages/Posts.tsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Heart, MessageCircle, Send, MoreVertical, Trash2, Edit, X, Image as ImageIcon, Plus } from "lucide-react";
+import { Heart, MessageCircle, Send, MoreVertical, Trash2, Edit, X, Image as ImageIcon, Plus, ArrowUp } from "lucide-react";
 import { Menu } from "@headlessui/react";
 import Avatar from "../components/Avatar";
 import dayjs from "dayjs";
@@ -30,9 +30,14 @@ interface Post {
       avatar?: string;
     };
     text: string;
-    reactions?: Array<{
-      user: string;
-      emoji: string;
+    likes?: string[];
+    replies?: Array<{
+      user: {
+        _id: string;
+        username: string;
+        avatar?: string;
+      };
+      text: string;
       createdAt: string;
     }>;
     createdAt: string;
@@ -59,10 +64,25 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
   
   // Comments collapse state
   const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({});
+  
+  // Reply state
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState("");
+  
+  // Scroll to top state
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
     if (token) loadPosts();
   }, [token]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 400);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   async function loadPosts() {
     try {
@@ -252,27 +272,35 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
     setEditCommentText(comment.text);
   }
 
-  async function handleReactToComment(postId: string, commentId: string) {
-    // Simple emoji picker
-    const emojis = ['❤️', '👍', '😂', '😮', '😢', '🙏'];
-    const emoji = prompt(`Choose reaction:\n${emojis.map((e, i) => `${i + 1}. ${e}`).join('\n')}\n\nEnter emoji or number:`);
-    
-    if (!emoji) return;
-    
-    // Get emoji from number or use directly
-    const selectedEmoji = /^\d$/.test(emoji) ? emojis[parseInt(emoji) - 1] : emoji;
-    if (!selectedEmoji) return;
-
+  async function handleLikeComment(postId: string, commentId: string) {
     try {
       const res = await axios.post(
-        `${API}/api/posts/${postId}/comment/${commentId}/react`,
-        { emoji: selectedEmoji },
+        `${API}/api/posts/${postId}/comment/${commentId}/like`,
+        {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setPosts(posts.map((p) => (p._id === postId ? res.data : p)));
     } catch (err) {
-      console.error("Failed to react to comment:", err);
-      alert("Failed to react to comment");
+      console.error("Failed to like comment:", err);
+      alert("Failed to like comment");
+    }
+  }
+
+  async function handleReplyToComment(postId: string, commentId: string) {
+    if (!replyText.trim()) return;
+
+    try {
+      const res = await axios.post(
+        `${API}/api/posts/${postId}/comment/${commentId}/reply`,
+        { text: replyText },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setPosts(posts.map((p) => (p._id === postId ? res.data : p)));
+      setReplyingTo(null);
+      setReplyText("");
+    } catch (err) {
+      console.error("Failed to reply to comment:", err);
+      alert("Failed to reply to comment");
     }
   }
 
@@ -298,27 +326,20 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-[#071029] dark:via-[#0a1435] dark:to-[#071029]">
-      {/* Sticky Header */}
-      <div className="sticky top-0 z-20 bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-[#071029] dark:via-[#0a1435] dark:to-[#071029] backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95 border-b border-gray-200 dark:border-gray-700 shadow-sm">
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 py-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
-              Feed
-            </h1>
-            <button
-              onClick={() => setCreateModalOpen(true)}
-              className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-purple-500 text-white rounded-xl font-semibold hover:shadow-lg transition-all flex items-center gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline">Create Post</span>
-              <span className="sm:hidden">New</span>
-            </button>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-[#071029] dark:via-[#0a1435] dark:to-[#071029] p-4 sm:p-6">
+      <div className="max-w-2xl mx-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
+            Feed
+          </h1>
+          <button
+            onClick={() => setCreateModalOpen(true)}
+            className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-purple-500 text-white rounded-xl font-semibold hover:shadow-lg transition-all"
+          >
+            Create Post
+          </button>
         </div>
-      </div>
-
-      <div className="max-w-2xl mx-auto p-4 sm:p-6">
 
         {/* Posts */}
         {loading ? (
@@ -584,17 +605,32 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                                       <div className="flex items-center gap-3 mt-1">
                                         <span className="text-xs text-gray-500 dark:text-gray-400">
                                           {formatTimestamp(comment.createdAt)}
-                                        </span>                                        {/* Show reactions if any */}
-                                        {comment.reactions && comment.reactions.length > 0 && (
-                                          <span className="text-xs">
-                                            {comment.reactions.map((r: any) => r.emoji).join(' ')}
+                                        </span>
+                                        {/* Show likes count */}
+                                        {comment.likes && comment.likes.length > 0 && (
+                                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                                            {comment.likes.length} {comment.likes.length === 1 ? 'like' : 'likes'}
                                           </span>
-                                        )}                                        {/* Comment actions */}
+                                        )}
+                                        {/* Comment actions */}
                                         <button
-                                          onClick={() => handleReactToComment(post._id, comment._id)}
+                                          onClick={() => handleLikeComment(post._id, comment._id)}
+                                          className={`text-xs font-medium ${
+                                            comment.likes?.includes(currentUserId)
+                                              ? 'text-red-500'
+                                              : 'text-gray-500 dark:text-gray-400 hover:text-red-500'
+                                          }`}
+                                        >
+                                          Like
+                                        </button>
+                                        <button
+                                          onClick={() => {
+                                            setReplyingTo(comment._id);
+                                            setReplyText('');
+                                          }}
                                           className="text-xs text-gray-500 dark:text-gray-400 hover:text-cyan-500 font-medium"
                                         >
-                                          React
+                                          Reply
                                         </button>
                                         {comment.user._id === currentUserId && (
                                           <>
@@ -624,6 +660,66 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                                     </div>
                                   </div>
                                 </>
+                              )}
+                              
+                              {/* Replies */}
+                              {comment.replies && comment.replies.length > 0 && (
+                                <div className="ml-4 mt-2 space-y-2 border-l-2 border-gray-200 dark:border-gray-700 pl-3">
+                                  {comment.replies.map((reply: any, idx: number) => (
+                                    <div key={idx} className="flex gap-2">
+                                      <Avatar
+                                        src={makeAvatarUrl(reply.user.avatar)}
+                                        className="w-5 h-5 rounded-full object-cover flex-shrink-0"
+                                        alt={reply.user.username}
+                                      />
+                                      <div>
+                                        <span className="font-semibold text-xs text-gray-900 dark:text-white mr-1">
+                                          {reply.user.username}
+                                        </span>
+                                        <span className="text-xs text-gray-700 dark:text-gray-300">
+                                          {reply.text}
+                                        </span>
+                                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                          {formatTimestamp(reply.createdAt)}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                              
+                              {/* Reply form */}
+                              {replyingTo === comment._id && (
+                                <div className="ml-4 mt-2 flex gap-2">
+                                  <input
+                                    type="text"
+                                    placeholder="Write a reply..."
+                                    className="flex-1 px-3 py-1.5 text-xs bg-gray-100 dark:bg-gray-700 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                                    value={replyText}
+                                    onChange={(e) => setReplyText(e.target.value)}
+                                    onKeyPress={(e) => {
+                                      if (e.key === 'Enter') {
+                                        handleReplyToComment(post._id, comment._id);
+                                      }
+                                    }}
+                                    autoFocus
+                                  />
+                                  <button
+                                    onClick={() => handleReplyToComment(post._id, comment._id)}
+                                    className="px-3 py-1.5 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 text-xs"
+                                  >
+                                    Send
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      setReplyingTo(null);
+                                      setReplyText('');
+                                    }}
+                                    className="px-3 py-1.5 bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg hover:bg-gray-400 dark:hover:bg-gray-600 text-xs"
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
                               )}
                             </div>
                           </div>
@@ -751,6 +847,17 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
             </div>
           </div>
         </div>
+      )}
+      
+      {/* Scroll to Top Button */}
+      {showScrollTop && (
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="fixed bottom-8 right-8 p-4 bg-gradient-to-r from-cyan-500 to-purple-500 text-white rounded-full shadow-lg hover:shadow-xl transition-all z-50 hover:scale-110"
+          aria-label="Scroll to top"
+        >
+          <ArrowUp className="w-6 h-6" />
+        </button>
       )}
     </div>
   );

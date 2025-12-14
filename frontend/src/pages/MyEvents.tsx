@@ -13,21 +13,31 @@ import {
   AlertCircle,
   DollarSign,
   Trophy,
+  Stethoscope,
+  Star,
 } from "lucide-react";
 import CreateEventModal from "../components/CreateEventModal";
+import CreateServiceModal from "../components/CreateServiceModal";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
+type TabType = "events" | "services";
+
 export default function MyEvents({ token }: any) {
+  const [activeTab, setActiveTab] = useState<TabType>("events");
   const [events, setEvents] = useState<any[]>([]);
+  const [services, setServices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [createServiceModalOpen, setCreateServiceModalOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<any>(null);
+  const [editingService, setEditingService] = useState<any>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!token) return;
     loadMyEvents();
+    loadMyServices();
   }, [token]);
 
   async function loadMyEvents() {
@@ -41,6 +51,17 @@ export default function MyEvents({ token }: any) {
       console.error("Load my events error:", err);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function loadMyServices() {
+    try {
+      const res = await axios.get(`${API}/api/services/my/created`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setServices(res.data.services || []);
+    } catch (err) {
+      console.error("Load my services error:", err);
     }
   }
 
@@ -60,14 +81,40 @@ export default function MyEvents({ token }: any) {
     }
   }
 
+  async function handleDeleteService(serviceId: string) {
+    if (!confirm("Are you sure you want to delete this service?")) return;
+
+    try {
+      setDeletingId(serviceId);
+      await axios.delete(`${API}/api/services/${serviceId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setServices(services.filter((s) => s._id !== serviceId));
+    } catch (err: any) {
+      alert(err.response?.data?.error || "Failed to delete service");
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
   function handleEdit(event: any) {
     setEditingEvent(event);
     setCreateModalOpen(true);
   }
 
+  function handleEditService(service: any) {
+    setEditingService(service);
+    setCreateServiceModalOpen(true);
+  }
+
   function handleCreateSuccess() {
     loadMyEvents();
     setEditingEvent(null);
+  }
+
+  function handleServiceCreateSuccess() {
+    loadMyServices();
+    setEditingService(null);
   }
 
   if (loading) {
@@ -92,90 +139,174 @@ export default function MyEvents({ token }: any) {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-              My Events
+              My Activities
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
-              Manage events you've created
+              Manage events and services you've created
             </p>
           </div>
           <button
             onClick={() => {
-              setEditingEvent(null);
-              setCreateModalOpen(true);
+              if (activeTab === "events") {
+                setEditingEvent(null);
+                setCreateModalOpen(true);
+              } else {
+                setEditingService(null);
+                setCreateServiceModalOpen(true);
+              }
             }}
             className="px-6 py-3 bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-teal-500/30 flex items-center gap-2"
           >
             <Plus className="w-5 h-5" />
-            Create Event
+            {activeTab === "events" ? "Create Event" : "Create Service"}
+          </button>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex gap-2 mb-8 border-b border-gray-200 dark:border-gray-800">
+          <button
+            onClick={() => setActiveTab("events")}
+            className={`px-6 py-3 font-semibold transition-all relative ${
+              activeTab === "events"
+                ? "text-cyan-600 dark:text-cyan-400"
+                : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+            }`}
+          >
+            <Trophy className="inline w-5 h-5 mr-2" />
+            My Events ({events.length})
+            {activeTab === "events" && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-cyan-500 to-purple-600"></div>
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab("services")}
+            className={`px-6 py-3 font-semibold transition-all relative ${
+              activeTab === "services"
+                ? "text-purple-600 dark:text-purple-400"
+                : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+            }`}
+          >
+            <Stethoscope className="inline w-5 h-5 mr-2" />
+            My Services ({services.length})
+            {activeTab === "services" && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-purple-500 to-pink-600"></div>
+            )}
           </button>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-          <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Events</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white">{events.length}</p>
-              </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-xl flex items-center justify-center">
-                <Trophy className="w-6 h-6 text-white" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Participants</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                  {events.reduce((sum, e) => sum + (e.capacity?.current || 0), 0)}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
-                <Users className="w-6 h-6 text-white" />
+        {activeTab === "events" ? (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+            <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Events</p>
+                  <p className="text-3xl font-bold text-gray-900 dark:text-white">{events.length}</p>
+                </div>
+                <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-xl flex items-center justify-center">
+                  <Trophy className="w-6 h-6 text-white" />
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Active Events</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                  {events.filter((e) => e.status === "published").length}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
-                <Calendar className="w-6 h-6 text-white" />
+            <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Participants</p>
+                  <p className="text-3xl font-bold text-gray-900 dark:text-white">
+                    {events.reduce((sum, e) => sum + (e.capacity?.current || 0), 0)}
+                  </p>
+                </div>
+                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                  <Users className="w-6 h-6 text-white" />
+                </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        {/* Events List */}
-        {events.length === 0 ? (
-          <div className="bg-white dark:bg-[#0f172a] rounded-3xl p-12 border border-gray-200 dark:border-gray-800 text-center">
-            <div className="max-w-md mx-auto">
-              <div className="w-20 h-20 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Calendar className="w-10 h-10 text-slate-500" />
+            <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Active Events</p>
+                  <p className="text-3xl font-bold text-gray-900 dark:text-white">
+                    {events.filter((e) => e.status === "published").length}
+                  </p>
+                </div>
+                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
+                  <Calendar className="w-6 h-6 text-white" />
+                </div>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                No Events Yet
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-6">
-                You haven't created any events. Start by creating your first event!
-              </p>
-              <button
-                onClick={() => setCreateModalOpen(true)}
-                className="px-6 py-3 bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white font-semibold rounded-xl transition-all duration-300 inline-flex items-center gap-2 shadow-lg"
-              >
-                <Plus className="w-4 h-4" />
-                Create Your First Event
-              </button>
             </div>
           </div>
         ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+            <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Services</p>
+                  <p className="text-3xl font-bold text-gray-900 dark:text-white">{services.length}</p>
+                </div>
+                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                  <Stethoscope className="w-6 h-6 text-white" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Active Services</p>
+                  <p className="text-3xl font-bold text-gray-900 dark:text-white">
+                    {services.filter((s) => s.active).length}
+                  </p>
+                </div>
+                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
+                  <Star className="w-6 h-6 text-white" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Avg. Rating</p>
+                  <p className="text-3xl font-bold text-gray-900 dark:text-white">
+                    {services.length > 0
+                      ? (services.reduce((sum, s) => sum + (s.rating?.average || 0), 0) / services.length).toFixed(1)
+                      : "0.0"}
+                  </p>
+                </div>
+                <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center">
+                  <DollarSign className="w-6 h-6 text-white" />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Content */}
+        {activeTab === "events" ? (
+          events.length === 0 ? (
+            <div className="bg-white dark:bg-[#0f172a] rounded-3xl p-12 border border-gray-200 dark:border-gray-800 text-center">
+              <div className="max-w-md mx-auto">
+                <div className="w-20 h-20 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <Calendar className="w-10 h-10 text-slate-500" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                  No Events Yet
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400 mb-6">
+                  You haven't created any events. Start by creating your first event!
+                </p>
+                <button
+                  onClick={() => setCreateModalOpen(true)}
+                  className="px-6 py-3 bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white font-semibold rounded-xl transition-all duration-300 inline-flex items-center gap-2 shadow-lg"
+                >
+                  <Plus className="w-4 h-4" />
+                  Create Your First Event
+                </button>
+              </div>
+            </div>
+          ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {events.map((event) => (
               <div
@@ -291,10 +422,158 @@ export default function MyEvents({ token }: any) {
               </div>
             ))}
           </div>
+          )
+        ) : (
+          // Services Tab Content
+          services.length === 0 ? (
+            <div className="bg-white dark:bg-[#0f172a] rounded-3xl p-12 border border-gray-200 dark:border-gray-800 text-center">
+              <div className="max-w-md mx-auto">
+                <div className="w-20 h-20 bg-gradient-to-br from-purple-100 to-pink-200 dark:from-purple-900 dark:to-pink-900 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <Stethoscope className="w-10 h-10 text-purple-500" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                  No Services Yet
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400 mb-6">
+                  You haven't created any services. Start by offering your first service!
+                </p>
+                <button
+                  onClick={() => setCreateServiceModalOpen(true)}
+                  className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-semibold rounded-xl transition-all duration-300 inline-flex items-center gap-2 shadow-lg"
+                >
+                  <Plus className="w-4 h-4" />
+                  Create Your First Service
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {services.map((service) => (
+                <div
+                  key={service._id}
+                  className="bg-white dark:bg-[#0f172a] rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800 hover:shadow-xl transition-all duration-300"
+                >
+                  {/* Service Header */}
+                  <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-6">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold text-white mb-2 line-clamp-2">
+                          {service.name}
+                        </h3>
+                        <span className="inline-block px-3 py-1 bg-white/20 backdrop-blur-sm text-white rounded-lg text-sm font-medium capitalize">
+                          {service.category.replace(/-/g, " ")}
+                        </span>
+                      </div>
+                      <div className="flex gap-2 ml-4">
+                        <button
+                          onClick={() => handleEditService(service)}
+                          className="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition text-white"
+                          title="Edit Service"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteService(service._id)}
+                          disabled={deletingId === service._id}
+                          className="p-2 bg-red-500/20 hover:bg-red-500/30 rounded-lg transition text-white disabled:opacity-50"
+                          title="Delete Service"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Service Details */}
+                  <div className="p-6 space-y-4">
+                    <p className="text-gray-600 dark:text-gray-400 line-clamp-2">
+                      {service.description}
+                    </p>
+
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                        <Trophy className="w-4 h-4 text-purple-500" />
+                        <span>{service.sport}</span>
+                      </div>
+
+                      <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                        <DollarSign className="w-4 h-4 text-green-500" />
+                        <span>
+                          ${service.pricing.amount} / {service.pricing.type.replace(/-/g, " ")}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                        <MapPin className="w-4 h-4 text-pink-500" />
+                        <span className="capitalize">
+                          {service.location.type === "online"
+                            ? "Online"
+                            : service.location.city || service.location.type}
+                        </span>
+                      </div>
+
+                      {service.duration && (
+                        <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                          <Clock className="w-4 h-4 text-cyan-500" />
+                          <span>
+                            {service.duration.value} {service.duration.unit}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {service.qualifications && service.qualifications.length > 0 && (
+                      <div className="flex flex-wrap gap-2 pt-2">
+                        {service.qualifications.slice(0, 3).map((qual: string, idx: number) => (
+                          <span
+                            key={idx}
+                            className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 px-2 py-1 rounded text-xs"
+                          >
+                            {qual}
+                          </span>
+                        ))}
+                        {service.qualifications.length > 3 && (
+                          <span className="text-xs text-gray-500 dark:text-gray-400 self-center">
+                            +{service.qualifications.length - 3} more
+                          </span>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Status & Meta */}
+                    <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`px-3 py-1 rounded-lg text-xs font-medium ${
+                            service.active
+                              ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                              : "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400"
+                          }`}
+                        >
+                          {service.active ? "Active" : "Inactive"}
+                        </span>
+                        {service.rating?.average > 0 && (
+                          <div className="flex items-center gap-1 text-yellow-500">
+                            <Star className="w-4 h-4 fill-current" />
+                            <span className="text-sm font-medium">
+                              {service.rating.average.toFixed(1)}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <span className="text-xs text-gray-500 dark:text-gray-500">
+                        Created {dayjs(service.createdAt).fromNow()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )
         )}
       </div>
 
-      {/* Create/Edit Modal */}
+      {/* Create/Edit Event Modal */}
       <CreateEventModal
         isOpen={createModalOpen}
         onClose={() => {
@@ -304,6 +583,18 @@ export default function MyEvents({ token }: any) {
         token={token}
         onSuccess={handleCreateSuccess}
         editingEvent={editingEvent}
+      />
+
+      {/* Create/Edit Service Modal */}
+      <CreateServiceModal
+        isOpen={createServiceModalOpen}
+        onClose={() => {
+          setCreateServiceModalOpen(false);
+          setEditingService(null);
+        }}
+        onServiceCreated={handleServiceCreateSuccess}
+        token={token}
+        editService={editingService}
       />
     </div>
   );

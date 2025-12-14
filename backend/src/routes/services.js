@@ -112,6 +112,20 @@ router.get("/:id", auth, async (req, res) => {
   }
 });
 
+// GET user's created services
+router.get("/my/created", auth, async (req, res) => {
+  try {
+    const services = await Service.find({ provider: req.user.id })
+      .populate("provider", "username email avatar")
+      .sort({ createdAt: -1 });
+
+    res.json({ services });
+  } catch (err) {
+    console.error("Get my services error:", err);
+    res.status(500).json({ error: "Failed to fetch your services" });
+  }
+});
+
 // POST create service
 router.post("/", auth, async (req, res) => {
   try {
@@ -122,6 +136,12 @@ router.post("/", auth, async (req, res) => {
 
     const service = await Service.create(serviceData);
     await service.populate("provider", "username email avatar");
+
+    // Emit socket event
+    const io = req.app.get("io");
+    if (io) {
+      io.emit("new_service", service);
+    }
 
     res.status(201).json(service);
   } catch (err) {

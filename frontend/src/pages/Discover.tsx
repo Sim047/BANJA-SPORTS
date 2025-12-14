@@ -423,10 +423,21 @@ export default function Discover() {
               <ChevronLeft className="w-5 h-5 mr-1" />
               Back to Discover
             </button>
-            <h1 className="text-4xl font-bold text-white mb-2">
-              Medical Services <Stethoscope className="inline w-8 h-8 text-purple-400 ml-2" />
-            </h1>
-            <p className="text-gray-300">Find professional health and training services</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-4xl font-bold text-white mb-2">
+                  Medical Services <Stethoscope className="inline w-8 h-8 text-purple-400 ml-2" />
+                </h1>
+                <p className="text-gray-300">Find professional health and training services</p>
+              </div>
+              <button
+                onClick={() => window.location.href = "/#/my-events"}
+                className="px-5 py-3 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-semibold rounded-xl transition-all flex items-center gap-2 shadow-lg"
+              >
+                <Plus className="w-5 h-5" />
+                Create Service
+              </button>
+            </div>
           </div>
 
           {/* Service Filter */}

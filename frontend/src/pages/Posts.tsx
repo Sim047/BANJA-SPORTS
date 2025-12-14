@@ -45,6 +45,12 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
   const [newPost, setNewPost] = useState({ caption: "", imageUrl: "", location: "", tags: "" });
   const [commentTexts, setCommentTexts] = useState<Record<string, string>>({});
   const [uploadingImage, setUploadingImage] = useState(false);
+  
+  // Edit states
+  const [editingPostId, setEditingPostId] = useState<string | null>(null);
+  const [editPostData, setEditPostData] = useState({ caption: "", location: "", tags: "" });
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editCommentText, setEditCommentText] = useState("");
 
   useEffect(() => {
     if (token) loadPosts();
@@ -180,6 +186,73 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
     }
   }
 
+  function startEditPost(post: Post) {
+    setEditingPostId(post._id);
+    setEditPostData({
+      caption: post.caption,
+      location: post.location,
+      tags: post.tags.join(", "),
+    });
+  }
+
+  async function handleUpdatePost() {
+    if (!editingPostId) return;
+
+    try {
+      const tags = editPostData.tags
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean);
+
+      const res = await axios.put(
+        `${API}/api/posts/${editingPostId}`,
+        {
+          caption: editPostData.caption,
+          tags,
+          location: editPostData.location,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setPosts(posts.map((p) => (p._id === editingPostId ? res.data : p)));
+      setEditingPostId(null);
+      setEditPostData({ caption: "", location: "", tags: "" });
+    } catch (err) {
+      console.error("Failed to update post:", err);
+      alert("Failed to update post");
+    }
+  }
+
+  async function handleDeleteComment(postId: string, commentId: string) {
+    if (!confirm("Delete this comment?")) return;
+
+    try {
+      const res = await axios.delete(
+        `${API}/api/posts/${postId}/comment/${commentId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setPosts(posts.map((p) => (p._id === postId ? res.data : p)));
+    } catch (err) {
+      console.error("Failed to delete comment:", err);
+      alert("Failed to delete comment");
+    }
+  }
+
+  function formatTimestamp(dateString: string) {
+    const date = dayjs(dateString);
+    const now = dayjs();
+    const diffInHours = now.diff(date, 'hour');
+
+    if (diffInHours < 24) {
+      return date.fromNow(); // "2 hours ago"
+    } else if (diffInHours < 168) { // Less than 7 days
+      return date.format('dddd [at] h:mm A'); // "Monday at 3:45 PM"
+    } else {
+      return date.format('MMM D, YYYY [at] h:mm A'); // "Dec 14, 2025 at 3:45 PM"
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-[#071029] dark:via-[#0a1435] dark:to-[#071029] p-4 sm:p-6">
       <div className="max-w-2xl mx-auto">
@@ -250,6 +323,19 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                         <Menu.Item>
                           {({ active }) => (
                             <button
+                              onClick={() => startEditPost(post)}
+                              className={`${
+                                active ? "bg-gray-100 dark:bg-gray-700" : ""
+                              } flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300`}
+                            >
+                              <Edit className="w-4 h-4" />
+                              Edit Post
+                            </button>
+                          )}
+                        </Menu.Item>
+                        <Menu.Item>
+                          {({ active }) => (
+                            <button
                               onClick={() => handleDeletePost(post._id)}
                               className={`${
                                 active ? "bg-red-50 dark:bg-red-900/20" : ""
@@ -298,50 +384,112 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                     </button>
                   </div>
 
-                  {/* Caption */}
-                  {post.caption && (
-                    <p className="text-gray-900 dark:text-white">
-                      <span className="font-semibold mr-2">{post.author.username}</span>
-                      {post.caption}
-                    </p>
-                  )}
-
-                  {/* Tags */}
-                  {post.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {post.tags.map((tag, idx) => (
-                        <span
-                          key={idx}
-                          className="text-xs text-cyan-500 hover:underline cursor-pointer"
+                  {/* Caption - Editable if editing */}
+                  {editingPostId === post._id ? (
+                    <div className="space-y-3 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
+                      <textarea
+                        value={editPostData.caption}
+                        onChange={(e) => setEditPostData({ ...editPostData, caption: e.target.value })}
+                        className="w-full px-3 py-2 bg-white dark:bg-gray-800 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 resize-none"
+                        rows={3}
+                        placeholder="Caption..."
+                      />
+                      <input
+                        type="text"
+                        value={editPostData.location}
+                        onChange={(e) => setEditPostData({ ...editPostData, location: e.target.value })}
+                        className="w-full px-3 py-2 bg-white dark:bg-gray-800 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                        placeholder="Location..."
+                      />
+                      <input
+                        type="text"
+                        value={editPostData.tags}
+                        onChange={(e) => setEditPostData({ ...editPostData, tags: e.target.value })}
+                        className="w-full px-3 py-2 bg-white dark:bg-gray-800 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                        placeholder="Tags (comma-separated)..."
+                      />
+                      <div className="flex gap-2">
+                        <button
+                          onClick={handleUpdatePost}
+                          className="px-4 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors"
                         >
-                          #{tag}
-                        </span>
-                      ))}
+                          Save
+                        </button>
+                        <button
+                          onClick={() => setEditingPostId(null)}
+                          className="px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg hover:bg-gray-400 dark:hover:bg-gray-600 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      </div>
                     </div>
-                  )}
+                  ) : (
+                    <>
+                      {post.caption && (
+                        <p className="text-gray-900 dark:text-white">
+                          <span className="font-semibold mr-2">{post.author.username}</span>
+                          {post.caption}
+                        </p>
+                      )}
 
-                  {/* Timestamp */}
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
-                    {dayjs(post.createdAt).fromNow()}
-                  </div>
+                      {/* Tags */}
+                      {post.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {post.tags.map((tag, idx) => (
+                            <span
+                              key={idx}
+                              className="text-xs text-cyan-500 hover:underline cursor-pointer"
+                            >
+                              #{tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Timestamp */}
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                        {formatTimestamp(post.createdAt)}
+                        {post.updatedAt !== post.createdAt && (
+                          <span className="ml-2 italic">(edited)</span>
+                        )}
+                      </div>
+                    </>
+                  )}
 
                   {/* Comments */}
                   {post.comments.length > 0 && (
-                    <div className="space-y-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+                    <div className="space-y-3 pt-2 border-t border-gray-200 dark:border-gray-700">
                       {post.comments.map((comment) => (
-                        <div key={comment._id} className="flex gap-2">
+                        <div key={comment._id} className="flex gap-2 group">
                           <Avatar
                             src={makeAvatarUrl(comment.user.avatar)}
-                            className="w-6 h-6 rounded-full object-cover"
+                            className="w-6 h-6 rounded-full object-cover flex-shrink-0"
                             alt={comment.user.username}
                           />
-                          <div className="flex-1">
-                            <span className="font-semibold text-sm text-gray-900 dark:text-white mr-2">
-                              {comment.user.username}
-                            </span>
-                            <span className="text-sm text-gray-700 dark:text-gray-300">
-                              {comment.text}
-                            </span>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex-1 min-w-0">
+                                <span className="font-semibold text-sm text-gray-900 dark:text-white mr-2">
+                                  {comment.user.username}
+                                </span>
+                                <span className="text-sm text-gray-700 dark:text-gray-300">
+                                  {comment.text}
+                                </span>
+                                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                  {formatTimestamp(comment.createdAt)}
+                                </div>
+                              </div>
+                              {/* Delete comment button - show only for comment author or post author */}
+                              {(comment.user._id === currentUserId || post.author._id === currentUserId) && (
+                                <button
+                                  onClick={() => handleDeleteComment(post._id, comment._id)}
+                                  className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-opacity"
+                                  title="Delete comment"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5 text-red-500" />
+                                </button>
+                              )}
+                            </div>
                           </div>
                         </div>
                       ))}

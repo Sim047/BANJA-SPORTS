@@ -107,6 +107,7 @@ export default function Discover() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
   const [selectedSport, setSelectedSport] = useState("All Sports");
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
   
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
   const token = localStorage.getItem("token");
@@ -125,9 +126,7 @@ export default function Discover() {
     setLoading(true);
     try {
       const sport = selectedSport === "All Sports" ? "" : selectedSport;
-      const response = await axios.get(`${API_URL}/events?sport=${sport}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.get(`${API_URL}/events?sport=${sport}`);
       setEvents(response.data);
     } catch (error) {
       console.error("Error fetching events:", error);
@@ -140,9 +139,7 @@ export default function Discover() {
     setLoading(true);
     try {
       const params = filterCategory ? `?category=${filterCategory}` : "";
-      const response = await axios.get(`${API_URL}/services${params}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.get(`${API_URL}/services${params}`);
       setServices(response.data);
     } catch (error) {
       console.error("Error fetching services:", error);
@@ -157,9 +154,7 @@ export default function Discover() {
       const params = new URLSearchParams();
       if (filterCategory) params.append("category", filterCategory);
       if (searchTerm) params.append("search", searchTerm);
-      const response = await axios.get(`${API_URL}/marketplace?${params}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.get(`${API_URL}/marketplace?${params}`);
       setMarketplaceItems(response.data.items || response.data);
     } catch (error) {
       console.error("Error fetching marketplace items:", error);
@@ -612,7 +607,8 @@ export default function Discover() {
                       <img
                         src={item.images[0]}
                         alt={item.title}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                        onClick={() => setPreviewImage(item.images[0])}
                       />
                     ) : (
                       <div className="flex items-center justify-center h-full">
@@ -622,6 +618,12 @@ export default function Discover() {
                     <div className="absolute top-2 right-2 bg-black/50 backdrop-blur px-2 py-1 rounded-full text-xs text-white">
                       {item.condition}
                     </div>
+                    {item.images && item.images.length > 1 && (
+                      <div className="absolute bottom-2 right-2 bg-black/50 backdrop-blur px-2 py-1 rounded-full text-xs text-white flex items-center gap-1">
+                        <ImageIcon className="w-3 h-3" />
+                        {item.images.length}
+                      </div>
+                    )}
                   </div>
 
                   {/* Item Details */}
@@ -663,6 +665,27 @@ export default function Discover() {
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+
+          {/* Lightbox Preview */}
+          {previewImage && (
+            <div
+              className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+              onClick={() => setPreviewImage(null)}
+            >
+              <button
+                onClick={() => setPreviewImage(null)}
+                className="absolute top-4 right-4 text-white bg-black/50 hover:bg-black/70 rounded-full p-2 transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+              <img
+                src={previewImage}
+                alt="Preview"
+                className="max-w-full max-h-full object-contain"
+                onClick={(e) => e.stopPropagation()}
+              />
             </div>
           )}
         </div>

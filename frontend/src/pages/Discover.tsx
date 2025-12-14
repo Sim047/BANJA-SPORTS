@@ -27,10 +27,9 @@ import {
 } from "lucide-react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { API_URL } from "../config/api";
 
 dayjs.extend(relativeTime);
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 type CategoryType = "sports" | "services" | "marketplace" | null;
 

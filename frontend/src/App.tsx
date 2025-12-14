@@ -1272,6 +1272,7 @@ function onMyStatusUpdated(newStatus: any) {
               currentUserId={user?._id}
               onShowProfile={(u: any) => showProfile(u)}
               onOpenConversation={(c: any) => openConversation(c)}
+              onlineUsers={onlineUsers}
             />
           </div>
         )}
@@ -1288,18 +1289,41 @@ function onMyStatusUpdated(newStatus: any) {
                     );
                     return (
                       <>
-                        <Avatar
-                          src={makeAvatarUrl(partner?.avatar)}
-                          className="w-10 h-10 rounded-md object-cover"
-                          alt={partner?.username || "User"}
-                        />
+                        <div className="relative">
+                          <Avatar
+                            src={makeAvatarUrl(partner?.avatar)}
+                            className="w-10 h-10 rounded-md object-cover"
+                            alt={partner?.username || "User"}
+                          />
+                          {/* Online status indicator */}
+                          {partner?._id && onlineUsers.has(partner._id) && (
+                            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white dark:border-slate-800 rounded-full shadow-sm"></div>
+                          )}
+                        </div>
                         <div>
-                          <div className="font-semibold">
-                            {partner?.username}
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold">
+                              {partner?.username}
+                            </span>
+                            {partner?._id && onlineUsers.has(partner._id) && (
+                              <span className="text-xs text-green-500 font-medium">● Online</span>
+                            )}
                           </div>
-                          <div className="text-xs opacity-70">
-                            Private conversation
-                          </div>
+                          {/* Show typing indicator for this specific user */}
+                          {partner?._id && typingUsers[partner._id] ? (
+                            <div className="flex items-center gap-1.5 text-cyan-500 text-xs">
+                              <div className="flex gap-0.5">
+                                <span className="w-1 h-1 bg-cyan-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                                <span className="w-1 h-1 bg-cyan-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                                <span className="w-1 h-1 bg-cyan-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                              </div>
+                              <span>typing...</span>
+                            </div>
+                          ) : (
+                            <div className="text-xs opacity-70">
+                              Private conversation
+                            </div>
+                          )}
                         </div>
                       </>
                     );

@@ -13,6 +13,7 @@ export default function ConversationsList({
   onOpenConversation,
   currentUserId,
   onShowProfile,
+  onlineUsers,
 }: any) {
   const [conversations, setConversations] = useState([]);
   const [totalUnread, setTotalUnread] = useState(0);
@@ -141,12 +142,18 @@ export default function ConversationsList({
               )}
 
               <div className="flex items-center gap-3 flex-1 min-w-0">
-                <Avatar
-                  src={avatarUrl(partner)}
-                  onClick={() => onShowProfile(partner)}
-                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-md object-cover cursor-pointer hover:scale-105 transition-transform flex-shrink-0"
-                  alt={partner.username}
-                />
+                <div className="relative flex-shrink-0">
+                  <Avatar
+                    src={avatarUrl(partner)}
+                    onClick={() => onShowProfile(partner)}
+                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-md object-cover cursor-pointer hover:scale-105 transition-transform"
+                    alt={partner.username}
+                  />
+                  {/* Online status indicator */}
+                  {onlineUsers?.has(partner._id) && (
+                    <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white dark:border-slate-800 rounded-full shadow-sm"></div>
+                  )}
+                </div>
 
                 <div
                   className="flex-1 min-w-0 cursor-pointer"

@@ -20,12 +20,6 @@ import {
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import CreateEventModal from "../components/CreateEventModal";
-import PendingApprovals from "../components/PendingApprovals";
-import JoinRequestsManager from "../components/JoinRequestsManager";
-import MyJoinRequests from "../components/MyJoinRequests";
-import MyPendingRequests from "../components/MyPendingRequests";
-import SimpleMyRequests from "../components/SimpleMyRequests";
-import SimpleApproveRequests from "../components/SimpleApproveRequests";
 import MyJoinRequestsPage from "./MyJoinRequests";
 import PendingApprovalsPage from "./PendingApprovals";
 import AllEvents from "./AllEvents";
@@ -547,14 +541,8 @@ export default function Dashboard({ token, onNavigate }: any) {
           </div>
         </div>
 
-        {/* Hidden sections - All scattered content now hidden */}
+        {/* Hidden old content - kept for reference but no longer displayed */}
         <div className="hidden">
-          <SimpleApproveRequests token={token} />
-          <SimpleMyRequests />
-          <PendingApprovals token={token} />
-          <MyJoinRequests token={token} />
-          <JoinRequestsManager token={token} />
-          <MyPendingRequests />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
             <div className="flex items-center justify-between mb-4">

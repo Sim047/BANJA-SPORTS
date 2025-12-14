@@ -1,7 +1,7 @@
 // frontend/src/pages/Posts.tsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Heart, MessageCircle, Send, MoreVertical, Trash2, Edit, X, Image as ImageIcon } from "lucide-react";
+import { Heart, MessageCircle, Send, MoreVertical, Trash2, Edit, X, Image as ImageIcon, Plus } from "lucide-react";
 import { Menu } from "@headlessui/react";
 import Avatar from "../components/Avatar";
 import dayjs from "dayjs";
@@ -30,6 +30,11 @@ interface Post {
       avatar?: string;
     };
     text: string;
+    reactions?: Array<{
+      user: string;
+      emoji: string;
+      createdAt: string;
+    }>;
     createdAt: string;
   }>;
   tags: string[];
@@ -247,10 +252,28 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
     setEditCommentText(comment.text);
   }
 
-  async function handleReactToComment(postId: string, commentId: string, emoji: string) {
-    // For now, just show an alert - you can implement backend support later
-    alert(`Reacted with ${emoji} to comment!`);
-    // TODO: Implement backend endpoint for comment reactions
+  async function handleReactToComment(postId: string, commentId: string) {
+    // Simple emoji picker
+    const emojis = ['❤️', '👍', '😂', '😮', '😢', '🙏'];
+    const emoji = prompt(`Choose reaction:\n${emojis.map((e, i) => `${i + 1}. ${e}`).join('\n')}\n\nEnter emoji or number:`);
+    
+    if (!emoji) return;
+    
+    // Get emoji from number or use directly
+    const selectedEmoji = /^\d$/.test(emoji) ? emojis[parseInt(emoji) - 1] : emoji;
+    if (!selectedEmoji) return;
+
+    try {
+      const res = await axios.post(
+        `${API}/api/posts/${postId}/comment/${commentId}/react`,
+        { emoji: selectedEmoji },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setPosts(posts.map((p) => (p._id === postId ? res.data : p)));
+    } catch (err) {
+      console.error("Failed to react to comment:", err);
+      alert("Failed to react to comment");
+    }
   }
 
   function toggleComments(postId: string) {
@@ -275,20 +298,27 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-[#071029] dark:via-[#0a1435] dark:to-[#071029] p-4 sm:p-6">
-      <div className="max-w-2xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
-            Feed
-          </h1>
-          <button
-            onClick={() => setCreateModalOpen(true)}
-            className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-purple-500 text-white rounded-xl font-semibold hover:shadow-lg transition-all"
-          >
-            Create Post
-          </button>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-[#071029] dark:via-[#0a1435] dark:to-[#071029]">
+      {/* Sticky Header */}
+      <div className="sticky top-0 z-20 bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-[#071029] dark:via-[#0a1435] dark:to-[#071029] backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95 border-b border-gray-200 dark:border-gray-700 shadow-sm">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 py-4">
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
+              Feed
+            </h1>
+            <button
+              onClick={() => setCreateModalOpen(true)}
+              className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-purple-500 text-white rounded-xl font-semibold hover:shadow-lg transition-all flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              <span className="hidden sm:inline">Create Post</span>
+              <span className="sm:hidden">New</span>
+            </button>
+          </div>
         </div>
+      </div>
+
+      <div className="max-w-2xl mx-auto p-4 sm:p-6">
 
         {/* Posts */}
         {loading ? (
@@ -514,9 +544,20 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                                   <div className="flex gap-2">
                                     <button
                                       onClick={async () => {
-                                        // Update comment logic here
-                                        setEditingCommentId(null);
-                                        alert("Comment editing - backend endpoint needed");
+                                        if (!editCommentText.trim()) return;
+                                        try {
+                                          const res = await axios.put(
+                                            `${API}/api/posts/${post._id}/comment/${comment._id}`,
+                                            { text: editCommentText },
+                                            { headers: { Authorization: `Bearer ${token}` } }
+                                          );
+                                          setPosts(posts.map((p) => (p._id === post._id ? res.data : p)));
+                                          setEditingCommentId(null);
+                                          setEditCommentText("");
+                                        } catch (err) {
+                                          console.error("Failed to edit comment:", err);
+                                          alert("Failed to edit comment");
+                                        }
                                       }}
                                       className="px-3 py-1 text-xs bg-cyan-500 text-white rounded-lg hover:bg-cyan-600"
                                     >
@@ -543,16 +584,14 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                                       <div className="flex items-center gap-3 mt-1">
                                         <span className="text-xs text-gray-500 dark:text-gray-400">
                                           {formatTimestamp(comment.createdAt)}
-                                        </span>
-                                        {/* Comment actions */}
+                                        </span>                                        {/* Show reactions if any */}
+                                        {comment.reactions && comment.reactions.length > 0 && (
+                                          <span className="text-xs">
+                                            {comment.reactions.map((r: any) => r.emoji).join(' ')}
+                                          </span>
+                                        )}                                        {/* Comment actions */}
                                         <button
-                                          onClick={() => handleReactToComment(post._id, comment._id, '❤️')}
-                                          className="text-xs text-gray-500 dark:text-gray-400 hover:text-red-500 font-medium"
-                                        >
-                                          Like
-                                        </button>
-                                        <button
-                                          onClick={() => handleReactToComment(post._id, comment._id, '👍')}
+                                          onClick={() => handleReactToComment(post._id, comment._id)}
                                           className="text-xs text-gray-500 dark:text-gray-400 hover:text-cyan-500 font-medium"
                                         >
                                           React

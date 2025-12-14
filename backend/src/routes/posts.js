@@ -276,4 +276,108 @@ router.delete("/:id/comment/:commentId", auth, async (req, res) => {
   }
 });
 
+// Edit comment
+router.put("/:id/comment/:commentId", auth, async (req, res) => {
+  try {
+    const { text } = req.body;
+
+    if (!text || text.trim() === "") {
+      return res.status(400).json({ error: "Comment text is required" });
+    }
+
+    const post = await Post.findById(req.params.id);
+
+    if (!post) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+
+    const comment = post.comments.id(req.params.commentId);
+
+    if (!comment) {
+      return res.status(404).json({ error: "Comment not found" });
+    }
+
+    // Check if user is the comment author
+    if (comment.user.toString() !== req.user.id) {
+      return res.status(403).json({ error: "Not authorized" });
+    }
+
+    comment.text = text.trim();
+    await post.save();
+    await post.populate("author", "username avatar email");
+    await post.populate("comments.user", "username avatar");
+
+    // Emit socket event
+    const io = req.app.get("io");
+    if (io) {
+      io.emit("post_comment_edited", { postId: post._id, comment });
+    }
+
+    res.json(post);
+  } catch (err) {
+    console.error("Edit comment error:", err);
+    res.status(500).json({ error: "Failed to edit comment" });
+  }
+});
+
+// React to comment
+router.post("/:id/comment/:commentId/react", auth, async (req, res) => {
+  try {
+    const { emoji } = req.body;
+
+    if (!emoji) {
+      return res.status(400).json({ error: "Emoji is required" });
+    }
+
+    const post = await Post.findById(req.params.id);
+
+    if (!post) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+
+    const comment = post.comments.id(req.params.commentId);
+
+    if (!comment) {
+      return res.status(404).json({ error: "Comment not found" });
+    }
+
+    // Initialize reactions array if it doesn't exist
+    if (!comment.reactions) {
+      comment.reactions = [];
+    }
+
+    // Check if user already reacted
+    const existingReactionIndex = comment.reactions.findIndex(
+      (r) => r.user.toString() === req.user.id
+    );
+
+    if (existingReactionIndex !== -1) {
+      // Update existing reaction
+      comment.reactions[existingReactionIndex].emoji = emoji;
+    } else {
+      // Add new reaction
+      comment.reactions.push({
+        user: req.user.id,
+        emoji,
+        createdAt: new Date(),
+      });
+    }
+
+    await post.save();
+    await post.populate("author", "username avatar email");
+    await post.populate("comments.user", "username avatar");
+
+    // Emit socket event
+    const io = req.app.get("io");
+    if (io) {
+      io.emit("comment_reacted", { postId: post._id, commentId: req.params.commentId, reactions: comment.reactions });
+    }
+
+    res.json(post);
+  } catch (err) {
+    console.error("React to comment error:", err);
+    res.status(500).json({ error: "Failed to react to comment" });
+  }
+});
+
 export default router;

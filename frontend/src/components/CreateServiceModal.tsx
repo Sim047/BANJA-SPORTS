@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { X, Stethoscope, DollarSign, MapPin, Clock, Info } from "lucide-react";
+import { X, Stethoscope, DollarSign, MapPin, Award, Clock, Camera } from "lucide-react";
 import axios from "axios";
+import ImageUpload from "./ImageUpload";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -90,6 +91,7 @@ export default function CreateServiceModal({
     experience: editService?.experience || "",
   });
 
+  const [images, setImages] = useState<string[]>(editService?.images || []);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -126,6 +128,7 @@ export default function CreateServiceModal({
           .map((q) => q.trim())
           .filter((q) => q),
         experience: formData.experience,
+        images: images,
         active: true,
       };
 
@@ -259,6 +262,20 @@ export default function CreateServiceModal({
               rows={4}
               placeholder="Describe your service, what you offer, who it's for..."
               className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-purple-400/50"
+            />
+          </div>
+
+          {/* Service Image */}
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
+              <Camera className="w-4 h-4 text-purple-400" />
+              Service Image
+            </label>
+            <ImageUpload
+              images={images}
+              onImagesChange={setImages}
+              maxImages={1}
+              token={token}
             />
           </div>
 

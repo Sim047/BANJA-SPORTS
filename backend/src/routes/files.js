@@ -51,4 +51,42 @@ router.post('/upload', upload.single('file'), async (req, res) => {
   }
 });
 
+// Multi-file upload endpoint (up to 5 images for marketplace)
+router.post('/upload-multiple', upload.array('files', 5), async (req, res) => {
+  try {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: 'No files uploaded' });
+    }
+    
+    const uploadPromises = req.files.map(async (file) => {
+      // Resize image using sharp
+      const resizedBuffer = await sharp(file.buffer)
+        .resize({ width: 1200, withoutEnlargement: true })
+        .jpeg({ quality: 85 })
+        .toBuffer();
+      
+      // Upload to Cloudinary
+      return new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          { 
+            folder: 'auralink/marketplace',
+            resource_type: 'auto'
+          },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result.secure_url);
+          }
+        );
+        uploadStream.end(resizedBuffer);
+      });
+    });
+    
+    const urls = await Promise.all(uploadPromises);
+    res.json({ urls });
+  } catch (err) {
+    console.error('[files/upload-multiple] ', err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
 export default router;

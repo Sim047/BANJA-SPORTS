@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { X, ShoppingBag, DollarSign, Package, MapPin, Camera, Tag } from "lucide-react";
 import axios from "axios";
+import ImageUpload from "./ImageUpload";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -79,6 +80,7 @@ export default function CreateProductModal({
     tags: editProduct?.tags?.join(", ") || "",
   });
 
+  const [images, setImages] = useState<string[]>(editProduct?.images || []);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -109,7 +111,7 @@ export default function CreateProductModal({
           .split(",")
           .map((t: string) => t.trim())
           .filter((t: string) => t),
-        images: [], // TODO: Add image upload functionality
+        images: images,
         status: "active",
       };
 
@@ -226,6 +228,23 @@ export default function CreateProductModal({
               placeholder="Describe the product condition, features, specifications..."
               className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-green-400/50"
             />
+          </div>
+
+          {/* Image Upload */}
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
+              <Camera className="w-4 h-4 text-green-400" />
+              Product Images (Up to 5)
+            </label>
+            <ImageUpload
+              images={images}
+              onImagesChange={setImages}
+              maxImages={5}
+              token={token}
+            />
+            <p className="text-xs text-gray-400 mt-2">
+              First image will be the main product photo
+            </p>
           </div>
 
           {/* Pricing Section */}

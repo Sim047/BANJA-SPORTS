@@ -1,7 +1,8 @@
 // frontend/src/components/CreateEventModal.tsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { X, Calendar, MapPin, Users, DollarSign, Clock, Trophy } from "lucide-react";
+import { X, Calendar, MapPin, Users, DollarSign, Clock, Trophy, Camera } from "lucide-react";
+import ImageUpload from "./ImageUpload";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -81,6 +82,7 @@ export default function CreateEventModal({ isOpen, onClose, token, onSuccess, ed
     paymentInstructions: "",
     skillLevel: "all",
   });
+  const [images, setImages] = useState<string[]>(editingEvent?.image ? [editingEvent.image] : []);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -164,6 +166,7 @@ export default function CreateEventModal({ isOpen, onClose, token, onSuccess, ed
           paymentInstructions: formData.pricingType === "paid" ? formData.paymentInstructions : "",
         },
         skillLevel: formData.skillLevel,
+        image: images.length > 0 ? images[0] : undefined,
         status: "published",
       };
 
@@ -272,6 +275,20 @@ export default function CreateEventModal({ isOpen, onClose, token, onSuccess, ed
                 rows={3}
                 className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none text-gray-900 dark:text-white"
                 placeholder="Describe your event..."
+              />
+            </div>
+
+            {/* Event Image */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
+                <Camera className="w-4 h-4 text-teal-500" />
+                Event Image
+              </label>
+              <ImageUpload
+                images={images}
+                onImagesChange={setImages}
+                maxImages={1}
+                token={token}
               />
             </div>
 

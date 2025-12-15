@@ -1,6 +1,6 @@
 // frontend/src/components/ServiceDetailModal.tsx
 import React from "react";
-import { X, MapPin, Star, DollarSign, Clock, Award, MessageCircle, User } from "lucide-react";
+import { X, MapPin, Star, DollarSign, Clock, Award, MessageCircle, Heart, Eye } from "lucide-react";
 
 interface Service {
   _id: string;
@@ -32,16 +32,22 @@ interface Service {
   };
   requirements?: string[];
   included?: string[];
+  views?: number;
+  likes?: string[];
 }
 
 interface ServiceDetailModalProps {
   service: Service | null;
   onClose: () => void;
   onMessage: (providerId: string) => void;
+  onLike: (serviceId: string) => void;
+  currentUserId?: string;
 }
 
-export default function ServiceDetailModal({ service, onClose, onMessage }: ServiceDetailModalProps) {
+export default function ServiceDetailModal({ service, onClose, onMessage, onLike, currentUserId }: ServiceDetailModalProps) {
   if (!service) return null;
+
+  const isLiked = currentUserId && service.likes && service.likes.includes(currentUserId);
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -94,6 +100,24 @@ export default function ServiceDetailModal({ service, onClose, onMessage }: Serv
                 <MessageCircle className="w-4 h-4" />
                 Message
               </button>
+            </div>
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-white/5 backdrop-blur rounded-xl p-3 border border-white/10">
+              <div className="flex items-center gap-2 text-red-400 mb-1">
+                <Heart className={`w-4 h-4 ${isLiked ? "fill-red-400" : ""}`} />
+                <span className="text-sm font-semibold">Likes</span>
+              </div>
+              <p className="text-xl font-bold text-white">{service.likes?.length || 0}</p>
+            </div>
+            <div className="bg-white/5 backdrop-blur rounded-xl p-3 border border-white/10">
+              <div className="flex items-center gap-2 text-cyan-400 mb-1">
+                <Eye className="w-4 h-4" />
+                <span className="text-sm font-semibold">Views</span>
+              </div>
+              <p className="text-xl font-bold text-white">{service.views || 0}</p>
             </div>
           </div>
 
@@ -201,6 +225,19 @@ export default function ServiceDetailModal({ service, onClose, onMessage }: Serv
               </ul>
             </div>
           )}
+
+          {/* Like Button */}
+          <button
+            onClick={() => onLike(service._id)}
+            className={`w-full py-3 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 ${
+              isLiked
+                ? "bg-red-500 hover:bg-red-600 text-white"
+                : "bg-white/10 hover:bg-white/20 text-gray-300 border border-white/20"
+            }`}
+          >
+            <Heart className={`w-5 h-5 ${isLiked ? "fill-white" : ""}`} />
+            {isLiked ? "Unlike this service" : "Like this service"}
+          </button>
         </div>
       </div>
     </div>

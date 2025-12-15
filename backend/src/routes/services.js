@@ -105,6 +105,10 @@ router.get("/:id", async (req, res) => {
       return res.status(404).json({ error: "Service not found" });
     }
 
+    // Increment views
+    service.views = (service.views || 0) + 1;
+    await service.save();
+
     res.json(service);
   } catch (err) {
     console.error("Get service error:", err);
@@ -239,6 +243,33 @@ router.post("/:id/review", auth, async (req, res) => {
   } catch (err) {
     console.error("Add review error:", err);
     res.status(500).json({ error: "Failed to add review" });
+  }
+});
+
+// Like/Unlike service
+router.post("/:id/like", auth, async (req, res) => {
+  try {
+    const service = await Service.findById(req.params.id);
+
+    if (!service) {
+      return res.status(404).json({ error: "Service not found" });
+    }
+
+    const likeIndex = service.likes.indexOf(req.user.id);
+
+    if (likeIndex > -1) {
+      // Unlike
+      service.likes.splice(likeIndex, 1);
+    } else {
+      // Like
+      service.likes.push(req.user.id);
+    }
+
+    await service.save();
+    res.json({ likes: service.likes.length, liked: likeIndex === -1 });
+  } catch (err) {
+    console.error("Like service error:", err);
+    res.status(500).json({ error: "Failed to like service" });
   }
 });
 

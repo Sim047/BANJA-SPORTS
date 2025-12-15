@@ -78,6 +78,15 @@ interface Service {
   };
   qualifications?: string[];
   experience?: string;
+  images?: string[];
+  duration?: {
+    value: number;
+    unit: string;
+  };
+  requirements?: string[];
+  included?: string[];
+  views?: number;
+  likes?: string[];
 }
 
 interface MarketplaceItem {
@@ -185,8 +194,29 @@ export default function Discover() {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchMarketplaceItems();
+      // Update the selected product if modal is open
+      if (selectedProduct && selectedProduct._id === itemId) {
+        const response = await axios.get(`${API_URL}/marketplace/${itemId}`);
+        setSelectedProduct(response.data);
+      }
     } catch (error) {
       console.error("Error liking item:", error);
+    }
+  };
+
+  const handleLikeService = async (serviceId: string) => {
+    try {
+      await axios.post(`${API_URL}/services/${serviceId}/like`, {}, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      fetchServices();
+      // Update the selected service if modal is open
+      if (selectedService && selectedService._id === serviceId) {
+        const response = await axios.get(`${API_URL}/services/${serviceId}`);
+        setSelectedService(response.data);
+      }
+    } catch (error) {
+      console.error("Error liking service:", error);
     }
   };
 
@@ -543,6 +573,8 @@ export default function Discover() {
               service={selectedService}
               onClose={() => setSelectedService(null)}
               onMessage={handleMessageUser}
+              onLike={handleLikeService}
+              currentUserId={currentUser._id}
             />
           )}
         </div>

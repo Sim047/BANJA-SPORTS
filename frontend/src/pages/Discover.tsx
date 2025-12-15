@@ -29,6 +29,8 @@ import {
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { API_URL } from "../config/api";
+import ServiceDetailModal from "../components/ServiceDetailModal";
+import ProductDetailModal from "../components/ProductDetailModal";
 
 dayjs.extend(relativeTime);
 
@@ -109,6 +111,8 @@ export default function Discover() {
   const [filterCategory, setFilterCategory] = useState("");
   const [selectedSport, setSelectedSport] = useState("All Sports");
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<MarketplaceItem | null>(null);
   
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
   const token = localStorage.getItem("token");
@@ -184,6 +188,11 @@ export default function Discover() {
     } catch (error) {
       console.error("Error liking item:", error);
     }
+  };
+
+  const handleMessageUser = (userId: string) => {
+    // Navigate to conversations with the user
+    window.location.href = `/#/conversations?userId=${userId}`;
   };
 
   // Hub Landing Page
@@ -465,7 +474,8 @@ export default function Discover() {
               {services.map((service) => (
                 <div
                   key={service._id}
-                  className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 hover:border-purple-400/50 transition-all"
+                  onClick={() => setSelectedService(service)}
+                  className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 hover:border-purple-400/50 transition-all cursor-pointer hover:scale-102"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
@@ -600,7 +610,8 @@ export default function Discover() {
               {marketplaceItems.map((item) => (
                 <div
                   key={item._id}
-                  className="bg-white/10 backdrop-blur-lg rounded-xl overflow-hidden border border-white/20 hover:border-green-400/50 transition-all hover:scale-105"
+                  className="bg-white/10 backdrop-blur-lg rounded-xl overflow-hidden border border-white/20 hover:border-green-400/50 transition-all hover:scale-105 cursor-pointer"
+                  onClick={() => setSelectedProduct(item)}
                 >
                   {/* Item Image */}
                   <div className="relative h-48 bg-gray-800">
@@ -608,8 +619,7 @@ export default function Discover() {
                       <img
                         src={item.images[0]}
                         alt={item.title}
-                        className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                        onClick={() => setPreviewImage(item.images[0])}
+                        className="w-full h-full object-cover hover:opacity-90 transition-opacity"
                       />
                     ) : (
                       <div className="flex items-center justify-center h-full">
@@ -694,5 +704,30 @@ export default function Discover() {
     );
   }
 
-  return null;
+  return (
+    <>
+      {/* Service Detail Modal */}
+      {selectedService && (
+        <ServiceDetailModal
+          service={selectedService}
+          onClose={() => setSelectedService(null)}
+          onMessage={handleMessageUser}
+        />
+      )}
+
+      {/* Product Detail Modal */}
+      {selectedProduct && (
+        <ProductDetailModal
+          product={selectedProduct}
+          onClose={() => setSelectedProduct(null)}
+          onLike={handleLikeItem}
+          onMessage={handleMessageUser}
+          currentUserId={currentUser._id}
+        />
+      )}
+
+      {/* Default null return when no category selected */}
+      {null}
+    </>
+  );
 }

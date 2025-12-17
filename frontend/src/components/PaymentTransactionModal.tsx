@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X, DollarSign, CreditCard, AlertCircle } from "lucide-react";
 
 interface PaymentTransactionModalProps {
@@ -24,9 +24,17 @@ const PaymentTransactionModal: React.FC<PaymentTransactionModalProps> = ({
   const [transactionDetails, setTransactionDetails] = useState("");
   const [error, setError] = useState("");
 
-  console.log("[PaymentTransactionModal] Rendering modal");
+  console.log("[PaymentTransactionModal] ========== MODAL RENDERING ==========");
   console.log("[PaymentTransactionModal] Event:", event);
   console.log("[PaymentTransactionModal] Pricing:", event?.pricing);
+  console.log("[PaymentTransactionModal] Title:", event?.title);
+  
+  useEffect(() => {
+    console.log("[PaymentTransactionModal] Modal mounted!");
+    return () => {
+      console.log("[PaymentTransactionModal] Modal unmounted!");
+    };
+  }, []);
 
   const handleSubmit = () => {
     if (!transactionCode.trim()) {
@@ -44,7 +52,7 @@ const PaymentTransactionModal: React.FC<PaymentTransactionModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
       <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-2xl shadow-2xl max-w-lg w-full border border-cyan-500/20 animate-fade-in">
         {/* Header */}
         <div className="relative bg-gradient-to-r from-cyan-500 to-purple-500 p-6 rounded-t-2xl">

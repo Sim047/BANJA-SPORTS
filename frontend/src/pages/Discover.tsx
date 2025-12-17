@@ -220,7 +220,9 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
       // If event has pricing and is paid, show payment modal
       if (event && event.pricing?.type === "paid") {
         console.log("[Discover] Opening payment modal for paid event");
+        console.log("[Discover] Setting paymentModalEvent to:", event);
         setPaymentModalEvent(event);
+        console.log("[Discover] paymentModalEvent set, modal should appear");
         return; // Wait for modal submission
       }
       
@@ -1116,13 +1118,16 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
           )}
 
           {/* Payment Transaction Modal */}
-          {paymentModalEvent && (
-            <PaymentTransactionModal
-              event={paymentModalEvent as any}
-              onSubmit={handlePaymentSubmit}
-              onCancel={() => setPaymentModalEvent(null)}
-            />
-          )}
+          {paymentModalEvent && (() => {
+            console.log("[Discover] Rendering PaymentTransactionModal with event:", paymentModalEvent);
+            return (
+              <PaymentTransactionModal
+                event={paymentModalEvent as any}
+                onSubmit={handlePaymentSubmit}
+                onCancel={() => setPaymentModalEvent(null)}
+              />
+            );
+          })()}
 
           {/* Notification Toast */}
           {notification && (

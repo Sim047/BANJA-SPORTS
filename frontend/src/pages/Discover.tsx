@@ -248,7 +248,7 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
       
       setNotification({ 
         message: requiresApproval 
-          ? "Γ£à Join request submitted! The organizer will review your request."
+          ? "Join request submitted! The organizer will review your request."
           : message,
         type: "success" 
       });
@@ -344,7 +344,7 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
       );
       console.log("[Discover] Approve response:", response.data);
       setNotification({ 
-        message: response.data.message || "Γ£à Request approved! Participant added to event.", 
+        message: response.data.message || "Request approved! Participant added to event.", 
         type: "success" 
       });
       

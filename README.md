@@ -11,7 +11,7 @@ A modern, feature-rich social networking and communication platform built with t
 
 ## ✨ Features
 
-### � Social Feed (Instagram-like Posts)
+### Social Feed (Instagram-like Posts)
 - **Create posts** with images, captions, location, and tags
 - **Like and comment** on posts in real-time
 - **Edit posts** - Update captions, location, and tags

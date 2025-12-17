@@ -150,6 +150,31 @@ app.use((req, res, next) => {
   return next();
 });
 
+// Handle preflight OPTIONS requests early so proxies and load balancers
+// receive proper CORS headers without invoking full route logic.
+app.options("*", (req, res) => {
+  const origin = req.headers.origin;
+  try {
+    if (!origin) {
+      res.header('Access-Control-Allow-Origin', '*');
+      res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+      res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+      return res.sendStatus(204);
+    }
+
+    if (isOriginAllowed(origin)) {
+      res.header('Access-Control-Allow-Origin', origin);
+      res.header('Access-Control-Allow-Credentials', 'true');
+      res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+      res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+      return res.sendStatus(204);
+    }
+  } catch (e) {
+    // fall through
+  }
+  return res.sendStatus(403);
+});
+
 app.use(
   cors({
     origin: function (origin, callback) {

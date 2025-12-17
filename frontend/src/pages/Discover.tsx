@@ -211,6 +211,8 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
     }
     
     try {
+      console.log('[Discover] API_URL:', API_URL);
+      console.log('[Discover] Auth token present (first 8 chars):', token ? token.slice(0,8) : 'no-token');
       console.log("[Discover] === JOIN EVENT START ===");
       console.log("[Discover] Event ID:", eventId);
       
@@ -265,7 +267,8 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
       }
     } catch (error: any) {
       console.error("[Discover] Join event error:", error);
-      const message = error.response?.data?.message || error.response?.data?.error || "Failed to join event";
+      console.error('[Discover] Join error response:', error.response && { status: error.response.status, data: error.response.data });
+      const message = error.response?.data?.message || error.response?.data?.error || error.message || "Failed to join event";
       setNotification({ message, type: "error" });
     }
   };
@@ -274,6 +277,8 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
     if (!paymentModalData.event) return;
 
     try {
+      console.log('[Discover] API_URL:', API_URL);
+      console.log('[Discover] Auth token present (first 8 chars):', token ? token.slice(0,8) : 'no-token');
       const response = await axios.post(
         `${API_URL}/events/${paymentModalData.event._id}/join`,
         {

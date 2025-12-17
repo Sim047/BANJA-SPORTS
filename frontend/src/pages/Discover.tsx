@@ -146,6 +146,7 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [participantsModalEvent, setParticipantsModalEvent] = useState<Event | null>(null);
   const [notification, setNotification] = useState<{ message: string; type: "success" | "error" | "info" | "warning" } | null>(null);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentModalEvent, setPaymentModalEvent] = useState<Event | null>(null);
   
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
@@ -222,7 +223,8 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
         console.log("[Discover] Opening payment modal for paid event");
         console.log("[Discover] Setting paymentModalEvent to:", event);
         setPaymentModalEvent(event);
-        console.log("[Discover] paymentModalEvent set, modal should appear");
+        setShowPaymentModal(true);
+        console.log("[Discover] Modal state set to true");
         return; // Wait for modal submission
       }
       
@@ -282,6 +284,7 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
       console.log("[Discover] Join paid event response:", response.data);
       
       // Close payment modal
+      setShowPaymentModal(false);
       setPaymentModalEvent(null);
       
       // Show success notification
@@ -306,12 +309,19 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
         }
       }
     } catch (error: any) {
-      console.error("[Discover] Join paid event error:", error);
+      conShowPaymentModal(false);
       setPaymentModalEvent(null);
       setNotification({
         message: error.response?.data?.message || error.response?.data?.error || "Failed to submit join request",
         type: "error"
       });
+    }
+  };
+
+  const handlePaymentCancel = () => {
+    console.log("[Discover] Payment modal cancelled");
+    setShowPaymentModal(false);
+    setPaymentModalEvent(null); });
     }
   };
 
@@ -1111,15 +1121,12 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
             <ProductDetailModal
               product={selectedProduct}
               onClose={() => setSelectedProduct(null)}
-              onLike={handleLikeItem}
-              onMessage={handleMessageUser}
-              currentUserId={currentUser._id}
-            />
-          )}
-
-          {/* Payment Transaction Modal */}
-          {paymentModalEvent && (
-            <>
+           showPaymentModal && paymentModalEvent && (
+            <PaymentTransactionModal
+              event={paymentModalEvent}
+              onSubmit={handlePaymentSubmit}
+              onCancel={handlePaymentCancel}
+            >
               {console.log("[Discover] Rendering PaymentTransactionModal with event:", paymentModalEvent)}
               <PaymentTransactionModal
                 event={paymentModalEvent}

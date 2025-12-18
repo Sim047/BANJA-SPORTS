@@ -262,9 +262,7 @@ export default function PendingApprovals({ token }: { token: string }) {
                         {booking.scheduledTime}
                       </span>
                     )}
-                    <span className="font-medium text-teal-600 dark:text-teal-400">
-                      ${booking.pricing.amount} {booking.pricing.currency}
-                    </span>
+                    {/* Pricing removed: events are free */}
                   </div>
                   {booking.clientNotes && (
                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 italic">
@@ -272,16 +270,7 @@ export default function PendingApprovals({ token }: { token: string }) {
                     </p>
                   )}
                   
-                  {/* Show transaction code if provided */}
-                  {booking.pricing.transactionCode && booking.pricing.transactionCode !== "FREE_EVENT" && (
-                    <div className="mt-2 p-2 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                      <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Transaction Code:</p>
-                      <p className="text-sm font-mono text-teal-600 dark:text-teal-400">{booking.pricing.transactionCode}</p>
-                      {booking.pricing.transactionDetails && (
-                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">{booking.pricing.transactionDetails}</p>
-                      )}
-                    </div>
-                  )}
+                  {/* Transaction code removed */}
                   
                   <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
                     Requested {dayjs(booking.createdAt).fromNow()}
@@ -312,30 +301,7 @@ export default function PendingApprovals({ token }: { token: string }) {
                   </>
                 )}
                 
-                {/* Payment verification buttons for approved bookings */}
-                {booking.approvalStatus === "approved" && !booking.paymentVerified && booking.pricing.amount > 0 && (
-                  <>
-                    <div className="text-xs text-yellow-600 dark:text-yellow-400 font-medium mb-1">
-                      Awaiting Payment Verification
-                    </div>
-                    <button
-                      onClick={() => handlePaymentVerification(booking._id, true)}
-                      disabled={processing === booking._id}
-                      className="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-all duration-300 shadow-lg shadow-blue-500/30 flex items-center gap-2"
-                    >
-                      <CheckCircle className="w-4 h-4" />
-                      Verify Payment
-                    </button>
-                    <button
-                      onClick={() => handlePaymentVerification(booking._id, false)}
-                      disabled={processing === booking._id}
-                      className="px-4 py-2 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-all duration-300 shadow-lg shadow-gray-500/30 flex items-center gap-2"
-                    >
-                      <XCircle className="w-4 h-4" />
-                      Invalid
-                    </button>
-                  </>
-                )}
+                {/* Payment verification removed */}
                 
                 {/* Show status for free events */}
                 {booking.approvalStatus === "approved" && booking.pricing.amount === 0 && (

@@ -148,59 +148,32 @@ router.post("/", auth, async (req, res) => {
 // POST /api/events/:id/join
 router.post("/:id/join", auth, async (req, res) => {
   try {
-    const { transactionCode, transactionDetails } = req.body || {};
     const userId = req.user.id;
     const event = await Event.findById(req.params.id).populate("organizer", "username avatar");
     if (!event) return res.status(404).json({ error: "Event not found" });
 
-    // Simple duplicate check
-    if (event.participants.some(p => String(p) === String(userId))) {
+    // Duplicate check
+    if ((event.participants || []).some(p => String(p) === String(userId))) {
       return res.status(400).json({ error: "You have already joined this event" });
     }
 
-    // Capacity
+    // Capacity guard
     const max = Number(event.capacity?.max || 1000);
-    if ((event.participants?.length || 0) >= max) return res.status(400).json({ error: "Event is full" });
-
-    // Payment enforcement for paid events
-    const isPaid = event.pricing && event.pricing.type === "paid" && Number(event.pricing.amount) > 0;
-    if (isPaid && !transactionCode) {
-      return res.status(400).json({ error: "Transaction code required for paid events", amount: event.pricing.amount, currency: event.pricing.currency });
+    if ((event.participants?.length || 0) >= max) {
+      return res.status(400).json({ error: "Event is full" });
     }
 
-    if (event.requiresApproval) {
-      event.joinRequests = event.joinRequests || [];
-      console.log("Creating join request for event", event._id, "user", userId);
-      event.joinRequests.push({ user: userId, transactionCode: transactionCode || "", transactionDetails: transactionDetails || "", requestedAt: new Date(), status: "pending" });
-      try {
-        await event.save();
-      } catch (saveErr) {
-        console.error("Failed saving join request for event", event._id, "err:", saveErr);
-        return res.status(500).json({ error: "Failed to save join request", details: saveErr.message });
-      }
-
-      const io = req.app.get("io");
-      if (io) io.emit("join_request_created", { eventId: event._id, organizerId: String(event.organizer._id), requesterId: userId });
-
-      return res.json({ success: true, message: "Join request submitted", requiresApproval: true });
-    }
-
-    // Immediate join
+    // Immediate free join: ignore pricing and approval
     event.participants = event.participants || [];
-    console.log("Adding participant", userId, "to event", event._id, "currentParticipants", event.participants.length);
     event.participants.push(userId);
     if (event.capacity) event.capacity.current = event.participants.length;
-    try {
-      await event.save();
-    } catch (saveErr) {
-      console.error("Failed saving event when adding participant", event._id, "err:", saveErr);
-      return res.status(500).json({ error: "Failed to join event", details: saveErr.message });
-    }
+
+    await event.save();
 
     const io = req.app.get("io");
     if (io) io.emit("participant_joined", { eventId: event._id, participantId: userId });
 
-    return res.json({ success: true, message: "Successfully joined event", requiresApproval: false });
+    return res.json({ success: true, message: "Successfully joined event" });
   } catch (err) {
     console.error("Join event error:", err);
     res.status(500).json({ error: "Failed to join event", details: err.message });

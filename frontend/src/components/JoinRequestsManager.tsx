@@ -138,21 +138,7 @@ export default function JoinRequestsManager({ token }: { token: string }) {
               </div>
             </div>
 
-            <div className="bg-gray-100 dark:bg-slate-800 rounded-lg p-3 border border-gray-200 dark:border-slate-600">
-              <div className="flex items-center gap-2 mb-2">
-                <CreditCard className="w-4 h-4 text-cyan-400" />
-                <span className="text-sm font-medium text-gray-700 dark:text-slate-300">Transaction Code:</span>
-              </div>
-              <p className="text-gray-900 dark:text-white font-mono text-sm bg-white dark:bg-slate-900/50 px-3 py-2 rounded border border-gray-200 dark:border-slate-700">
-                {req.transactionCode}
-              </p>
-            </div>
-
-            {req.event.pricing?.amount && (
-              <p className="text-sm text-gray-600 dark:text-slate-400 mt-2">
-                Event Fee: {req.event.pricing.amount} {req.event.pricing.currency || 'USD'}
-              </p>
-            )}
+            {/* Transaction code and event fee removed: all events are free */}
           </div>
 
           <div className="flex gap-3">

@@ -36,7 +36,6 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import { API_URL } from "../config/api";
 import ServiceDetailModal from "../components/ServiceDetailModal";
 import ProductDetailModal from "../components/ProductDetailModal";
-import PaymentTransactionModal from "../components/PaymentTransactionModal";
 import EventDetailModal from "../components/EventDetailModal";
 import EventParticipantsModal from "../components/EventParticipantsModal";
 import NotificationToast from "../components/NotificationToast";
@@ -197,10 +196,6 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [participantsModalEvent, setParticipantsModalEvent] = useState<Event | null>(null);
   const [notification, setNotification] = useState<{ message: string; type: "success" | "error" | "info" | "warning" } | null>(null);
-  const [paymentModalData, setPaymentModalData] = useState<{
-    show: boolean;
-    event: Event | null;
-  }>({ show: false, event: null });
 
   // In-flight guards to prevent duplicate clicks
   const [joiningEvent, setJoiningEvent] = useState<InFlightMap>({});
@@ -277,22 +272,9 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
       // Find the event to check if it's paid
       const event = events.find(e => e._id === eventId) || selectedEvent;
       safeLog("[Discover] Event found:", event);
-      safeLog("[Discover] Event pricing:", event?.pricing);
-      safeLog("[Discover] Is paid event?", event?.pricing?.type === "paid");
+      // Paid flow removed; pricing logs no longer relevant
 
-      // Align with backend: treat as paid only when type is 'paid' and amount > 0
-      const isPaidEvent = !!event && (
-        event.pricing?.type === "paid" && Number(event.pricing?.amount) > 0
-      );
-
-      if (isPaidEvent) {
-        setPaymentModalData({ show: true, event });
-        // Clear in-flight state since we didn't call the API yet
-        finishAction(setJoiningEvent, eventId);
-        return; // Wait for modal submission
-      }
-
-      // Free event - proceed directly
+      // Proceed directly (all events are free now)
       const response = await axios.post(
         `${API_URL}/events/${eventId}/join`,
         {},
@@ -301,35 +283,24 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
       safeLog("[Discover] Join event response:", response.data);
       // Show success message with proper notification
       const message = response.data.message || "Successfully joined event!";
-      const requiresApproval = response.data.requiresApproval;
-
-      setNotification({
-        message: requiresApproval
-          ? "Join request submitted! The organizer will review your request."
-          : message,
-        type: "success"
-      });
+      setNotification({ message, type: "success" });
 
       // Optimistically update local events list for immediate joins
-      if (!requiresApproval) {
-        setEvents((prev) => prev.map((ev) => {
-          if (ev._id !== eventId) return ev;
-          const already = (ev.participants || []).some((p: any) => p?._id === currentUser._id || p === currentUser._id);
-          if (already) return ev;
-          return { ...ev, participants: [...(ev.participants || []), currentUser] } as any;
-        }));
-      }
+      setEvents((prev) => prev.map((ev) => {
+        if (ev._id !== eventId) return ev;
+        const already = (ev.participants || []).some((p: any) => p?._id === currentUser._id || p === currentUser._id);
+        if (already) return ev;
+        return { ...ev, participants: [...(ev.participants || []), currentUser] } as any;
+      }));
 
       // Background refresh
       fetchEvents();
 
       // Update selected event if modal is open
       if (selectedEvent && selectedEvent._id === eventId) {
-        if (!requiresApproval) {
-          const already = (selectedEvent.participants || []).some((p: any) => p?._id === currentUser._id || p === currentUser._id);
-          if (!already) {
-            setSelectedEvent({ ...selectedEvent, participants: [...(selectedEvent.participants || []), currentUser] } as any);
-          }
+        const already = (selectedEvent.participants || []).some((p: any) => p?._id === currentUser._id || p === currentUser._id);
+        if (!already) {
+          setSelectedEvent({ ...selectedEvent, participants: [...(selectedEvent.participants || []), currentUser] } as any);
         }
         try {
           const updatedEvent = await axios.get(`${API_URL}/events/${eventId}`);
@@ -347,71 +318,7 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
     }
   };
 
-  const handlePaymentSubmit = async (transactionCode: string, transactionDetails: string) => {
-    if (!paymentModalData.event) return;
-
-    try {
-      safeLog('[Discover] API_URL:', API_URL);
-      safeLog('[Discover] Auth token present (first 8 chars):', token ? token.slice(0,8) : 'no-token');
-      const response = await axios.post(
-        `${API_URL}/events/${paymentModalData.event._id}/join`,
-        {
-          transactionCode,
-          transactionDetails,
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      safeLog("[Discover] Join paid event response:", response.data);
-
-      setPaymentModalData({ show: false, event: null });
-
-      const requiresApproval = response.data.requiresApproval;
-      setNotification({
-        message: requiresApproval
-          ? "Join request submitted! The organizer will verify your payment and approve your request."
-          : "Successfully joined event!",
-        type: "success",
-      });
-
-      if (!requiresApproval) {
-        setEvents((prev) => prev.map((ev) => {
-          if (ev._id !== paymentModalData.event!._id) return ev;
-          const already = (ev.participants || []).some((p: any) => p?._id === currentUser._id || p === currentUser._id);
-          if (already) return ev;
-          return { ...ev, participants: [...(ev.participants || []), currentUser] } as any;
-        }));
-      }
-
-      fetchEvents();
-
-      if (selectedEvent && paymentModalData.event && selectedEvent._id === paymentModalData.event._id) {
-        if (!requiresApproval) {
-          const already = (selectedEvent.participants || []).some((p: any) => p?._id === currentUser._id || p === currentUser._id);
-          if (!already) {
-            setSelectedEvent({ ...selectedEvent, participants: [...(selectedEvent.participants || []), currentUser] } as any);
-          }
-        }
-        try {
-          const updatedEvent = await axios.get(`${API_URL}/events/${paymentModalData.event._id}`);
-          setSelectedEvent(updatedEvent.data);
-        } catch (err) {
-          console.error("Failed to refresh event details:", err);
-        }
-      }
-    } catch (error: any) {
-      setPaymentModalData({ show: false, event: null });
-      setNotification({
-        message: getApiErrorMessage(error),
-        type: "error",
-      });
-    }
-  };
-
-  const handlePaymentCancel = () => {
-    safeLog("[Discover] Payment modal cancelled");
-    setPaymentModalData({ show: false, event: null });
-  };
+  // Payment flow removed entirely
 
   
 
@@ -823,13 +730,6 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
                       <p className="text-sm text-cyan-400">{event.sport}</p>
                     </div>
                     <div className="flex flex-col items-end gap-1">
-                      {(event.pricing?.amount && event.pricing.amount > 0) && (
-                        <div className="bg-green-500/20 px-3 py-1 rounded-full">
-                          <span className="text-green-400 font-semibold text-sm">
-                            {event.pricing?.currency || "$"}{event.pricing?.amount}
-                          </span>
-                        </div>
-                      )}
                       {event.participants?.some((p: any) => p?._id === currentUser._id || p === currentUser._id) && (
                         <div className="bg-emerald-500/20 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
                           <span className="text-emerald-300 font-semibold text-[11px] tracking-wide">Joined</span>
@@ -1251,14 +1151,7 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
             />
           )}
 
-          {/* Payment Transaction Modal */}
-          {paymentModalData.show && paymentModalData.event && (
-            <PaymentTransactionModal
-              event={paymentModalData.event}
-              onSubmit={handlePaymentSubmit}
-              onCancel={() => setPaymentModalData({ show: false, event: null })}
-            />
-          )}
+          {/* Payment flow removed */}
 
           {/* Notification Toast */}
           {notification && (

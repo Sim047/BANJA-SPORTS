@@ -102,7 +102,7 @@ export default function MyPendingRequests() {
         return (
           <div className="flex items-center gap-1 text-green-600 dark:text-green-400">
             <CheckCircle className="w-4 h-4" />
-            <span className="font-medium">Confirmed & Paid</span>
+            <span className="font-medium">Confirmed</span>
           </div>
         );
       }
@@ -199,17 +199,10 @@ export default function MyPendingRequests() {
                     {booking.location}
                   </span>
                 )}
-                <span className="font-medium text-teal-600 dark:text-teal-400">
-                  ${booking.pricing.amount} {booking.pricing.currency}
-                </span>
+                {/* Pricing removed: events are free */}
               </div>
 
-              {booking.pricing.transactionCode && booking.pricing.transactionCode !== "FREE_EVENT" && (
-                <div className="mt-2 p-2 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-300 dark:border-gray-700">
-                  <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Transaction Code:</p>
-                  <p className="text-sm font-mono text-teal-600 dark:text-teal-400">{booking.pricing.transactionCode}</p>
-                </div>
-              )}
+              {/* Transaction code removed */}
 
               {booking.rejectionReason && (
                 <div className="mt-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">

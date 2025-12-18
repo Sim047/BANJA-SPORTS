@@ -231,25 +231,10 @@ export default function MyJoinRequests({ onBack, onNavigate }: any) {
                         <span>By <span className="font-semibold">{booking.event.organizer.username}</span></span>
                       </div>
 
-                      {booking.event.pricing && booking.event.pricing.amount > 0 && (
-                        <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                          <DollarSign className="w-4 h-4 text-green-500" />
-                          <span className="font-semibold">
-                            {booking.event.pricing.currency} {booking.event.pricing.amount}
-                          </span>
-                        </div>
-                      )}
+                      {/* Pricing removed: events are free */}
                     </div>
 
-                    {/* Transaction Code */}
-                    {booking.transactionCode && (
-                      <div className="flex items-center gap-2 text-sm">
-                        <FileText className="w-4 h-4 text-gray-400" />
-                        <span className="text-gray-600 dark:text-gray-400">
-                          Transaction: <span className="font-mono font-semibold">{booking.transactionCode}</span>
-                        </span>
-                      </div>
-                    )}
+                    {/* Transaction code removed */}
 
                     {/* Rejection Reason */}
                     {booking.status === "rejected" && booking.rejectionReason && (

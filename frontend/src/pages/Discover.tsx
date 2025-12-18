@@ -823,13 +823,20 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
                       <h3 className="text-lg font-bold text-white mb-1">{event.title}</h3>
                       <p className="text-sm text-cyan-400">{event.sport}</p>
                     </div>
-                    {(event.pricing?.amount && event.pricing.amount > 0) && (
-                      <div className="bg-green-500/20 px-3 py-1 rounded-full">
-                        <span className="text-green-400 font-semibold text-sm">
-                          {event.pricing?.currency || "$"}{event.pricing?.amount}
-                        </span>
-                      </div>
-                    )}
+                    <div className="flex flex-col items-end gap-1">
+                      {(event.pricing?.amount && event.pricing.amount > 0) && (
+                        <div className="bg-green-500/20 px-3 py-1 rounded-full">
+                          <span className="text-green-400 font-semibold text-sm">
+                            {event.pricing?.currency || "$"}{event.pricing?.amount}
+                          </span>
+                        </div>
+                      )}
+                      {event.participants?.some((p: any) => p?._id === currentUser._id || p === currentUser._id) && (
+                        <div className="bg-emerald-500/20 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
+                          <span className="text-emerald-300 font-semibold text-[11px] tracking-wide">Joined</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   <p className="text-gray-300 text-sm mb-4 line-clamp-2">{event.description}</p>

@@ -219,6 +219,20 @@ app.use("/api/marketplace", marketplaceRoutes);
 // lightweight health check (useful for probes / verify deployment)
 app.get('/', (req, res) => res.json({ ok: true, service: 'auralink-backend' }));
 
+// TEMP: debug echo endpoint to inspect payloads/headers in Railway logs
+app.post('/api/debug/echo', (req, res) => {
+  try {
+    console.log('[DEBUG ECHO] origin:', req.headers.origin);
+    console.log('[DEBUG ECHO] auth:', req.headers.authorization ? 'present' : 'missing');
+    console.log('[DEBUG ECHO] path:', req.path);
+    console.log('[DEBUG ECHO] body:', req.body);
+    res.json({ ok: true, headers: req.headers, body: req.body });
+  } catch (e) {
+    console.error('[DEBUG ECHO ERROR]', e);
+    res.status(500).json({ error: 'echo_failed', details: e.message });
+  }
+});
+
 // SOCKET.IO LOGIC
 io.on("connection", (socket) => {
   console.log("[socket] connected:", socket.id);
@@ -375,6 +389,22 @@ io.on("connection", (socket) => {
       }
     }
   });
+});
+
+// Global error handler to surface stack traces in logs during debugging
+// Keep last in the middleware chain
+app.use((err, req, res, next) => {
+  console.error('[GLOBAL ERROR]', err && err.stack ? err.stack : err);
+  if (res.headersSent) return next(err);
+  res.status(500).json({ error: 'Internal Server Error', details: err?.message || 'unknown' });
+});
+
+// Also capture unhandled rejections/exceptions to logs
+process.on('unhandledRejection', (reason) => {
+  console.error('[UNHANDLED REJECTION]', reason);
+});
+process.on('uncaughtException', (err) => {
+  console.error('[UNCAUGHT EXCEPTION]', err);
 });
 
 // DB + START SERVER

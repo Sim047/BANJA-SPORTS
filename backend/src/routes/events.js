@@ -162,7 +162,11 @@ router.post("/:id/join", auth, async (req, res) => {
     const max = Number(event.capacity?.max || 1000);
     if ((event.participants?.length || 0) >= max) return res.status(400).json({ error: "Event is full" });
 
-    // Payment requirement removed: do not enforce transactionCode for paid events
+    // Payment enforcement for paid events
+    const isPaid = event.pricing && event.pricing.type === "paid" && Number(event.pricing.amount) > 0;
+    if (isPaid && !transactionCode) {
+      return res.status(400).json({ error: "Transaction code required for paid events", amount: event.pricing.amount, currency: event.pricing.currency });
+    }
 
     if (event.requiresApproval) {
       event.joinRequests = event.joinRequests || [];

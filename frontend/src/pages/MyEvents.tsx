@@ -104,7 +104,9 @@ export default function MyEvents({ token }: any) {
       await axios.delete(`${API}/api/events/${eventId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setEvents(events.filter((e) => e._id !== eventId));
+      setEventsCreated((prev) => prev.filter((e) => e._id !== eventId));
+      setEventsJoined((prev) => prev.filter((e) => e._id !== eventId));
+      setEventsPending((prev) => prev.filter((e) => e._id !== eventId));
     } catch (err: any) {
       alert(err.response?.data?.error || "Failed to delete event");
     } finally {
@@ -326,7 +328,7 @@ export default function MyEvents({ token }: any) {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Events</p>
-                  <p className="text-3xl font-bold text-gray-900 dark:text-white">{events.length}</p>
+                  <p className="text-3xl font-bold text-gray-900 dark:text-white">{(eventsCreated.length + eventsJoined.length + eventsPending.length)}</p>
                 </div>
                 <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-xl flex items-center justify-center">
                   <Trophy className="w-6 h-6 text-white" />
@@ -339,7 +341,7 @@ export default function MyEvents({ token }: any) {
                 <div>
                   <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Participants</p>
                   <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                    {events.reduce((sum, e) => sum + (e.capacity?.current || 0), 0)}
+                    {[...eventsCreated, ...eventsJoined].reduce((sum, e) => sum + (e.capacity?.current || (e.participants?.length || 0)), 0)}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
@@ -353,7 +355,7 @@ export default function MyEvents({ token }: any) {
                 <div>
                   <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Active Events</p>
                   <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                    {events.filter((e) => e.status === "published").length}
+                    {[...eventsCreated, ...eventsJoined, ...eventsPending].filter((e) => e.status === "published").length}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">

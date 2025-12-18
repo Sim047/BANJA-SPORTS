@@ -409,474 +409,487 @@ export default function MyEvents({ token }: any) {
         )}
 
         {/* Content */}
-        {activeTab === "events" ? (
-          <>
-            <div className="mb-6">
-              <div className="inline-flex bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
-                <button onClick={() => setEventsTab('organizing')} className={`px-4 py-2 text-sm font-semibold ${eventsTab==='organizing' ? 'bg-cyan-500 text-white' : 'text-gray-600 dark:text-gray-300'}`}>Organizing ({eventsCreated.length})</button>
-                <button onClick={() => setEventsTab('joined')} className={`px-4 py-2 text-sm font-semibold ${eventsTab==='joined' ? 'bg-cyan-500 text-white' : 'text-gray-600 dark:text-gray-300'}`}>Joined ({eventsJoined.length})</button>
-                <button onClick={() => setEventsTab('pending')} className={`px-4 py-2 text-sm font-semibold ${eventsTab==='pending' ? 'bg-cyan-500 text-white' : 'text-gray-600 dark:text-gray-300'}`}>Pending ({eventsPending.length})</button>
-              </div>
-            </div>
-            {events.length === 0 ? (
-            <div className="bg-white dark:bg-[#0f172a] rounded-3xl p-12 border border-gray-200 dark:border-gray-800 text-center">
-              <div className="max-w-md mx-auto">
-                <div className="w-20 h-20 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <Calendar className="w-10 h-10 text-slate-500" />
+        {(() => {
+          if (activeTab === "events") {
+            return (
+              <div>
+                <div className="mb-6">
+                  <div className="inline-flex bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+                    <button onClick={() => setEventsTab('organizing')} className={`px-4 py-2 text-sm font-semibold ${eventsTab==='organizing' ? 'bg-cyan-500 text-white' : 'text-gray-600 dark:text-gray-300'}`}>Organizing ({eventsCreated.length})</button>
+                    <button onClick={() => setEventsTab('joined')} className={`px-4 py-2 text-sm font-semibold ${eventsTab==='joined' ? 'bg-cyan-500 text-white' : 'text-gray-600 dark:text-gray-300'}`}>Joined ({eventsJoined.length})</button>
+                    <button onClick={() => setEventsTab('pending')} className={`px-4 py-2 text-sm font-semibold ${eventsTab==='pending' ? 'bg-cyan-500 text-white' : 'text-gray-600 dark:text-gray-300'}`}>Pending ({eventsPending.length})</button>
+                  </div>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                  No Events Yet
-                </h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-6">
-                  You haven't created any events. Start by creating your first event!
-                </p>
-                <button
-                  onClick={() => setCreateModalOpen(true)}
-                  className="px-6 py-3 bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white font-semibold rounded-xl transition-all duration-300 inline-flex items-center gap-2 shadow-lg"
-                >
-                  <Plus className="w-4 h-4" />
-                  Create Your First Event
-                </button>
-              </div>
-            </div>
-            ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {(eventsTab==='organizing' ? eventsCreated : eventsTab==='joined' ? eventsJoined : eventsPending).map((event) => (
-              <div
-                key={event._id}
-                className="bg-white dark:bg-[#0f172a] rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800 hover:shadow-xl transition-all duration-300"
-              >
-                {/* Event Header */}
-                <div className="bg-gradient-to-r from-slate-600 to-slate-700 dark:from-slate-700 dark:to-slate-800 p-6">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
-                      <h3 className="text-xl font-bold text-white mb-2 line-clamp-2">
-                        {event.title}
+                {events.length === 0 ? (
+                  <div className="bg-white dark:bg-[#0f172a] rounded-3xl p-12 border border-gray-200 dark:border-gray-800 text-center">
+                    <div className="max-w-md mx-auto">
+                      <div className="w-20 h-20 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <Calendar className="w-10 h-10 text-slate-500" />
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                        No Events Yet
                       </h3>
-                      {event.sport && (
-                        <span className="inline-block px-3 py-1 bg-white/20 backdrop-blur-sm text-white rounded-lg text-sm font-medium">
-                          {event.sport}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex gap-2 ml-4">
+                      <p className="text-gray-600 dark:text-gray-400 mb-6">
+                        You haven't created any events. Start by creating your first event!
+                      </p>
                       <button
-                        onClick={() => handleEdit(event)}
-                        className="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition text-white"
-                        title="Edit Event"
+                        onClick={() => setCreateModalOpen(true)}
+                        className="px-6 py-3 bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white font-semibold rounded-xl transition-all duration-300 inline-flex items-center gap-2 shadow-lg"
                       >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(event._id)}
-                        disabled={deletingId === event._id}
-                        className="p-2 bg-red-500/20 hover:bg-red-500/30 rounded-lg transition text-white disabled:opacity-50"
-                        title="Delete Event"
-                      >
-                        <Trash2 className="w-4 h-4" />
+                        <Plus className="w-4 h-4" />
+                        Create Your First Event
                       </button>
                     </div>
                   </div>
-                </div>
-
-                {/* Event Details */}
-                <div className="p-6 space-y-4">
-                  <p className="text-gray-600 dark:text-gray-400 line-clamp-2">
-                    {event.description}
-                  </p>
-
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                      <Calendar className="w-4 h-4 text-slate-500" />
-                      <span>
-                        {dayjs(event.startDate).format("MMM D, YYYY")}
-                        {event.time && ` at ${event.time}`}
-                      </span>
-                    </div>
-
-                    {event.location?.city && (
-                      <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                        <MapPin className="w-4 h-4 text-slate-500" />
-                        <span>
-                          {event.location.name && `${event.location.name}, `}
-                          {event.location.city}
-                          {event.location.state && `, ${event.location.state}`}
-                        </span>
-                      </div>
-                    )}
-
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                        <Users className="w-4 h-4 text-slate-500" />
-                        <span>
-                          {event.capacity?.current || 0} / {event.capacity?.max || 0} participants
-                        </span>
-                        {event.waitlist?.length > 0 && (
-                          <span className="text-orange-500 text-xs">
-                            ({event.waitlist.length} on waitlist)
-                          </span>
-                        )}
-                      </div>
-                      
-                      {/* PROMINENT MANAGE PARTICIPANTS BUTTON */}
-                      <button
-                        onClick={async () => {
-                          try {
-                            const resp = await axios.get(`${API}/api/events/${event._id}`);
-                            setParticipantsModalEvent(resp.data);
-                          } catch (e) {
-                            console.error("[MyEvents] Failed to fetch event for participants modal, using existing data:", e);
-                            setParticipantsModalEvent(event);
-                          }
-                        }}
-                        className="w-full py-2 bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 text-white font-semibold rounded-lg transition-all shadow-md flex items-center justify-center gap-2 text-sm"
+                ) : (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {(eventsTab==='organizing' ? eventsCreated : eventsTab==='joined' ? eventsJoined : eventsPending).map((event) => (
+                      <div
+                        key={event._id}
+                        className="bg-white dark:bg-[#0f172a] rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800 hover:shadow-xl transition-all duration-300"
                       >
-                        <Users className="w-4 h-4" />
-                        Manage Participants
-                        {event.joinRequests?.filter((r: any) => r.status === "pending").length > 0 && (
-                          <span className="bg-yellow-500 text-black px-2 py-0.5 rounded-full text-xs font-bold animate-pulse">
-                            {event.joinRequests.filter((r: any) => r.status === "pending").length}
-                          </span>
-                        )}
-                      </button>
-                    </div>
-
-                    {event.pricing?.type === "paid" && (
-                      <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                        <DollarSign className="w-4 h-4 text-slate-500" />
-                        <span>
-                          {event.pricing.currency} {event.pricing.amount}
-                        </span>
-                      </div>
-                    )}
-
-                    {event.pricing?.type === "free" && (
-                      <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
-                        <AlertCircle className="w-4 h-4" />
-                        <span className="font-medium">Free Event</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Status & Meta */}
-                  <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
-                    <span
-                      className={`px-3 py-1 rounded-lg text-xs font-medium ${
-                        event.status === "published"
-                          ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                          : event.status === "draft"
-                          ? "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400"
-                          : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
-                      }`}
-                    >
-                      {event.status}
-                    </span>
-                    <span className="text-xs text-gray-500 dark:text-gray-500">
-                      Created {dayjs(event.createdAt).fromNow()}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-          </>
-        ) : activeTab === "services" ? (
-          // Services Tab Content
-          services.length === 0 ? (
-            <div className="bg-white dark:bg-[#0f172a] rounded-3xl p-12 border border-gray-200 dark:border-gray-800 text-center">
-              <div className="max-w-md mx-auto">
-                <div className="w-20 h-20 bg-gradient-to-br from-purple-100 to-pink-200 dark:from-purple-900 dark:to-pink-900 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <Stethoscope className="w-10 h-10 text-purple-500" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                  No Services Yet
-                </h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-6">
-                  You haven't created any services. Start by offering your first service!
-                </p>
-                <button
-                  onClick={() => setCreateServiceModalOpen(true)}
-                  className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-semibold rounded-xl transition-all duration-300 inline-flex items-center gap-2 shadow-lg"
-                >
-                  <Plus className="w-4 h-4" />
-                  Create Your First Service
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {services.map((service) => (
-                <div
-                  key={service._id}
-                  className="bg-white dark:bg-[#0f172a] rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800 hover:shadow-xl transition-all duration-300"
-                >
-                  {/* Service Header */}
-                  <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-6">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex-1">
-                        <h3 className="text-xl font-bold text-white mb-2 line-clamp-2">
-                          {service.name}
-                        </h3>
-                        <span className="inline-block px-3 py-1 bg-white/20 backdrop-blur-sm text-white rounded-lg text-sm font-medium capitalize">
-                          {service.category.replace(/-/g, " ")}
-                        </span>
-                      </div>
-                      <div className="flex gap-2 ml-4">
-                        <button
-                          onClick={() => handleEditService(service)}
-                          className="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition text-white"
-                          title="Edit Service"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteService(service._id)}
-                          disabled={deletingId === service._id}
-                          className="p-2 bg-red-500/20 hover:bg-red-500/30 rounded-lg transition text-white disabled:opacity-50"
-                          title="Delete Service"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Service Details */}
-                  <div className="p-6 space-y-4">
-                    <p className="text-gray-600 dark:text-gray-400 line-clamp-2">
-                      {service.description}
-                    </p>
-
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                        <Trophy className="w-4 h-4 text-purple-500" />
-                        <span>{service.sport}</span>
-                      </div>
-
-                      <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                        <DollarSign className="w-4 h-4 text-green-500" />
-                        <span>
-                          ${service.pricing.amount} / {service.pricing.type.replace(/-/g, " ")}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                        <MapPin className="w-4 h-4 text-pink-500" />
-                        <span className="capitalize">
-                          {service.location.type === "online"
-                            ? "Online"
-                            : service.location.city || service.location.type}
-                        </span>
-                      </div>
-
-                      {service.duration && (
-                        <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                          <Clock className="w-4 h-4 text-cyan-500" />
-                          <span>
-                            {service.duration.value} {service.duration.unit}
-                          </span>
+                        {/* Event Header */}
+                        <div className="bg-gradient-to-r from-slate-600 to-slate-700 dark:from-slate-700 dark:to-slate-800 p-6">
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex-1">
+                              <h3 className="text-xl font-bold text-white mb-2 line-clamp-2">
+                                {event.title}
+                              </h3>
+                              {event.sport && (
+                                <span className="inline-block px-3 py-1 bg-white/20 backdrop-blur-sm text-white rounded-lg text-sm font-medium">
+                                  {event.sport}
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex gap-2 ml-4">
+                              <button
+                                onClick={() => handleEdit(event)}
+                                className="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition text-white"
+                                title="Edit Event"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDelete(event._id)}
+                                disabled={deletingId === event._id}
+                                className="p-2 bg-red-500/20 hover:bg-red-500/30 rounded-lg transition text-white disabled:opacity-50"
+                                title="Delete Event"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
                         </div>
-                      )}
-                    </div>
 
-                    {service.qualifications && service.qualifications.length > 0 && (
-                      <div className="flex flex-wrap gap-2 pt-2">
-                        {service.qualifications.slice(0, 3).map((qual: string, idx: number) => (
-                          <span
-                            key={idx}
-                            className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 px-2 py-1 rounded text-xs"
-                          >
-                            {qual}
-                          </span>
-                        ))}
-                        {service.qualifications.length > 3 && (
-                          <span className="text-xs text-gray-500 dark:text-gray-400 self-center">
-                            +{service.qualifications.length - 3} more
-                          </span>
-                        )}
-                      </div>
-                    )}
+                        {/* Event Details */}
+                        <div className="p-6 space-y-4">
+                          <p className="text-gray-600 dark:text-gray-400 line-clamp-2">
+                            {event.description}
+                          </p>
 
-                    {/* Status & Meta */}
-                    <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`px-3 py-1 rounded-lg text-xs font-medium ${
-                            service.active
-                              ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                              : "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400"
-                          }`}
-                        >
-                          {service.active ? "Active" : "Inactive"}
-                        </span>
-                        {service.rating?.average > 0 && (
-                          <div className="flex items-center gap-1 text-yellow-500">
-                            <Star className="w-4 h-4 fill-current" />
-                            <span className="text-sm font-medium">
-                              {service.rating.average.toFixed(1)}
+                          <div className="space-y-2 text-sm">
+                            <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                              <Calendar className="w-4 h-4 text-slate-500" />
+                              <span>
+                                {dayjs(event.startDate).format("MMM D, YYYY")}
+                                {event.time && ` at ${event.time}`}
+                              </span>
+                            </div>
+
+                            {event.location?.city && (
+                              <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                                <MapPin className="w-4 h-4 text-slate-500" />
+                                <span>
+                                  {event.location.name && `${event.location.name}, `}
+                                  {event.location.city}
+                                  {event.location.state && `, ${event.location.state}`}
+                                </span>
+                              </div>
+                            )}
+
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                                <Users className="w-4 h-4 text-slate-500" />
+                                <span>
+                                  {event.capacity?.current || 0} / {event.capacity?.max || 0} participants
+                                </span>
+                                {event.waitlist?.length > 0 && (
+                                  <span className="text-orange-500 text-xs">
+                                    ({event.waitlist.length} on waitlist)
+                                  </span>
+                                )}
+                              </div>
+                              
+                              {/* PROMINENT MANAGE PARTICIPANTS BUTTON */}
+                              <button
+                                onClick={async () => {
+                                  try {
+                                    const resp = await axios.get(`${API}/api/events/${event._id}`);
+                                    setParticipantsModalEvent(resp.data);
+                                  } catch (e) {
+                                    console.error("[MyEvents] Failed to fetch event for participants modal, using existing data:", e);
+                                    setParticipantsModalEvent(event);
+                                  }
+                                }}
+                                className="w-full py-2 bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 text-white font-semibold rounded-lg transition-all shadow-md flex items-center justify-center gap-2 text-sm"
+                              >
+                                <Users className="w-4 h-4" />
+                                Manage Participants
+                                {event.joinRequests?.filter((r: any) => r.status === "pending").length > 0 && (
+                                  <span className="bg-yellow-500 text-black px-2 py-0.5 rounded-full text-xs font-bold animate-pulse">
+                                    {event.joinRequests.filter((r: any) => r.status === "pending").length}
+                                  </span>
+                                )}
+                              </button>
+                            </div>
+
+                            {event.pricing?.type === "paid" && (
+                              <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                                <DollarSign className="w-4 h-4 text-slate-500" />
+                                <span>
+                                  {event.pricing.currency} {event.pricing.amount}
+                                </span>
+                              </div>
+                            )}
+
+                            {event.pricing?.type === "free" && (
+                              <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
+                                <AlertCircle className="w-4 h-4" />
+                                <span className="font-medium">Free Event</span>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Status & Meta */}
+                          <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+                            <span
+                              className={`px-3 py-1 rounded-lg text-xs font-medium ${
+                                event.status === "published"
+                                  ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                                  : event.status === "draft"
+                                  ? "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400"
+                                  : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+                              }`}
+                            >
+                              {event.status}
+                            </span>
+                            <span className="text-xs text-gray-500 dark:text-gray-500">
+                              Created {dayjs(event.createdAt).fromNow()}
                             </span>
                           </div>
-                        )}
+                        </div>
                       </div>
-                      <span className="text-xs text-gray-500 dark:text-gray-500">
-                        Created {dayjs(service.createdAt).fromNow()}
-                      </span>
-                    </div>
+                    ))}
                   </div>
-                </div>
-              ))}
-            </div>
-          )
-        ) : (
-          // Products Tab Content
-          products.length === 0 ? (
-            <div className="bg-white dark:bg-[#0f172a] rounded-3xl p-12 border border-gray-200 dark:border-gray-800 text-center">
-              <div className="max-w-md mx-auto">
-                <div className="w-20 h-20 bg-gradient-to-br from-green-100 to-emerald-200 dark:from-green-900 dark:to-emerald-900 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <ShoppingBag className="w-10 h-10 text-green-500" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                  No Products Yet
-                </h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-6">
-                  You haven't listed any products. Start selling your sports gear and merchandise!
-                </p>
-                <button
-                  onClick={() => setCreateProductModalOpen(true)}
-                  className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold rounded-xl transition-all duration-300 inline-flex items-center gap-2 shadow-lg"
-                >
-                  <Plus className="w-4 h-4" />
-                  List Your First Product
-                </button>
+                )}
               </div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {products.map((product) => (
-                <div
-                  key={product._id}
-                  className="bg-white dark:bg-[#0f172a] rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800 hover:shadow-xl transition-all duration-300"
-                >
-                  {/* Product Header */}
-                  <div className="bg-gradient-to-r from-green-600 to-emerald-600 p-6">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex-1">
-                        <h3 className="text-xl font-bold text-white mb-2 line-clamp-2">
-                          {product.title}
-                        </h3>
-                        <span className="inline-block px-3 py-1 bg-white/20 backdrop-blur-sm text-white rounded-lg text-sm font-medium capitalize">
-                          {product.category}
-                        </span>
+            );
+          } else if (activeTab === "services") {
+            return (
+              <>
+                {/* Services Tab Content */}
+                {services.length === 0 ? (
+                  <div className="bg-white dark:bg-[#0f172a] rounded-3xl p-12 border border-gray-200 dark:border-gray-800 text-center">
+                    <div className="max-w-md mx-auto">
+                      <div className="w-20 h-20 bg-gradient-to-br from-purple-100 to-pink-200 dark:from-purple-900 dark:to-pink-900 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <Stethoscope className="w-10 h-10 text-purple-500" />
                       </div>
-                      <div className="flex gap-2 ml-4">
-                        <button
-                          onClick={() => handleEditProduct(product)}
-                          className="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition text-white"
-                          title="Edit Product"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteProduct(product._id)}
-                          disabled={deletingId === product._id}
-                          className="p-2 bg-red-500/20 hover:bg-red-500/30 rounded-lg transition text-white disabled:opacity-50"
-                          title="Delete Product"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                        No Services Yet
+                      </h3>
+                      <p className="text-gray-600 dark:text-gray-400 mb-6">
+                        You haven't created any services. Start by offering your first service!
+                      </p>
+                      <button
+                        onClick={() => setCreateServiceModalOpen(true)}
+                        className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-semibold rounded-xl transition-all duration-300 inline-flex items-center gap-2 shadow-lg"
+                      >
+                        <Plus className="w-4 h-4" />
+                        Create Your First Service
+                      </button>
                     </div>
                   </div>
-
-                  {/* Product Details */}
-                  <div className="p-6 space-y-4">
-                    <p className="text-gray-600 dark:text-gray-400 line-clamp-2">
-                      {product.description}
-                    </p>
-
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                        <DollarSign className="w-4 h-4 text-green-500" />
-                        <span className="font-semibold text-lg">
-                          {product.price} {product.currency || "USD"}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                        <Package className="w-4 h-4 text-green-500" />
-                        <span className="capitalize">{product.condition}</span>
-                      </div>
-
-                      {product.location && (
-                        <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                          <MapPin className="w-4 h-4 text-green-500" />
-                          <span>{product.location}</span>
+                ) : (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {services.map((service) => (
+                      <div
+                        key={service._id}
+                        className="bg-white dark:bg-[#0f172a] rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800 hover:shadow-xl transition-all duration-300"
+                      >
+                        {/* Service Header */}
+                        <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-6">
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex-1">
+                              <h3 className="text-xl font-bold text-white mb-2 line-clamp-2">
+                                {service.name}
+                              </h3>
+                              <span className="inline-block px-3 py-1 bg-white/20 backdrop-blur-sm text-white rounded-lg text-sm font-medium capitalize">
+                                {service.category.replace(/-/g, " ")}
+                              </span>
+                            </div>
+                            <div className="flex gap-2 ml-4">
+                              <button
+                                onClick={() => handleEditService(service)}
+                                className="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition text-white"
+                                title="Edit Service"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteService(service._id)}
+                                disabled={deletingId === service._id}
+                                className="p-2 bg-red-500/20 hover:bg-red-500/30 rounded-lg transition text-white disabled:opacity-50"
+                                title="Delete Service"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
                         </div>
-                      )}
 
-                      {product.shippingAvailable && (
-                        <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                          <Truck className="w-4 h-4 text-blue-500" />
-                          <span className="text-blue-600 dark:text-blue-400 font-medium">
-                            Shipping Available
-                            {product.shippingCost > 0 && ` (${product.currency} ${product.shippingCost})`}
-                          </span>
+                        {/* Service Details */}
+                        <div className="p-6 space-y-4">
+                          <p className="text-gray-600 dark:text-gray-400 line-clamp-2">
+                            {service.description}
+                          </p>
+
+                          <div className="space-y-2 text-sm">
+                            <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                              <Trophy className="w-4 h-4 text-purple-500" />
+                              <span>{service.sport}</span>
+                            </div>
+
+                            <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                              <DollarSign className="w-4 h-4 text-green-500" />
+                              <span>
+                                ${service.pricing.amount} / {service.pricing.type.replace(/-/g, " ")}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                              <MapPin className="w-4 h-4 text-pink-500" />
+                              <span className="capitalize">
+                                {service.location.type === "online"
+                                  ? "Online"
+                                  : service.location.city || service.location.type}
+                              </span>
+                            </div>
+
+                            {service.duration && (
+                              <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                                <Clock className="w-4 h-4 text-cyan-500" />
+                                <span>
+                                  {service.duration.value} {service.duration.unit}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+
+                          {service.qualifications && service.qualifications.length > 0 && (
+                            <div className="flex flex-wrap gap-2 pt-2">
+                              {service.qualifications.slice(0, 3).map((qual: string, idx: number) => (
+                                <span
+                                  key={idx}
+                                  className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 px-2 py-1 rounded text-xs"
+                                >
+                                  {qual}
+                                </span>
+                              ))}
+                              {service.qualifications.length > 3 && (
+                                <span className="text-xs text-gray-500 dark:text-gray-400 self-center">
+                                  +{service.qualifications.length - 3} more
+                                </span>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Status & Meta */}
+                          <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+                            <div className="flex items-center gap-2">
+                              <span
+                                className={`px-3 py-1 rounded-lg text-xs font-medium ${
+                                  service.active
+                                    ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                                    : "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400"
+                                }`}
+                              >
+                                {service.active ? "Active" : "Inactive"}
+                              </span>
+                              {service.rating?.average > 0 && (
+                                <div className="flex items-center gap-1 text-yellow-500">
+                                  <Star className="w-4 h-4 fill-current" />
+                                  <span className="text-sm font-medium">
+                                    {service.rating.average.toFixed(1)}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                            <span className="text-xs text-gray-500 dark:text-gray-500">
+                              Created {dayjs(service.createdAt).fromNow()}
+                            </span>
+                          </div>
                         </div>
-                      )}
-
-                      {product.quantity && (
-                        <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                          <Package className="w-4 h-4 text-gray-500" />
-                          <span>{product.quantity} available</span>
-                        </div>
-                      )}
-                    </div>
-
-                    {product.tags && product.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-2 pt-2">
-                        {product.tags.slice(0, 3).map((tag: string, idx: number) => (
-                          <span
-                            key={idx}
-                            className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 px-2 py-1 rounded text-xs"
-                          >
-                            #{tag}
-                          </span>
-                        ))}
-                        {product.tags.length > 3 && (
-                          <span className="text-xs text-gray-500 dark:text-gray-400 self-center">
-                            +{product.tags.length - 3} more
-                          </span>
-                        )}
                       </div>
-                    )}
-
-                    {/* Status & Meta */}
-                    <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`px-3 py-1 rounded-lg text-xs font-medium ${
-                            product.status === "active"
-                              ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                              : "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400"
-                          }`}
-                        >
-                          {product.status}
-                        </span>
-                        <div className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
-                          <Eye className="w-4 h-4" />
-                          <span className="text-xs">{product.views || 0}</span>
-                        </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            );
+          } else {
+            return (
+              <>
+                {/* Products Tab Content */}
+                {products.length === 0 ? (
+                  <div className="bg-white dark:bg-[#0f172a] rounded-3xl p-12 border border-gray-200 dark:border-gray-800 text-center">
+                    <div className="max-w-md mx-auto">
+                      <div className="w-20 h-20 bg-gradient-to-br from-green-100 to-emerald-200 dark:from-green-900 dark:to-emerald-900 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <ShoppingBag className="w-10 h-10 text-green-500" />
                       </div>
-                      <span className="text-xs text-gray-500 dark:text-gray-500">
-                        Created {dayjs(product.createdAt).fromNow()}
-                      </span>
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                        No Products Yet
+                      </h3>
+                      <p className="text-gray-600 dark:text-gray-400 mb-6">
+                        You haven't listed any products. Start selling your sports gear and merchandise!
+                      </p>
+                      <button
+                        onClick={() => setCreateProductModalOpen(true)}
+                        className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold rounded-xl transition-all duration-300 inline-flex items-center gap-2 shadow-lg"
+                      >
+                        <Plus className="w-4 h-4" />
+                        List Your First Product
+                      </button>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )
-        )}
+                ) : (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {products.map((product) => (
+                      <div
+                        key={product._id}
+                        className="bg-white dark:bg-[#0f172a] rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800 hover:shadow-xl transition-all duration-300"
+                      >
+                        {/* Product Header */}
+                        <div className="bg-gradient-to-r from-green-600 to-emerald-600 p-6">
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex-1">
+                              <h3 className="text-xl font-bold text-white mb-2 line-clamp-2">
+                                {product.title}
+                              </h3>
+                              <span className="inline-block px-3 py-1 bg-white/20 backdrop-blur-sm text-white rounded-lg text-sm font-medium capitalize">
+                                {product.category}
+                              </span>
+                            </div>
+                            <div className="flex gap-2 ml-4">
+                              <button
+                                onClick={() => handleEditProduct(product)}
+                                className="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition text-white"
+                                title="Edit Product"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteProduct(product._id)}
+                                disabled={deletingId === product._id}
+                                className="p-2 bg-red-500/20 hover:bg-red-500/30 rounded-lg transition text-white disabled:opacity-50"
+                                title="Delete Product"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Product Details */}
+                        <div className="p-6 space-y-4">
+                          <p className="text-gray-600 dark:text-gray-400 line-clamp-2">
+                            {product.description}
+                          </p>
+
+                          <div className="space-y-2 text-sm">
+                            <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                              <DollarSign className="w-4 h-4 text-green-500" />
+                              <span className="font-semibold text-lg">
+                                {product.price} {product.currency || "USD"}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                              <Package className="w-4 h-4 text-green-500" />
+                              <span className="capitalize">{product.condition}</span>
+                            </div>
+
+                            {product.location && (
+                              <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                                <MapPin className="w-4 h-4 text-green-500" />
+                                <span>{product.location}</span>
+                              </div>
+                            )}
+
+                            {product.shippingAvailable && (
+                              <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                                <Truck className="w-4 h-4 text-blue-500" />
+                                <span className="text-blue-600 dark:text-blue-400 font-medium">
+                                  Shipping Available
+                                  {product.shippingCost > 0 && ` (${product.currency} ${product.shippingCost})`}
+                                </span>
+                              </div>
+                            )}
+
+                            {product.quantity && (
+                              <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                                <Package className="w-4 h-4 text-gray-500" />
+                                <span>{product.quantity} available</span>
+                              </div>
+                            )}
+                          </div>
+
+                          {product.tags && product.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-2 pt-2">
+                              {product.tags.slice(0, 3).map((tag: string, idx: number) => (
+                                <span
+                                  key={idx}
+                                  className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 px-2 py-1 rounded text-xs"
+                                >
+                                  #{tag}
+                                </span>
+                              ))}
+                              {product.tags.length > 3 && (
+                                <span className="text-xs text-gray-500 dark:text-gray-400 self-center">
+                                  +{product.tags.length - 3} more
+                                </span>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Status & Meta */}
+                          <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+                            <div className="flex items-center gap-2">
+                              <span
+                                className={`px-3 py-1 rounded-lg text-xs font-medium ${
+                                  product.status === "active"
+                                    ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                                    : "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400"
+                                }`}
+                              >
+                                {product.status}
+                              </span>
+                              <div className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
+                                <Eye className="w-4 h-4" />
+                                <span className="text-xs">{product.views || 0}</span>
+                              </div>
+                            </div>
+                            <span className="text-xs text-gray-500 dark:text-gray-500">
+                              Created {dayjs(product.createdAt).fromNow()}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            );
+          }
+        })()}
       </div>
 
       {/* Create/Edit Event Modal */}

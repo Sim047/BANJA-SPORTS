@@ -19,6 +19,48 @@ router.get("/", async (req, res) => {
   }
 });
 
+// GET /api/events/my/created - events organized by current user
+router.get("/my/created", auth, async (req, res) => {
+  try {
+    const events = await Event.find({ organizer: req.user.id })
+      .sort({ startDate: -1 })
+      .lean();
+    res.json({ events });
+  } catch (err) {
+    console.error("Get my created events error:", err);
+    res.status(500).json({ error: "Failed to fetch created events" });
+  }
+});
+
+// GET /api/events/my/joined - events where current user is a participant
+router.get("/my/joined", auth, async (req, res) => {
+  try {
+    const events = await Event.find({ participants: req.user.id })
+      .sort({ startDate: -1 })
+      .lean();
+    res.json({ events });
+  } catch (err) {
+    console.error("Get my joined events error:", err);
+    res.status(500).json({ error: "Failed to fetch joined events" });
+  }
+});
+
+// GET /api/events/my/pending - events where current user has a pending join request
+router.get("/my/pending", auth, async (req, res) => {
+  try {
+    const events = await Event.find({
+      "joinRequests.user": req.user.id,
+      "joinRequests.status": "pending",
+    })
+      .sort({ startDate: -1 })
+      .lean();
+    res.json({ events });
+  } catch (err) {
+    console.error("Get my pending events error:", err);
+    res.status(500).json({ error: "Failed to fetch pending events" });
+  }
+});
+
 // GET /api/events/:id
 router.get("/:id", async (req, res) => {
   try {

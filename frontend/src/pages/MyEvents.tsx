@@ -410,14 +410,15 @@ export default function MyEvents({ token }: any) {
 
         {/* Content */}
         {activeTab === "events" ? (
-          <div className="mb-6">
-            <div className="inline-flex bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
-              <button onClick={() => setEventsTab('organizing')} className={`px-4 py-2 text-sm font-semibold ${eventsTab==='organizing' ? 'bg-cyan-500 text-white' : 'text-gray-600 dark:text-gray-300'}`}>Organizing ({eventsCreated.length})</button>
-              <button onClick={() => setEventsTab('joined')} className={`px-4 py-2 text-sm font-semibold ${eventsTab==='joined' ? 'bg-cyan-500 text-white' : 'text-gray-600 dark:text-gray-300'}`}>Joined ({eventsJoined.length})</button>
-              <button onClick={() => setEventsTab('pending')} className={`px-4 py-2 text-sm font-semibold ${eventsTab==='pending' ? 'bg-cyan-500 text-white' : 'text-gray-600 dark:text-gray-300'}`}>Pending ({eventsPending.length})</button>
+          <>
+            <div className="mb-6">
+              <div className="inline-flex bg-white dark:bg-[#0f172a] rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+                <button onClick={() => setEventsTab('organizing')} className={`px-4 py-2 text-sm font-semibold ${eventsTab==='organizing' ? 'bg-cyan-500 text-white' : 'text-gray-600 dark:text-gray-300'}`}>Organizing ({eventsCreated.length})</button>
+                <button onClick={() => setEventsTab('joined')} className={`px-4 py-2 text-sm font-semibold ${eventsTab==='joined' ? 'bg-cyan-500 text-white' : 'text-gray-600 dark:text-gray-300'}`}>Joined ({eventsJoined.length})</button>
+                <button onClick={() => setEventsTab('pending')} className={`px-4 py-2 text-sm font-semibold ${eventsTab==='pending' ? 'bg-cyan-500 text-white' : 'text-gray-600 dark:text-gray-300'}`}>Pending ({eventsPending.length})</button>
+              </div>
             </div>
-          </div>
-          events.length === 0 ? (
+            {events.length === 0 ? (
             <div className="bg-white dark:bg-[#0f172a] rounded-3xl p-12 border border-gray-200 dark:border-gray-800 text-center">
               <div className="max-w-md mx-auto">
                 <div className="w-20 h-20 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 rounded-2xl flex items-center justify-center mx-auto mb-4">
@@ -438,8 +439,8 @@ export default function MyEvents({ token }: any) {
                 </button>
               </div>
             </div>
-          ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {(eventsTab==='organizing' ? eventsCreated : eventsTab==='joined' ? eventsJoined : eventsPending).map((event) => (
               <div
                 key={event._id}

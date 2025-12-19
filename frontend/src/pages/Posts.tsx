@@ -343,7 +343,7 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-[#071029] dark:via-[#0a1435] dark:to-[#071029] p-4 sm:p-6">
+    <div className="min-h-screen themed-page p-4 sm:p-6">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">

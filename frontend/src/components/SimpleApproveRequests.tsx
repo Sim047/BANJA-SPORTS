@@ -100,7 +100,7 @@ export default function SimpleApproveRequests({ token }: { token: string }) {
 
   if (loading) {
     return (
-      <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-6 border border-orange-200 dark:border-orange-900/50">
+      <div className="rounded-2xl p-6" style={{ background: 'var(--card)', border: '1px solid var(--border)', color: 'var(--text)' }}>
         <div className="flex items-center justify-center py-8">
           <Loader className="w-8 h-8 animate-spin text-orange-500" />
         </div>
@@ -122,7 +122,7 @@ export default function SimpleApproveRequests({ token }: { token: string }) {
   }
 
   return (
-    <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-6 border border-orange-200 dark:border-orange-900/50">
+    <div className="rounded-2xl p-6" style={{ background: 'var(--card)', border: '1px solid var(--border)', color: 'var(--text)' }}>
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">

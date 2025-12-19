@@ -216,7 +216,7 @@ export default function CreateEventModal({ isOpen, onClose, token, onSuccess, ed
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="bg-white dark:bg-[#0f172a] rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-gray-800 shadow-2xl">
+      <div className="rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-2xl" style={{ background: 'var(--card)', border: '1px solid var(--border)', color: 'var(--text)' }}>
         {/* Header */}
         <div className="sticky top-0 bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-500 p-6 flex items-center justify-between">
           <div>

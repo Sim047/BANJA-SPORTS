@@ -100,7 +100,7 @@ export default function JoinRequestsManager({ token }: { token: string }) {
   }
 
   return (
-    <div className="bg-white dark:bg-[#0f172a] rounded-3xl p-8 border border-gray-200 dark:border-gray-800">
+    <div className="rounded-3xl p-8" style={{ background: 'var(--card)', border: '1px solid var(--border)', color: 'var(--text)' }}>
       <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
         Events Awaiting Your Approval ({requests.length})
       </h2>
@@ -125,7 +125,7 @@ export default function JoinRequestsManager({ token }: { token: string }) {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-900/50 rounded-lg p-4 mb-4 border border-gray-200 dark:border-gray-700">
+          <div className="rounded-lg p-4 mb-4" style={{ background: 'var(--card)', border: '1px solid var(--border)' }}>
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 rounded-full bg-gradient-to-r from-cyan-500 to-purple-500 flex items-center justify-center text-white font-bold">
                 {req.user.username.charAt(0).toUpperCase()}

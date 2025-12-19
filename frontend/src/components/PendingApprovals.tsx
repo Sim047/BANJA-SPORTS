@@ -138,7 +138,7 @@ export default function PendingApprovals({ token }: { token: string }) {
 
   if (loading) {
     return (
-      <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
+      <div className="rounded-2xl p-6" style={{ background: 'var(--card)', border: '1px solid var(--border)', color: 'var(--text)' }}>
         <div className="flex items-center justify-center py-8">
           <RefreshCw className="w-6 h-6 text-gray-400 animate-spin" />
           <span className="ml-2 text-gray-600 dark:text-gray-400">Checking for pending approvals...</span>
@@ -149,7 +149,7 @@ export default function PendingApprovals({ token }: { token: string }) {
 
   if (error) {
     return (
-      <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
+      <div className="rounded-2xl p-6" style={{ background: 'var(--card)', border: '1px solid var(--border)', color: 'var(--text)' }}>
         <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400">
           <p className="font-medium">Error loading pending approvals</p>
           <p className="text-sm mt-1">{error}</p>
@@ -188,7 +188,7 @@ export default function PendingApprovals({ token }: { token: string }) {
   }
 
   return (
-    <div className="bg-white dark:bg-[#0f172a] rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
+    <div className="rounded-2xl p-6" style={{ background: 'var(--card)', border: '1px solid var(--border)', color: 'var(--text)' }}>
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg">

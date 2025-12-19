@@ -80,7 +80,7 @@ export default function MyJoinRequests({ token }: { token: string }) {
   }
 
   return (
-    <div className="bg-white dark:bg-[#0f172a] rounded-3xl p-8 border border-gray-200 dark:border-gray-800">
+    <div className="rounded-3xl p-8" style={{ background: 'var(--card)', border: '1px solid var(--border)', color: 'var(--text)' }}>
       <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
         Your Pending Join Requests ({pendingRequests.length})
       </h2>
@@ -111,7 +111,7 @@ export default function MyJoinRequests({ token }: { token: string }) {
               </div>
             </div>
 
-            <div className="bg-white dark:bg-gray-900/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+            <div className="rounded-lg p-3" style={{ background: 'var(--card)', border: '1px solid var(--border)' }}>
               <p className="text-xs text-gray-500 dark:text-gray-500 mb-1">
                 Organizer: <span className="text-gray-700 dark:text-gray-300 font-medium">{item.event.organizer.username}</span>
               </p>

@@ -22,7 +22,7 @@ import StatusPicker from "./StatusPicker";
 import SearchUsers from "./SearchUsers";
 import logo from "../assets/auralink-logo.png";
 
-const API = (import.meta as any).env?.VITE_API_URL || "http://localhost:5000";
+const API = (import.meta as any).env?.VITE_API_URL || "";
 
 interface SidebarProps {
   token: string;
@@ -142,8 +142,12 @@ export default function Sidebar({
   const NavButton = ({ icon: Icon, label, badge, isCollapsed, onClick }: any) => (
     <button
       onClick={onClick}
-      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-700/50 transition-all group"
+      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group border"
       title={isCollapsed ? label : ''}
+      style={{
+        background: 'transparent',
+        borderColor: 'var(--border)'
+      }}
     >
       <Icon className="w-5 h-5 flex-shrink-0" style={{ color: 'var(--text-secondary)' }} />
       {!isCollapsed && (
@@ -410,34 +414,34 @@ export default function Sidebar({
                   key={index}
                   onClick={stat.onClick}
                   className={`
-                    relative overflow-hidden rounded-xl p-3 cursor-pointer
+                    relative rounded-xl p-3 cursor-pointer border
                     transition-all duration-300 hover:scale-105 hover:shadow-xl
                     ${isCollapsed ? 'aspect-square' : ''}
                   `}
+                  style={{
+                    background: 'var(--card)',
+                    borderColor: 'var(--border)'
+                  }}
                 >
-                  <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-90`}></div>
-                  
                   <div className="relative z-10">
                     <div className={`flex ${isCollapsed ? 'flex-col items-center justify-center h-full' : 'items-center justify-between'}`}>
                       <div className={isCollapsed ? 'mb-1' : ''}>
-                        <Icon className="w-5 h-5 text-white" />
+                        <Icon className="w-5 h-5" style={{ color: 'var(--text)' }} />
                       </div>
-                      
                       {!isCollapsed && (
                         <div className="text-right">
-                          <p className="text-xl font-bold text-white">
+                          <p className="text-xl font-bold" style={{ color: 'var(--text)' }}>
                             {stat.value}
                           </p>
-                          <p className="text-xs text-white/80 mt-0.5">
+                          <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>
                             {stat.label}
                           </p>
                         </div>
                       )}
                     </div>
-                    
                     {isCollapsed && (
                       <div className="text-center">
-                        <p className="text-sm font-bold text-white">{stat.value}</p>
+                        <p className="text-sm font-bold" style={{ color: 'var(--text)' }}>{stat.value}</p>
                       </div>
                     )}
                   </div>

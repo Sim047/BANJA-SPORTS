@@ -40,7 +40,7 @@ export default function SportEvents({ sport, token, onBack }: any) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-[#071029] dark:via-[#0a1435] dark:to-[#071029] p-6">
+      <div className="min-h-screen themed-page p-6">
         <div className="max-w-7xl mx-auto">
           <div className="animate-pulse space-y-6">
             <div className="h-8 themed-card rounded w-1/3"></div>

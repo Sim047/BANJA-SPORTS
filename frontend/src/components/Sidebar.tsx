@@ -14,7 +14,8 @@ import {
   MessageCircle,
   LogOut,
   Sun,
-  Moon
+  Moon,
+  TrendingUp
 } from "lucide-react";
 import Avatar from "./Avatar";
 import StatusPicker from "./StatusPicker";

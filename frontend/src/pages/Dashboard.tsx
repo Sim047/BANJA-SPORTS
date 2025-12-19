@@ -193,6 +193,7 @@ export default function Dashboard({ token, onNavigate }: any) {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
   const [eventsFilter, setEventsFilter] = useState<'all' | 'free' | 'paid'>('all');
+  const [showEvents, setShowEvents] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [createEventModalOpen, setCreateEventModalOpen] = useState(false);
@@ -763,6 +764,13 @@ export default function Dashboard({ token, onNavigate }: any) {
                   <option value="free">Free</option>
                   <option value="paid">Paid</option>
                 </select>
+                <button
+                  onClick={() => setShowEvents((v) => !v)}
+                  className="text-sm px-3 py-2 rounded-xl bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-800"
+                  aria-expanded={showEvents}
+                >
+                  {showEvents ? 'Hide' : 'Show'}
+                </button>
               </div>
               <button
                 onClick={() => setCreateEventModalOpen(true)}
@@ -773,7 +781,11 @@ export default function Dashboard({ token, onNavigate }: any) {
               </button>
             </div>
 
-            {upcomingEvents.length === 0 ? (
+            {!showEvents ? (
+              <div className="text-center py-10 text-gray-600 dark:text-gray-400">
+                Events are hidden. Click "Show" to view.
+              </div>
+            ) : upcomingEvents.length === 0 ? (
               <div className="text-center py-12">
                 <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-3" />
                 <p className="text-gray-600 dark:text-gray-400 mb-4">No upcoming events</p>

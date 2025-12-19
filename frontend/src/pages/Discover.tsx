@@ -562,13 +562,11 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
   // Hub Landing Page
   if (!activeCategory) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      <div className="min-h-screen bg-neutral-950">
         <div className="max-w-6xl mx-auto px-4 py-12">
           {/* Header */}
           <div className="text-center mb-16">
-            <h1 className="text-5xl font-bold text-white mb-4">
-              Discover <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">More</span>
-            </h1>
+            <h1 className="text-5xl font-bold text-white mb-4">Discover <span className="text-blue-400">More</span></h1>
             <p className="text-gray-300 text-lg">
               Explore sports events, professional services, and marketplace
             </p>
@@ -579,10 +577,10 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
             {/* Sports Events Card */}
             <div
               onClick={() => setActiveCategory("sports")}
-              className="group cursor-pointer bg-gradient-to-br from-cyan-500/10 to-blue-600/10 backdrop-blur-lg rounded-2xl p-8 border border-cyan-500/20 hover:border-cyan-400/50 transition-all ..."
+              className="group cursor-pointer bg-neutral-800 rounded-2xl p-8 border border-neutral-700 hover:border-neutral-500 transition-all"
             >
               <div className="flex justify-center mb-6">
-                <div className="bg-gradient-to-br from-cyan-500 to-blue-600 p-6 rounded-2xl group-hover:scale-110 transition-transform duration-300">
+                <div className="bg-neutral-700 p-6 rounded-2xl group-hover:scale-110 transition-transform duration-300">
                   <Trophy className="w-12 h-12 text-white" />
                 </div>
               </div>
@@ -592,7 +590,7 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
               <p className="text-gray-300 text-center mb-6">
                 Find and join sports activities, tournaments, and training sessions
               </p>
-              <div className="flex items-center justify-center text-cyan-400 group-hover:text-cyan-300 transition-colors">
+              <div className="flex items-center justify-center text-blue-400 group-hover:text-blue-300 transition-colors">
                 <span className="font-semibold">Explore Events</span>
                 <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
               </div>
@@ -601,10 +599,10 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
             {/* Medical Services Card */}
             <div
               onClick={() => setActiveCategory("services")}
-              className="group cursor-pointer bg-gradient-to-br from-purple-500/10 to-pink-600/10 backdrop-blur-lg rounded-2xl p-8 border border-purple-500/20 hover:border-purple-400/50 transitio..."
+              className="group cursor-pointer bg-neutral-800 rounded-2xl p-8 border border-neutral-700 hover:border-neutral-500 transition-all"
             >
               <div className="flex justify-center mb-6">
-                <div className="bg-gradient-to-br from-purple-500 to-pink-600 p-6 rounded-2xl group-hover:scale-110 transition-transform duration-300">
+                <div className="bg-neutral-700 p-6 rounded-2xl group-hover:scale-110 transition-transform duration-300">
                   <Stethoscope className="w-12 h-12 text-white" />
                 </div>
               </div>
@@ -614,7 +612,7 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
               <p className="text-gray-300 text-center mb-6">
                 Physiotherapy, massage, nutrition, personal training & more
               </p>
-              <div className="flex items-center justify-center text-purple-400 group-hover:text-purple-300 transition-colors">
+              <div className="flex items-center justify-center text-blue-400 group-hover:text-blue-300 transition-colors">
                 <span className="font-semibold">Browse Services</span>
                 <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
               </div>
@@ -623,10 +621,10 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
             {/* Marketplace Card */}
             <div
               onClick={() => setActiveCategory("marketplace")}
-              className="group cursor-pointer bg-gradient-to-br from-green-500/10 to-emerald-600/10 backdrop-blur-lg rounded-2xl p-8 border border-green-500/20 hover:border-green-400/50 transitio..."
+              className="group cursor-pointer bg-neutral-800 rounded-2xl p-8 border border-neutral-700 hover:border-neutral-500 transition-all"
             >
               <div className="flex justify-center mb-6">
-                <div className="bg-gradient-to-br from-green-500 to-emerald-600 p-6 rounded-2xl group-hover:scale-110 transition-transform duration-300">
+                <div className="bg-neutral-700 p-6 rounded-2xl group-hover:scale-110 transition-transform duration-300">
                   <ShoppingBag className="w-12 h-12 text-white" />
                 </div>
               </div>
@@ -636,7 +634,7 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
               <p className="text-gray-300 text-center mb-6">
                 Buy and sell sports equipment, apparel, supplements & gear
               </p>
-              <div className="flex items-center justify-center text-green-400 group-hover:text-green-300 transition-colors">
+              <div className="flex items-center justify-center text-blue-400 group-hover:text-blue-300 transition-colors">
                 <span className="font-semibold">Shop Now</span>
                 <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
               </div>
@@ -646,13 +644,13 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
           {/* Quick Stats */}
           <div className="mt-16 grid grid-cols-2 gap-6 max-w-3xl mx-auto">
             <div className="text-center">
-              <div className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
+              <div className="text-3xl font-bold text-gray-100">
                 {services.length || 0}
               </div>
               <div className="text-gray-400 text-sm mt-1">Services Available</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-400">
+              <div className="text-3xl font-bold text-gray-100">
                 {marketplaceItems.length || 0}
               </div>
               <div className="text-gray-400 text-sm mt-1">Items for Sale</div>
@@ -668,7 +666,7 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
     const sportsList = ["All Sports", "Football", "Basketball", "Tennis", "Running", "Swimming", "Cycling", "Gym", "Volleyball", "Baseball"];
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      <div className="min-h-screen bg-neutral-950">
         <div className="max-w-6xl mx-auto px-4 py-8">
           {/* Back Button & Header */}
           <div className="mb-8">
@@ -680,7 +678,7 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
               Back to Discover
             </button>
             <h1 className="text-4xl font-bold text-white mb-2">
-              Sports Events <Trophy className="inline w-8 h-8 text-cyan-400 ml-2" />
+              Sports Events <Trophy className="inline w-8 h-8 text-blue-400 ml-2" />
             </h1>
             <p className="text-gray-300">Join sports activities and meet new people</p>
           </div>
@@ -693,8 +691,8 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
                 onClick={() => setSelectedSport(sport)}
                 className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition-all ${
                   selectedSport === sport
-                    ? "bg-gradient-to-r from-cyan-500 to-purple-600 text-white"
-                    : "bg-white/10 text-gray-300 hover:bg-white/20"
+                    ? "bg-neutral-700 text-white"
+                    : "bg-neutral-800 text-gray-300 hover:bg-neutral-700"
                 }`}
               >
                 {sport}
@@ -716,16 +714,16 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
                 <div
                   key={event._id}
                   onClick={() => openEventDetails(event._id)}
-                  className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 hover:border-cyan-400/50 transition-all hover:scale-105 cursor-pointer"
+                  className="bg-neutral-800 backdrop-blur-lg rounded-xl p-6 border border-neutral-700 hover:border-neutral-500 transition-all hover:scale-105 cursor-pointer"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div>
                       <h3 className="text-lg font-bold text-white mb-1">{event.title}</h3>
-                      <p className="text-sm text-cyan-400">{event.sport}</p>
+                      <p className="text-sm text-gray-400">{event.sport}</p>
                     </div>
                     <div className="flex flex-col items-end gap-1">
                       {event.participants?.some((p: any) => p?._id === currentUser._id || p === currentUser._id) && (
-                        <div className="bg-emerald-500/20 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
+                        <div className="bg-emerald-500/20 px-2.5 py-0.5 rounded-full border border-emerald-600/30">
                           <span className="text-emerald-300 font-semibold text-[11px] tracking-wide">Joined</span>
                         </div>
                       )}
@@ -736,15 +734,15 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
 
                   <div className="space-y-2 text-sm text-gray-300 mb-4">
                     <div className="flex items-center">
-                      <Calendar className="w-4 h-4 mr-2 text-purple-400" />
+                      <Calendar className="w-4 h-4 mr-2 text-gray-400" />
                       {dayjs(event.startDate || event.date).format("MMM D, YYYY")} at {event.time}
                     </div>
                     <div className="flex items-center">
-                      <MapPin className="w-4 h-4 mr-2 text-pink-400" />
+                      <MapPin className="w-4 h-4 mr-2 text-gray-400" />
                       {event.location?.city || event.location?.name || event.location?.address || event.location || "Location TBA"}
                     </div>
                     <div className="flex items-center">
-                      <Users className="w-4 h-4 mr-2 text-cyan-400" />
+                      <Users className="w-4 h-4 mr-2 text-gray-400" />
                       {event.participants?.length || 0}/{event.capacity?.max || 0} participants
                     </div>
                     {event.organizer && (
@@ -752,7 +750,7 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
                         <img
                           src={event.organizer.avatar || `https://ui-avatars.com/api/?name=${event.organizer.username}`}
                           alt={event.organizer.username}
-                          className="w-5 h-5 rounded-full mr-2 border border-cyan-400"
+                          className="w-5 h-5 rounded-full mr-2 border border-neutral-600"
                         />
                         <span className="text-gray-400 text-xs">by {event.organizer.username}</span>
                       </div>
@@ -767,8 +765,8 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
                     disabled={event.participants.some((p: any) => p._id === currentUser._id || p === currentUser._id) || !!joiningEvent[event._id]}
                     className={`w-full py-2 rounded-lg font-semibold transition-all ${
                       event.participants.some((p: any) => p._id === currentUser._id || p === currentUser._id)
-                        ? "bg-gray-600 text-gray-400 cursor-not-allowed"
-                        : "bg-gradient-to-r from-cyan-500 to-purple-600 text-white hover:from-cyan-600 hover:to-purple-700"
+                        ? "bg-gray-700 text-gray-400 cursor-not-allowed"
+                        : "bg-blue-600 text-white hover:bg-blue-700"
                     }`}
                   >
                     {event.participants.some((p: any) => p._id === currentUser._id || p === currentUser._id) ? "Joined" : (!!joiningEvent[event._id] ? "Joining..." : "Join Event")}
@@ -826,7 +824,7 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
     ];
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      <div className="min-h-screen bg-neutral-950">
         <div className="max-w-6xl mx-auto px-4 py-8">
           {/* Back Button & Header */}
           <div className="mb-8">
@@ -840,13 +838,13 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-4xl font-bold text-white mb-2">
-                  Medical Services <Stethoscope className="inline w-8 h-8 text-purple-400 ml-2" />
+                  Medical Services <Stethoscope className="inline w-8 h-8 text-blue-400 ml-2" />
                 </h1>
                 <p className="text-gray-300">Find professional health and training services</p>
               </div>
               <button
                 onClick={() => window.location.href = "/#/my-events"}
-                className="px-5 py-3 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-semibold rounded-xl transition-all flex items-center gap-..."
+                className="px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-all flex items-center gap-2"
               >
                 <Plus className="w-5 h-5" />
                 Create Service
@@ -862,8 +860,8 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
                 onClick={() => setFilterCategory(category === "All" ? "" : category)}
                 className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition-all capitalize ${
                   (category === "All" && !filterCategory) || filterCategory === category
-                    ? "bg-gradient-to-r from-purple-500 to-pink-600 text-white"
-                    : "bg-white/10 text-gray-300 hover:bg-white/20"
+                    ? "bg-neutral-700 text-white"
+                    : "bg-neutral-800 text-gray-300 hover:bg-neutral-700"
                 }`}
               >
                 {category.replace(/-/g, " ")}
@@ -885,15 +883,15 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
                 <div
                   key={service._id}
                   onClick={() => setSelectedService(service)}
-                  className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 hover:border-purple-400/50 transition-all cursor-pointer hover:scale-102"
+                  className="bg-neutral-800 backdrop-blur-lg rounded-xl p-6 border border-neutral-700 hover:border-neutral-500 transition-all cursor-pointer"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
                       <h3 className="text-xl font-bold text-white mb-2">{service.name}</h3>
-                      <p className="text-sm text-purple-400 capitalize">{service.category.replace(/-/g, " ")}</p>
+                      <p className="text-sm text-gray-400 capitalize">{service.category.replace(/-/g, " ")}</p>
                     </div>
-                    <div className="bg-green-500/20 px-4 py-2 rounded-full">
-                      <span className="text-green-400 font-bold">
+                    <div className="bg-neutral-700 px-4 py-2 rounded-full">
+                      <span className="text-gray-100 font-bold">
                         ${service.pricing.amount}
                         <span className="text-xs font-normal">/{service.pricing.type}</span>
                       </span>
@@ -904,7 +902,7 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
 
                   <div className="space-y-2 text-sm mb-4">
                     <div className="flex items-center text-gray-300">
-                      <MapPin className="w-4 h-4 mr-2 text-pink-400" />
+                      <MapPin className="w-4 h-4 mr-2 text-gray-400" />
                       {service.location?.city || service.location?.type || "Location not specified"}
                     </div>
                     {service.experience && (
@@ -921,7 +919,7 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
                         {service.qualifications.slice(0, 3).map((qual, idx) => (
                           <span
                             key={idx}
-                            className="bg-purple-500/20 text-purple-300 px-3 py-1 rounded-full text-xs"
+                            className="bg-neutral-700 text-gray-300 px-3 py-1 rounded-full text-xs"
                           >
                             {qual}
                           </span>
@@ -944,7 +942,7 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
                       e.stopPropagation();
                       handleMessageUser(service.provider._id);
                     }}
-                    className="w-full bg-gradient-to-r from-purple-500 to-pink-600 text-white py-2 rounded-lg font-semibold hover:from-purple-600 hover:to-pink-700 transition-all"
+                    className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition-all"
                   >
                     Contact Provider
                   </button>
@@ -976,7 +974,7 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
     ];
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      <div className="min-h-screen bg-neutral-950">
         <div className="max-w-6xl mx-auto px-4 py-8">
           {/* Back Button & Header */}
           <div className="mb-8">
@@ -988,7 +986,7 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
               Back to Discover
             </button>
             <h1 className="text-4xl font-bold text-white mb-2">
-              Marketplace <ShoppingBag className="inline w-8 h-8 text-green-400 ml-2" />
+              Marketplace <ShoppingBag className="inline w-8 h-8 text-blue-400 ml-2" />
             </h1>
             <p className="text-gray-300">Buy and sell sports equipment and gear</p>
           </div>
@@ -1003,7 +1001,7 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && fetchMarketplaceItems()}
-                className="w-full bg-white/10 border border-white/20 rounded-lg pl-12 pr-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-green-400/50"
+                className="w-full bg-neutral-800 border border-neutral-700 rounded-lg pl-12 pr-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-neutral-500"
               />
             </div>
 
@@ -1014,8 +1012,8 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
                   onClick={() => setFilterCategory(category === "All" ? "" : category)}
                   className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition-all ${
                     (category === "All" && !filterCategory) || filterCategory === category
-                      ? "bg-gradient-to-r from-green-500 to-emerald-600 text-white"
-                      : "bg-white/10 text-gray-300 hover:bg-white/20"
+                      ? "bg-neutral-700 text-white"
+                      : "bg-neutral-800 text-gray-300 hover:bg-neutral-700"
                   }`}
                 >
                   {category}
@@ -1037,7 +1035,7 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
               {marketplaceItems.map((item) => (
                 <div
                   key={item._id}
-                  className="bg-white/10 backdrop-blur-lg rounded-xl overflow-hidden border border-white/20 hover:border-green-400/50 transition-all hover:scale-105 cursor-pointer"
+                  className="bg-neutral-800 backdrop-blur-lg rounded-xl overflow-hidden border border-neutral-700 hover:border-neutral-500 transition-all hover:scale-105 cursor-pointer"
                   onClick={() => setSelectedProduct(item)}
                 >
                   {/* Item Image */}
@@ -1070,7 +1068,7 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
                     <p className="text-sm text-gray-400 mb-2">{item.category}</p>
 
                     <div className="flex items-center justify-between mb-3">
-                      <div className="text-2xl font-bold text-green-400">
+                      <div className="text-2xl font-bold text-gray-100">
                         ${item.price}
                         <span className="text-xs text-gray-400 ml-1">{item.currency}</span>
                       </div>
@@ -1103,7 +1101,7 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
                         e.stopPropagation();
                         handleMessageUser(item.seller._id);
                       }}
-                      className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-2 rounded-lg font-semibold text-sm hover:from-green-600 hover:to-emerald-700 transition-all"
+                      className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold text-sm hover:bg-blue-700 transition-all"
                     >
                       Contact Seller
                     </button>

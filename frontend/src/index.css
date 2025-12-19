@@ -331,6 +331,58 @@ textarea,
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
 }
 
+/* =========================================================
+   BADGES / CHIPS (accent-aware, theme-friendly)
+   ========================================================= */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  height: 1.75rem;
+  padding: 0 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  border: 1px solid var(--border);
+  color: var(--text);
+  background: var(--card);
+}
+
+.badge-accent {
+  background: var(--accent-cyan-muted);
+  color: var(--text);
+  border-color: rgba(34, 211, 238, 0.35);
+}
+
+.badge-violet {
+  background: var(--accent-violet-muted);
+  color: var(--text);
+  border-color: rgba(124, 58, 237, 0.35);
+}
+
+.badge-amber {
+  background: var(--accent-amber-muted);
+  color: var(--text);
+  border-color: rgba(245, 158, 11, 0.35);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  height: 2rem;
+  padding: 0 0.8rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-weight: 500;
+}
+
+.chip-active {
+  background: linear-gradient(135deg, var(--accent-start), var(--accent-end));
+  color: var(--btn-text);
+  border: 1px solid rgba(0,0,0,0.08);
+}
+
 .themed-menu {
   background: var(--card) !important;
   color: var(--text) !important;

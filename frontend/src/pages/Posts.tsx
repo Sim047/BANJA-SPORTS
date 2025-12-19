@@ -363,15 +363,15 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
           <div className="space-y-6">
             {[1, 2, 3].map((i) => (
               <div key={i} className="rounded-2xl p-6 animate-pulse themed-card">
-                <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+                <div className="h-64 themed-card"></div>
               </div>
             ))}
           </div>
         ) : posts.length === 0 ? (
           <div className="text-center py-20">
-            <ImageIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600 dark:text-gray-400 text-lg">No posts yet</p>
-            <p className="text-gray-500 dark:text-gray-500 text-sm mt-2">Be the first to share something!</p>
+            <ImageIcon className="w-16 h-16 text-theme-secondary mx-auto mb-4" />
+            <p className="text-theme-secondary text-lg">No posts yet</p>
+            <p className="text-theme-secondary text-sm mt-2">Be the first to share something!</p>
           </div>
         ) : (
           <div className="space-y-6">
@@ -391,13 +391,13 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                     />
                     <div>
                       <div
-                        className="font-semibold text-gray-900 dark:text-white cursor-pointer hover:text-cyan-500"
+                        className="font-semibold text-heading cursor-pointer hover:text-cyan-500"
                         onClick={() => onShowProfile(post.author)}
                       >
                         {post.author.username}
                       </div>
                       {post.location && (
-                        <div className="text-xs text-gray-500 dark:text-gray-400">{post.location}</div>
+                        <div className="text-xs text-theme-secondary">{post.location}</div>
                       )}
                     </div>
                   </div>
@@ -405,17 +405,15 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                   {/* Options Menu */}
                   {post.author._id === currentUserId && (
                     <Menu as="div" className="relative">
-                      <Menu.Button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full">
-                        <MoreVertical className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                      <Menu.Button className="p-2 hover:opacity-80 rounded-full themed-card">
+                        <MoreVertical className="w-5 h-5 text-theme-secondary" />
                       </Menu.Button>
                       <Menu.Items className="absolute right-0 mt-2 w-48 shadow-lg z-10 themed-menu">
                         <Menu.Item>
                           {({ active }) => (
                             <button
                               onClick={() => startEditPost(post)}
-                              className={`${
-                                active ? "bg-gray-100 dark:bg-gray-700" : ""
-                              } flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300`}
+                              className={`flex items-center gap-2 w-full px-4 py-2 text-sm text-theme ${active ? 'opacity-90' : ''}`}
                             >
                               <Edit className="w-4 h-4" />
                               Edit Post
@@ -426,9 +424,7 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                           {({ active }) => (
                             <button
                               onClick={() => handleDeletePost(post._id)}
-                              className={`${
-                                active ? "bg-red-50 dark:bg-red-900/20" : ""
-                              } flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 dark:text-red-400`}
+                              className={`flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 ${active ? 'opacity-90' : ''}`}
                             >
                               <Trash2 className="w-4 h-4" />
                               Delete Post
@@ -460,16 +456,16 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                         className={`w-6 h-6 transition-all ${
                           post.likes.includes(currentUserId)
                             ? "fill-red-500 text-red-500"
-                            : "text-gray-700 dark:text-gray-300 group-hover:text-red-500"
+                            : "text-theme-secondary group-hover:text-red-500"
                         }`}
                       />
-                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      <span className="text-sm font-medium text-theme-secondary">
                         {post.likes.length}
                       </span>
                     </button>
                     <button 
                       onClick={() => toggleComments(post._id)}
-                      className="flex items-center gap-1.5 text-gray-700 dark:text-gray-300 hover:text-cyan-500"
+                      className="flex items-center gap-1.5 text-theme-secondary hover:text-cyan-500"
                     >
                       <MessageCircle className="w-6 h-6" />
                       <span className="text-sm font-medium">{post.comments.length}</span>
@@ -478,11 +474,11 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
 
                   {/* Caption - Editable if editing */}
                   {editingPostId === post._id ? (
-                    <div className="space-y-3 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
+                    <div className="space-y-3 p-4 themed-card rounded-lg">
                       <textarea
                         value={editPostData.caption}
                         onChange={(e) => setEditPostData({ ...editPostData, caption: e.target.value })}
-                        className="w-full px-3 py-2 bg-white dark:bg-gray-800 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 resize-none"
+                        className="input w-full resize-none"
                         rows={3}
                         placeholder="Caption..."
                       />
@@ -490,20 +486,20 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                         type="text"
                         value={editPostData.location}
                         onChange={(e) => setEditPostData({ ...editPostData, location: e.target.value })}
-                        className="w-full px-3 py-2 bg-white dark:bg-gray-800 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                        className="input w-full"
                         placeholder="Location..."
                       />
                       <input
                         type="text"
                         value={editPostData.tags}
                         onChange={(e) => setEditPostData({ ...editPostData, tags: e.target.value })}
-                        className="w-full px-3 py-2 bg-white dark:bg-gray-800 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                        className="input w-full"
                         placeholder="Tags (comma-separated)..."
                       />
                       <div className="flex gap-2">
                         <button
                           onClick={handleUpdatePost}
-                          className="px-4 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors"
+                          className="btn"
                         >
                           Save
                         </button>
@@ -512,7 +508,7 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                             setEditingPostId(null);
                             setEditPostData({ caption: "", location: "", tags: "" });
                           }}
-                          className="px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg hover:bg-gray-400 dark:hover:bg-gray-600 transition-colors"
+                          className="themed-card"
                         >
                           Cancel
                         </button>
@@ -521,7 +517,7 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                   ) : (
                     <>
                       {post.caption && (
-                        <p className="text-gray-900 dark:text-white">
+                        <p className="text-heading">
                           <span className="font-semibold mr-2">{post.author.username}</span>
                           {post.caption}
                         </p>
@@ -542,7 +538,7 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                       )}
 
                       {/* Timestamp */}
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                      <div className="text-xs text-theme-secondary">
                         {formatTimestamp(post.createdAt)}
                         {post.captionEditedAt && (
                           <span className="ml-2 italic">(edited)</span>
@@ -553,11 +549,11 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
 
                   {/* Comments */}
                   {post.comments.length > 0 && (
-                    <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                    <div className="pt-2 border-t" style={{ borderColor: 'var(--border)' }}>
                       {!expandedComments[post._id] ? (
                         <button
                           onClick={() => toggleComments(post._id)}
-                          className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 mb-2"
+                          className="text-sm text-theme-secondary hover:opacity-80 mb-2"
                         >
                           Show comments ({post.comments.length})
                         </button>
@@ -566,7 +562,7 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                           {post.comments.length > 3 && !showAllComments[post._id] && (
                             <button
                               onClick={() => toggleShowAll(post._id)}
-                              className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 mb-2"
+                              className="text-sm text-theme-secondary hover:opacity-80 mb-2"
                             >
                               View all {post.comments.length} comments
                             </button>
@@ -585,7 +581,7 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                                       <textarea
                                         value={editCommentText}
                                         onChange={(e) => setEditCommentText(e.target.value)}
-                                        className="w-full px-3 py-2 text-sm bg-gray-100 dark:bg-gray-800 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 resize-none"
+                                        className="input w-full text-sm resize-none"
                                         rows={2}
                                       />
                                       <div className="flex gap-2">
@@ -606,13 +602,13 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                                               alert("Failed to edit comment");
                                             }
                                           }}
-                                          className="px-3 py-1 text-xs bg-cyan-500 text-white rounded-lg hover:bg-cyan-600"
+                                          className="btn text-xs"
                                         >
                                           Save
                                         </button>
                                         <button
                                           onClick={() => setEditingCommentId(null)}
-                                          className="px-3 py-1 text-xs bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg hover:bg-gray-400 dark:hover:bg-gray-600"
+                                          className="themed-card text-xs"
                                         >
                                           Cancel
                                         </button>
@@ -622,18 +618,18 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                                     <>
                                       <div className="flex items-start justify-between gap-2">
                                         <div className="flex-1 min-w-0">
-                                          <span className="font-semibold text-sm text-gray-900 dark:text-white mr-2">
+                                          <span className="font-semibold text-sm text-heading mr-2">
                                             {comment.user.username}
                                           </span>
-                                          <span className="text-sm text-gray-700 dark:text-gray-300">
+                                          <span className="text-sm text-theme-secondary">
                                             {comment.text}
                                           </span>
                                           <div className="flex items-center gap-3 mt-1">
-                                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                                            <span className="text-xs text-theme-secondary">
                                               {formatTimestamp(comment.createdAt)}
                                             </span>
                                             {comment.likes && comment.likes.length > 0 && (
-                                              <span className="text-xs text-gray-500 dark:text-gray-400">
+                                              <span className="text-xs text-theme-secondary">
                                                 {comment.likes.length} {comment.likes.length === 1 ? 'like' : 'likes'}
                                               </span>
                                             )}
@@ -642,7 +638,7 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                                               className={`text-xs font-medium ${
                                                 comment.likes?.includes(currentUserId)
                                                   ? 'text-red-500'
-                                                  : 'text-gray-500 dark:text-gray-400 hover:text-red-500'
+                                                  : 'text-theme-secondary hover:text-red-500'
                                               }`}
                                             >
                                               Like
@@ -652,7 +648,7 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                                                 setReplyingTo(comment._id);
                                                 setReplyText('');
                                               }}
-                                              className="text-xs text-gray-500 dark:text-gray-400 hover:text-cyan-500 font-medium"
+                                              className="text-xs text-theme-secondary hover:text-cyan-500 font-medium"
                                             >
                                               Reply
                                             </button>
@@ -687,11 +683,11 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                                   )}
 
                                   {comment.replies && comment.replies.length > 0 && (
-                                    <div className="ml-4 mt-2 border-l-2 border-gray-200 dark:border-gray-700 pl-3">
+                                    <div className="ml-4 mt-2 border-l-2 pl-3" style={{ borderColor: 'var(--border)' }}>
                                       {!expandedReplies[comment._id] ? (
                                         <button
                                           onClick={() => toggleReplies(comment._id)}
-                                          className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                                          className="text-xs text-theme-secondary hover:opacity-80"
                                         >
                                           View replies ({comment.replies.length})
                                         </button>
@@ -706,13 +702,13 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                                                   alt={reply.user.username}
                                                 />
                                                 <div>
-                                                  <span className="font-semibold text-xs text-gray-900 dark:text-white mr-1">
+                                                  <span className="font-semibold text-xs text-heading mr-1">
                                                     {reply.user.username}
                                                   </span>
-                                                  <span className="text-xs text-gray-700 dark:text-gray-300">
+                                                  <span className="text-xs text-theme-secondary">
                                                     {reply.text}
                                                   </span>
-                                                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                                  <div className="text-xs text-theme-secondary mt-0.5">
                                                     {formatTimestamp(reply.createdAt)}
                                                   </div>
                                                 </div>
@@ -721,7 +717,7 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                                           </div>
                                           <button
                                             onClick={() => toggleReplies(comment._id)}
-                                            className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 mt-1"
+                                            className="text-xs text-theme-secondary hover:opacity-80 mt-1"
                                           >
                                             Hide replies
                                           </button>
@@ -735,7 +731,7 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                                       <input
                                         type="text"
                                         placeholder="Write a reply..."
-                                        className="flex-1 px-3 py-1.5 text-xs bg-gray-100 dark:bg-gray-700 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                                        className="input flex-1 text-xs"
                                         value={replyText}
                                         onChange={(e) => setReplyText(e.target.value)}
                                         onKeyPress={(e) => {
@@ -747,7 +743,7 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                                       />
                                       <button
                                         onClick={() => handleReplyToComment(post._id, comment._id)}
-                                        className="px-3 py-1.5 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 text-xs"
+                                        className="btn px-3 py-1.5 text-xs"
                                       >
                                         Send
                                       </button>
@@ -756,7 +752,7 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                                           setReplyingTo(null);
                                           setReplyText('');
                                         }}
-                                        className="px-3 py-1.5 bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg hover:bg-gray-400 dark:hover:bg-gray-600 text-xs"
+                                        className="themed-card px-3 py-1.5 text-xs"
                                       >
                                         Cancel
                                       </button>
@@ -792,7 +788,7 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                     <input
                       type="text"
                       placeholder="Add a comment..."
-                      className="flex-1 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                      className="input flex-1 text-sm"
                       value={commentTexts[post._id] || ""}
                       onChange={(e) =>
                         setCommentTexts({ ...commentTexts, [post._id]: e.target.value })
@@ -803,7 +799,7 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                     />
                     <button
                       onClick={() => handleComment(post._id)}
-                      className="p-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors"
+                      className="btn p-2"
                     >
                       <Send className="w-4 h-4" />
                     </button>
@@ -820,10 +816,10 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="rounded-2xl p-6 w-full max-w-lg" style={{ background: 'var(--card)', color: 'var(--text)', border: '1px solid var(--border)' }}>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Create Post</h2>
+              <h2 className="text-xl font-bold text-heading">Create Post</h2>
               <button
                 onClick={() => setCreateModalOpen(false)}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
+                className="p-2 hover:opacity-80 rounded-full themed-card"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -832,7 +828,7 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
             <div className="space-y-4">
               <textarea
                 placeholder="What's on your mind?"
-                className="w-full px-4 py-3 bg-gray-100 dark:bg-gray-700 rounded-xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 resize-none"
+                className="input w-full resize-none"
                 rows={4}
                 value={newPost.caption}
                 onChange={(e) => setNewPost({ ...newPost, caption: e.target.value })}
@@ -841,7 +837,7 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
               <input
                 type="text"
                 placeholder="Location (optional)"
-                className="w-full px-4 py-3 bg-gray-100 dark:bg-gray-700 rounded-xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                className="input w-full"
                 value={newPost.location}
                 onChange={(e) => setNewPost({ ...newPost, location: e.target.value })}
               />
@@ -849,13 +845,13 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
               <input
                 type="text"
                 placeholder="Tags (comma-separated)"
-                className="w-full px-4 py-3 bg-gray-100 dark:bg-gray-700 rounded-xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                className="input w-full"
                 value={newPost.tags}
                 onChange={(e) => setNewPost({ ...newPost, tags: e.target.value })}
               />
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-theme-secondary mb-2">
                   Image
                 </label>
                 <input
@@ -867,10 +863,11 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                 />
                 <label
                   htmlFor="post-image-upload"
-                  className="flex items-center justify-center gap-2 w-full px-4 py-8 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:border-cyan-400 transition-colors"
+                  className="flex items-center justify-center gap-2 w-full px-4 py-8 rounded-xl cursor-pointer hover:border-cyan-400 transition-colors"
+                  style={{ border: '2px dashed var(--border)' }}
                 >
                   {uploadingImage ? (
-                    <span className="text-gray-500">Uploading...</span>
+                    <span className="text-theme-secondary">Uploading...</span>
                   ) : newPost.imageUrl ? (
                     <img
                       src={newPost.imageUrl}
@@ -879,8 +876,8 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                     />
                   ) : (
                     <>
-                      <ImageIcon className="w-6 h-6 text-gray-400" />
-                      <span className="text-gray-500">Click to upload image</span>
+                      <ImageIcon className="w-6 h-6 text-theme-secondary" />
+                      <span className="text-theme-secondary">Click to upload image</span>
                     </>
                   )}
                 </label>
@@ -889,7 +886,7 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
               <button
                 onClick={handleCreatePost}
                 disabled={uploadingImage}
-                className="w-full py-3 bg-gradient-to-r from-cyan-500 to-purple-500 text-white rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn w-full py-3 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {uploadingImage ? "Uploading..." : "Post"}
               </button>

@@ -465,13 +465,13 @@ export default function Dashboard({ token, onNavigate }: any) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-[#071029] dark:via-[#0a1435] dark:to-[#071029] p-6">
+      <div className="min-h-screen themed-page p-6">
         <div className="max-w-7xl mx-auto">
           <div className="animate-pulse space-y-6">
-            <div className="h-8 bg-gray-200 dark:bg-gray-800 rounded w-1/3"></div>
+            <div className="h-8 rounded w-1/3" style={{ background: 'var(--muted)' }}></div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {[1, 2, 3, 4].map(i => (
-                <div key={i} className="h-32 bg-gray-200 dark:bg-gray-800 rounded-2xl"></div>
+                <div key={i} className="h-32 rounded-2xl themed-card"></div>
               ))}
             </div>
           </div>
@@ -486,7 +486,7 @@ export default function Dashboard({ token, onNavigate }: any) {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold mb-2">
+            <h1 className="text-3xl font-bold text-heading mb-2">
               Welcome back! 👋 <Sparkles className="inline w-6 h-6 text-accent align-text-bottom ml-1" />
             </h1>
             <p className="text-theme-secondary">
@@ -507,8 +507,8 @@ export default function Dashboard({ token, onNavigate }: any) {
             <div className="relative flex items-center justify-between">
               <div>
                 <p className="text-sm text-blue-600 dark:text-blue-400 mb-1 font-medium">My Join Requests</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white">{myRequestsCount}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Pending approval</p>
+                <p className="text-3xl font-bold text-heading">{myRequestsCount}</p>
+                <p className="text-xs text-theme-secondary mt-1">Pending approval</p>
               </div>
               <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:rotate-12 transition-transform">
                 <Clock className="w-6 h-6 text-white" />
@@ -526,8 +526,8 @@ export default function Dashboard({ token, onNavigate }: any) {
             <div className="relative flex items-center justify-between">
               <div>
                 <p className="text-sm text-orange-600 dark:text-orange-400 mb-1 font-medium">Pending Approvals</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white">{approvalsCount}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Awaiting your review</p>
+                <p className="text-3xl font-bold text-heading">{approvalsCount}</p>
+                <p className="text-xs text-theme-secondary mt-1">Awaiting your review</p>
               </div>
               <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/30 group-hover:rotate-12 transition-transform">
                 <AlertCircle className="w-6 h-6 text-white" />
@@ -545,8 +545,8 @@ export default function Dashboard({ token, onNavigate }: any) {
             <div className="relative flex items-center justify-between">
               <div>
                 <p className="text-sm text-purple-600 dark:text-purple-400 mb-1 font-medium">All Events</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.upcomingEvents}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Upcoming events</p>
+                <p className="text-3xl font-bold text-heading">{stats.upcomingEvents}</p>
+                <p className="text-xs text-theme-secondary mt-1">Upcoming events</p>
               </div>
               <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30 group-hover:rotate-12 transition-transform">
                 <Calendar className="w-6 h-6 text-white" />
@@ -564,8 +564,8 @@ export default function Dashboard({ token, onNavigate }: any) {
             <div className="relative flex items-center justify-between">
               <div>
                 <p className="text-sm text-orange-600 dark:text-red-400 mb-1 font-medium">Notifications</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.notifications}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">View all updates</p>
+                <p className="text-3xl font-bold text-heading">{stats.notifications}</p>
+                <p className="text-xs text-theme-secondary mt-1">View all updates</p>
               </div>
               <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/30 ring-1 ring-accent/30 group-hover:rotate-12 transition-transform">
                 <Bell className="w-6 h-6 text-white" />
@@ -608,8 +608,8 @@ export default function Dashboard({ token, onNavigate }: any) {
           <div className="rounded-2xl p-6 hover:shadow-lg transition-all duration-300 themed-card">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Bookings</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.totalBookings}</p>
+                <p className="text-sm text-theme-secondary mb-1">Total Bookings</p>
+                <p className="text-3xl font-bold text-heading">{stats.totalBookings}</p>
               </div>
               <BookOpen className="w-10 h-10 text-teal-500" />
             </div>
@@ -619,8 +619,8 @@ export default function Dashboard({ token, onNavigate }: any) {
           <div className="rounded-2xl p-6 hover:shadow-lg transition-all duration-300 themed-card">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Confirmed</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.confirmedBookings}</p>
+                <p className="text-sm text-theme-secondary mb-1">Confirmed</p>
+                <p className="text-3xl font-bold text-heading">{stats.confirmedBookings}</p>
               </div>
               <CheckCircle2 className="w-10 h-10 text-green-500" />
             </div>
@@ -697,7 +697,7 @@ export default function Dashboard({ token, onNavigate }: any) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="rounded-2xl p-6 themed-card">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+              <h2 className="text-xl font-bold text-heading">
                 My Bookings
               </h2>
               <button
@@ -710,8 +710,8 @@ export default function Dashboard({ token, onNavigate }: any) {
 
             {bookings.length === 0 ? (
               <div className="text-center py-12">
-                <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                <p className="text-gray-600 dark:text-gray-400 mb-4">No bookings yet</p>
+                <BookOpen className="w-12 h-12 text-theme-secondary mx-auto mb-3" />
+                <p className="text-theme-secondary mb-4">No bookings yet</p>
                 <button
                   onClick={() => onNavigate && onNavigate('discover')}
                   className="px-6 py-2.5 bg-gradient-to-r from-accent to-accentViolet-light hover:from-accent-dark hover:to-accentViolet-dark text-white text-sm font-medium rounded-xl transition-all duration-300 shadow-lg"
@@ -724,14 +724,14 @@ export default function Dashboard({ token, onNavigate }: any) {
                 {bookings.slice(0, 5).map((booking) => (
                   <div
                     key={booking._id}
-                    className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors"
+                    className="p-4 rounded-xl themed-card hover:shadow-md transition-colors"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
+                        <h3 className="font-semibold text-heading mb-1">
                           {getBookingTitle(booking)}
                         </h3>
-                        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                        <div className="flex items-center gap-2 text-sm text-theme-secondary">
                           <Calendar className="w-4 h-4 shrink-0" />
                           <span className="truncate">
                             {booking.scheduledDate
@@ -754,15 +754,15 @@ export default function Dashboard({ token, onNavigate }: any) {
           {/* Upcoming Events */}
           <div className="rounded-2xl p-6 themed-card">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+              <h2 className="text-xl font-bold text-heading">
                 Community Events
               </h2>
               <div className="flex items-center gap-3">
-                <label className="text-sm text-gray-600 dark:text-gray-400">Filter:</label>
+                <label className="text-sm text-theme-secondary">Filter:</label>
                 <select
                   value={eventsFilter}
                   onChange={(e) => setEventsFilter(e.target.value as any)}
-                  className="text-sm px-3 py-2 rounded-xl bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-800 dark:text-gray-200"
+                  className="input text-sm rounded-xl"
                 >
                   <option value="all">All</option>
                   <option value="free">Free</option>
@@ -770,7 +770,7 @@ export default function Dashboard({ token, onNavigate }: any) {
                 </select>
                 <button
                   onClick={() => setShowEvents((v) => !v)}
-                  className="text-sm px-3 py-2 rounded-xl bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-800"
+                  className="text-sm px-3 py-2 rounded-xl themed-card hover:opacity-90"
                   aria-expanded={showEvents}
                 >
                   {showEvents ? 'Hide' : 'Show'}
@@ -786,13 +786,13 @@ export default function Dashboard({ token, onNavigate }: any) {
             </div>
 
             {!showEvents ? (
-              <div className="text-center py-10 text-gray-600 dark:text-gray-400">
+              <div className="text-center py-10 text-theme-secondary">
                 Events are hidden. Click "Show" to view.
               </div>
             ) : upcomingEvents.length === 0 ? (
               <div className="text-center py-12">
-                <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                <p className="text-gray-600 dark:text-gray-400 mb-4">No upcoming events</p>
+                <Calendar className="w-12 h-12 text-theme-secondary mx-auto mb-3" />
+                <p className="text-theme-secondary mb-4">No upcoming events</p>
                 <button
                   onClick={() => onNavigate && onNavigate('discover')}
                   className="px-6 py-2.5 bg-gradient-to-r from-accent to-accentViolet-light hover:from-accent-dark hover:to-accentViolet-dark text-white text-sm font-medium rounded-xl transition-all duration-300 shadow-lg"
@@ -809,18 +809,18 @@ export default function Dashboard({ token, onNavigate }: any) {
                   <div
                     key={event._id}
                     onClick={() => openEventDetails(event._id)}
-                    className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors cursor-pointer"
+                    className="p-4 rounded-xl themed-card hover:shadow-md transition-colors cursor-pointer"
                   >
                     <div className="flex items-start gap-3">
                       <div className="w-12 h-12 bg-gradient-to-br from-accent to-accent-light rounded-xl flex items-center justify-center text-white font-bold shrink-0 shadow-lg">
                         {dayjs(event.startDate).format('DD')}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
+                        <h3 className="font-semibold text-heading mb-1">
                           {event.title}
                         </h3>
                         <div className="space-y-1">
-                          <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                          <div className="flex items-center gap-2 text-sm text-theme-secondary">
                             <Clock className="w-4 h-4 shrink-0" />
                             <span className="truncate">
                               {dayjs(event.startDate).format('MMM D, YYYY')}
@@ -828,7 +828,7 @@ export default function Dashboard({ token, onNavigate }: any) {
                             </span>
                           </div>
                           {event.location?.city && (
-                            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                            <div className="flex items-center gap-2 text-sm text-theme-secondary">
                               <MapPin className="w-4 h-4 shrink-0" />
                               <span className="truncate">{event.location.city}</span>
                             </div>

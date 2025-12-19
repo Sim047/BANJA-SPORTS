@@ -4,7 +4,7 @@ import axios from "axios";
 import { X, Calendar, MapPin, Users, DollarSign, Clock, Trophy, Camera } from "lucide-react";
 import ImageUpload from "./ImageUpload";
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API = import.meta.env.VITE_API_URL || "";
 
 // Comprehensive Sports List (matching Dashboard)
 const SPORTS = [

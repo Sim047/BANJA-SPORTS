@@ -5,7 +5,7 @@ import Avatar from "./Avatar";
 import { Menu } from "@headlessui/react";
 import { MoreVertical, Trash2, MessageSquareOff } from "lucide-react";
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API = import.meta.env.VITE_API_URL || "";
 const PLACEHOLDER = "https://ui-avatars.com/api/?name=User&background=0D8ABC&color=fff";
 
 export default function ConversationsList({

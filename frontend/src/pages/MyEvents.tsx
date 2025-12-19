@@ -25,7 +25,7 @@ import CreateServiceModal from "../components/CreateServiceModal";
 import CreateProductModal from "../components/CreateProductModal";
 import EventParticipantsModal from "../components/EventParticipantsModal";
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API = import.meta.env.VITE_API_URL || "";
 
 type TabType = "events" | "services" | "products";
 

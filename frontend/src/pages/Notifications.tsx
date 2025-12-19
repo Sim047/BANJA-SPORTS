@@ -7,7 +7,7 @@ import { Bell, ArrowLeft, Calendar, CheckCircle, AlertCircle, Loader, Trash2 } f
 
 dayjs.extend(relativeTime);
 
-const API = (import.meta as any).env?.VITE_API_URL || "http://localhost:5000";
+const API = (import.meta as any).env?.VITE_API_URL || "";
 
 export default function Notifications({ token, onBack }: any) {
   const [notifications, setNotifications] = useState<any[]>([]);

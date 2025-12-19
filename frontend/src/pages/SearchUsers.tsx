@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API = import.meta.env.VITE_API_URL || "";
 const PLACEHOLDER = "https://placehold.co/48x48?text=U";
 
 export default function SearchUsers({ token, onOpenConversation, currentUserId, onShowProfile }: any) {

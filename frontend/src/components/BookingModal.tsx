@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { X, Calendar, Clock, MapPin, DollarSign, CheckCircle } from "lucide-react";
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API = import.meta.env.VITE_API_URL || "";
 
 type BookingModalProps = {
   isOpen: boolean;

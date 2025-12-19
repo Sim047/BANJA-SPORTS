@@ -3,7 +3,7 @@ import { X, ShoppingBag, DollarSign, Package, MapPin, Camera, Tag } from "lucide
 import axios from "axios";
 import ImageUpload from "./ImageUpload";
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API = import.meta.env.VITE_API_URL || "";
 
 const CURRENCIES = [
   { code: "USD", symbol: "$", name: "US Dollar" },

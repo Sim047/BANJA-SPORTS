@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import Logo from "../assets/auralink-logo.png";
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API = import.meta.env.VITE_API_URL || "";
 
 export default function Register({ onSuccess, switchToLogin }) {
   const [username, setUsername] = useState("");

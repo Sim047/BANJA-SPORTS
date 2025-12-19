@@ -12,7 +12,7 @@ import {
   DollarSign,
 } from "lucide-react";
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API = import.meta.env.VITE_API_URL || "";
 
 export default function SportEvents({ sport, token, onBack }: any) {
   const [events, setEvents] = useState<any[]>([]);

@@ -35,8 +35,8 @@ export default function Register({ onSuccess, switchToLogin }) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#071229] px-4">
-      <div className="auth-card w-full max-w-md relative">
+    <div className="min-h-screen themed-page flex items-center justify-center px-4">
+      <div className="w-full max-w-md relative themed-card rounded-2xl p-6">
 
         {/* LOGO */}
         <div className="flex justify-center mb-6">
@@ -44,7 +44,7 @@ export default function Register({ onSuccess, switchToLogin }) {
         </div>
 
         {/* Title */}
-        <h2 className="text-3xl font-extrabold text-center mb-6 bg-gradient-to-r from-cyan-400 to-violet-400 bg-clip-text text-transparent">
+        <h2 className="text-3xl font-extrabold text-center mb-6 gradient-text">
           Create Your Account
         </h2>
 
@@ -57,16 +57,11 @@ export default function Register({ onSuccess, switchToLogin }) {
 
           {/* USERNAME */}
           <div className="relative">
-            <label
-              className={`
-                absolute left-3 top-3 text-slate-400 transition-all pointer-events-none
-                ${username ? "text-xs -top-2" : ""}
-              `}
-            >
+            <label className={`absolute left-3 top-3 text-theme-secondary transition-all pointer-events-none ${username ? "text-xs -top-2" : ""}`}>
               Username
             </label>
             <input
-              className="w-full p-3 pt-6 rounded-lg bg-slate-900/40 border border-slate-700 text-slate-100 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/50 outline-none transition-all"
+              className="input w-full pt-6"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
             />
@@ -74,17 +69,12 @@ export default function Register({ onSuccess, switchToLogin }) {
 
           {/* EMAIL */}
           <div className="relative">
-            <label
-              className={`
-                absolute left-3 top-3 text-slate-400 transition-all pointer-events-none
-                ${email ? "text-xs -top-2" : ""}
-              `}
-            >
+            <label className={`absolute left-3 top-3 text-theme-secondary transition-all pointer-events-none ${email ? "text-xs -top-2" : ""}`}>
               Email
             </label>
             <input
               type="email"
-              className="w-full p-3 pt-6 rounded-lg bg-slate-900/40 border border-slate-700 text-slate-100 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/50 outline-none transition-all"
+              className="input w-full pt-6"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -92,18 +82,13 @@ export default function Register({ onSuccess, switchToLogin }) {
 
           {/* PASSWORD */}
           <div className="relative">
-            <label
-              className={`
-                absolute left-3 top-3 text-slate-400 transition-all pointer-events-none
-                ${password ? "text-xs -top-2" : ""}
-              `}
-            >
+            <label className={`absolute left-3 top-3 text-theme-secondary transition-all pointer-events-none ${password ? "text-xs -top-2" : ""}`}>
               Password
             </label>
 
             <input
               type={showPass ? "text" : "password"}
-              className="w-full p-3 pt-6 rounded-lg bg-slate-900/40 border border-slate-700 text-slate-100 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/50 outline-none transition-all"
+              className="input w-full pt-6"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -112,7 +97,7 @@ export default function Register({ onSuccess, switchToLogin }) {
             <button
               type="button"
               onClick={() => setShowPass(!showPass)}
-              className="absolute right-3 top-[18px] text-sm text-cyan-300 hover:underline"
+              className="absolute right-3 top-[18px] text-sm text-theme-secondary hover:underline"
             >
               {showPass ? "Hide" : "Show"}
             </button>
@@ -128,20 +113,20 @@ export default function Register({ onSuccess, switchToLogin }) {
         </form>
 
         {/* Or divider */}
-        <div className="my-6 flex items-center gap-3 opacity-70">
-          <div className="h-px bg-slate-600 flex-1" />
-          <span className="text-sm">OR</span>
-          <div className="h-px bg-slate-600 flex-1" />
+        <div className="my-6 flex items-center gap-3 opacity-80">
+          <div className="h-px flex-1" style={{ backgroundColor: 'var(--border)' }} />
+          <span className="text-sm text-theme-secondary">OR</span>
+          <div className="h-px flex-1" style={{ backgroundColor: 'var(--border)' }} />
         </div>
 
         {/* Google Sign-Up (same as login) */}
         <GoogleLoginButton onSuccess={onSuccess} className="flex justify-center" />
 
-        <p className="mt-6 text-sm text-center opacity-80">
+        <p className="mt-6 text-sm text-center text-theme-secondary">
           Already have an account?{" "}
           <button
             onClick={switchToLogin}
-            className="text-cyan-300 hover:underline"
+            className="hover:underline"
           >
             Log In
           </button>

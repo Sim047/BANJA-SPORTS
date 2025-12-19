@@ -138,7 +138,7 @@ export default function PendingApprovals({ token, onBack, onNavigate }: any) {
         <div className="mb-8">
           <button
             onClick={onBack}
-            className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-4 transition-colors"
+            className="flex items-center gap-2 text-sm text-theme-secondary hover:text-heading mb-4 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Dashboard
@@ -149,7 +149,7 @@ export default function PendingApprovals({ token, onBack, onNavigate }: any) {
               <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--text)' }}>
                 Pending Approvals
               </h1>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-theme-secondary">
                 Review and approve join requests for your events
               </p>
             </div>
@@ -199,10 +199,10 @@ export default function PendingApprovals({ token, onBack, onNavigate }: any) {
         ) : pendingBookings.length === 0 && approvedUnpaid.length === 0 ? (
           <div className="rounded-2xl p-12 text-center themed-card">
             <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            <h3 className="text-lg font-semibold text-heading mb-2">
               All caught up!
             </h3>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-theme-secondary">
               No pending approvals or payments to verify
             </p>
           </div>
@@ -211,7 +211,7 @@ export default function PendingApprovals({ token, onBack, onNavigate }: any) {
             {/* Pending Approvals */}
             {pendingBookings.length > 0 && (
               <div>
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                <h2 className="text-xl font-bold text-heading mb-4 flex items-center gap-2">
                   <AlertCircle className="w-5 h-5 text-orange-500" />
                   Pending Approval ({pendingBookings.length})
                 </h2>
@@ -234,21 +234,21 @@ export default function PendingApprovals({ token, onBack, onNavigate }: any) {
                             <div>
                               <p 
                                 onClick={() => onNavigate && onNavigate('profile', booking.user._id)}
-                                className="font-bold text-gray-900 dark:text-white cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                                className="font-bold text-heading cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                               >
                                 {booking.user.username}
                               </p>
-                              <p className="text-sm text-gray-500 dark:text-gray-500">{booking.user.email}</p>
+                              <p className="text-sm text-theme-secondary">{booking.user.email}</p>
                             </div>
                           </div>
 
                           {/* Event Details */}
                           <div className="space-y-2">
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                            <h3 className="text-lg font-bold text-heading">
                               {booking.event?.title || ''}
                             </h3>
                             
-                            <div className="flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-400">
+                            <div className="flex flex-wrap gap-4 text-sm text-theme-secondary">
                               <div className="flex items-center gap-2">
                                 <Calendar className="w-4 h-4 text-blue-500" />
                                 {dayjs(booking.event.startDate).format("MMM D, YYYY")}
@@ -265,15 +265,15 @@ export default function PendingApprovals({ token, onBack, onNavigate }: any) {
                             </div>
 
                             {booking.transactionCode && (
-                              <div className="flex items-center gap-2 text-sm bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2">
-                                <FileText className="w-4 h-4 text-gray-400" />
-                                <span className="text-gray-600 dark:text-gray-400">
+                              <div className="flex items-center gap-2 text-sm themed-card p-2">
+                                <FileText className="w-4 h-4 text-theme-secondary" />
+                                <span className="text-theme-secondary">
                                   Transaction: <span className="font-mono font-semibold">{booking.transactionCode}</span>
                                 </span>
                               </div>
                             )}
 
-                            <p className="text-xs text-gray-500 dark:text-gray-500">
+                            <p className="text-xs text-theme-secondary">
                               Requested {dayjs(booking.createdAt).fromNow()}
                             </p>
                           </div>
@@ -313,7 +313,7 @@ export default function PendingApprovals({ token, onBack, onNavigate }: any) {
             {/* Awaiting Payment Verification */}
             {approvedUnpaid.length > 0 && (
               <div>
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                <h2 className="text-xl font-bold text-heading mb-4 flex items-center gap-2">
                   <ShieldCheck className="w-5 h-5 text-blue-500" />
                   Awaiting Payment Verification ({approvedUnpaid.length})
                 </h2>
@@ -325,10 +325,10 @@ export default function PendingApprovals({ token, onBack, onNavigate }: any) {
                     >
                       <div className="flex flex-col md:flex-row justify-between gap-4">
                         <div className="space-y-2">
-                          <p className="font-bold text-gray-900 dark:text-white">{booking.user.username}</p>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">{booking.event.title}</p>
+                          <p className="font-bold text-heading">{booking.user.username}</p>
+                          <p className="text-sm text-theme-secondary">{booking.event.title}</p>
                           {booking.transactionCode && (
-                            <p className="text-sm font-mono bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded">
+                            <p className="text-sm font-mono themed-card px-2 py-1 rounded">
                               {booking.transactionCode}
                             </p>
                           )}
@@ -360,17 +360,17 @@ export default function PendingApprovals({ token, onBack, onNavigate }: any) {
       {showRejectionModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className="rounded-2xl p-6 max-w-md w-full themed-card">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+            <h3 className="text-xl font-bold text-heading mb-4">
               Reject Join Request
             </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-sm text-theme-secondary mb-4">
               Please provide a reason for rejecting this request:
             </p>
             <textarea
               value={rejectionReason}
               onChange={(e) => setRejectionReason(e.target.value)}
               placeholder="e.g., Event is full, Requirements not met..."
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white mb-4 focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
+              className="input w-full rounded-xl mb-4 resize-none"
               rows={4}
             />
             <div className="flex gap-3">
@@ -379,7 +379,7 @@ export default function PendingApprovals({ token, onBack, onNavigate }: any) {
                   setShowRejectionModal(null);
                   setRejectionReason("");
                 }}
-                className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors"
+                className="flex-1 px-4 py-2 rounded-xl themed-card hover:opacity-90 transition-colors"
               >
                 Cancel
               </button>

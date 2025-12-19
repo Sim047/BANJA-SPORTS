@@ -43,22 +43,23 @@ export default function ProfileModal({
           <div className="flex flex-col items-center">
             <img
               src={user.avatar || "/default.png"}
-              className="w-24 h-24 rounded-xl object-cover shadow border border-gray-300 dark:border-gray-700"
+              className="w-24 h-24 rounded-xl object-cover shadow border"
+              style={{ borderColor: 'var(--border)' }}
             />
-            <h2 className="mt-4 text-xl font-semibold">{user.username}</h2>
-            <p className="text-xs opacity-70">{user.email}</p>
+            <h2 className="mt-4 text-xl font-semibold text-heading">{user.username}</h2>
+            <p className="text-xs text-theme-secondary">{user.email}</p>
           </div>
 
           {/* Followers / Following */}
           <div className="flex justify-center gap-10 mt-6">
             <div className="text-center">
-              <p className="text-xl font-bold">{user.followersCount}</p>
-              <p className="text-xs opacity-70">Followers</p>
+              <p className="text-xl font-bold text-heading">{user.followersCount}</p>
+              <p className="text-xs text-theme-secondary">Followers</p>
             </div>
 
             <div className="text-center">
-              <p className="text-xl font-bold">{user.followingCount}</p>
-              <p className="text-xs opacity-70">Following</p>
+              <p className="text-xl font-bold text-heading">{user.followingCount}</p>
+              <p className="text-xs text-theme-secondary">Following</p>
             </div>
           </div>
 
@@ -66,7 +67,7 @@ export default function ProfileModal({
           <div className="mt-8 flex gap-3 justify-center">
             <button
               onClick={onMessage}
-              className="px-5 py-2 rounded-lg bg-gradient-to-r from-cyan-400 to-purple-500 text-white font-medium shadow hover:opacity-90"
+              className="btn"
             >
               Message
             </button>
@@ -74,7 +75,7 @@ export default function ProfileModal({
             {isFollowed ? (
               <button
                 onClick={onUnfollow}
-                className="px-5 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-black dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600"
+                className="themed-card"
               >
                 Unfollow
               </button>
@@ -91,7 +92,7 @@ export default function ProfileModal({
           {/* Close */}
           <div className="mt-5 text-center">
             <button
-              className="text-xs opacity-60 hover:opacity-100"
+              className="text-xs text-theme-secondary hover:opacity-100"
               onClick={onClose}
             >
               Close

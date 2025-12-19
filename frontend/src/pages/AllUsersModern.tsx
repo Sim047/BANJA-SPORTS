@@ -33,6 +33,7 @@ export default function AllUsersModern({ token, onOpenConversation, currentUserI
   const [search, setSearch] = useState("");
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [statuses, setStatuses] = useState<Record<string, any>>({});
 
   useEffect(() => {
     if (!token) return;
@@ -61,6 +62,22 @@ export default function AllUsersModern({ token, onOpenConversation, currentUserI
       setLoading(false);
     }
   }
+
+  // Load user statuses to display instead of emails
+  useEffect(() => {
+    if (!token) return;
+    axios
+      .get(`${API}/api/status`, { headers: { Authorization: `Bearer ${token}` } })
+      .then((r) => {
+        const map: Record<string, any> = {};
+        (r.data || []).forEach((st: any) => {
+          const uid = String(st.user?._id || st.user);
+          map[uid] = st;
+        });
+        setStatuses(map);
+      })
+      .catch(() => {});
+  }, [token]);
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -124,25 +141,25 @@ export default function AllUsersModern({ token, onOpenConversation, currentUserI
       <div className="sticky top-0 z-10 themed-sticky">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            <h1 className="text-2xl font-bold text-heading">
               All Users
             </h1>
             
             <div className="flex items-center gap-2">
-              <button className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition">
-                <Filter className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+              <button className="p-2 rounded-lg themed-card hover:opacity-90 transition">
+                <Filter className="w-5 h-5 text-theme-secondary" />
               </button>
               
-              <div className="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+              <div className="flex rounded-lg p-1 themed-card">
                 <button
                   onClick={() => setViewMode("grid")}
-                  className={`p-2 rounded ${viewMode === "grid" ? "bg-white dark:bg-gray-700 shadow-sm" : ""}`}
+                  className={`p-2 rounded ${viewMode === "grid" ? "themed-card" : ""}`}
                 >
                   <Grid className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setViewMode("list")}
-                  className={`p-2 rounded ${viewMode === "list" ? "bg-white dark:bg-gray-700 shadow-sm" : ""}`}
+                  className={`p-2 rounded ${viewMode === "list" ? "themed-card" : ""}`}
                 >
                   <List className="w-4 h-4" />
                 </button>
@@ -152,7 +169,7 @@ export default function AllUsersModern({ token, onOpenConversation, currentUserI
 
           {/* Search Bar */}
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-theme-secondary" />
             <input
               type="text"
               placeholder="Search users..."
@@ -165,7 +182,7 @@ export default function AllUsersModern({ token, onOpenConversation, currentUserI
                 onClick={() => setSearch("")}
                 className="absolute right-3 top-1/2 -translate-y-1/2"
               >
-                <X className="w-5 h-5 text-gray-400" />
+                <X className="w-5 h-5 text-theme-secondary" />
               </button>
             )}
           </div>
@@ -179,13 +196,13 @@ export default function AllUsersModern({ token, onOpenConversation, currentUserI
             {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
               <div key={i} className="rounded-2xl p-6 animate-pulse themed-card">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-16 h-16 bg-gray-300 dark:bg-gray-700 rounded-full" />
+                  <div className="w-16 h-16 rounded-full" style={{ background: 'var(--muted)' }} />
                   <div className="flex-1">
-                    <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-24 mb-2" />
-                    <div className="h-3 bg-gray-300 dark:bg-gray-700 rounded w-16" />
+                    <div className="h-4 rounded w-24 mb-2" style={{ background: 'var(--muted)' }} />
+                    <div className="h-3 rounded w-16" style={{ background: 'var(--muted)' }} />
                   </div>
                 </div>
-                <div className="h-10 bg-gray-300 dark:bg-gray-700 rounded-lg" />
+                <div className="h-10 rounded-lg" style={{ background: 'var(--muted)' }} />
               </div>
             ))}
           </div>
@@ -200,6 +217,7 @@ export default function AllUsersModern({ token, onOpenConversation, currentUserI
                 onMessage={() => startConversation(user)}
                 onFollow={() => followToggle(user, !user.isFollowed)}
                 onViewProfile={() => onShowProfile && onShowProfile(user)}
+                userStatus={statuses[String(user._id)]}
                 isProcessing={processingId === user._id}
                 isCurrentUser={user._id === currentUserId}
               />
@@ -225,6 +243,7 @@ function UserCard({
   onMessage,
   onFollow,
   onViewProfile,
+  userStatus,
   isProcessing,
   isCurrentUser,
 }: any) {
@@ -242,7 +261,7 @@ function UserCard({
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <h3 
-                className="font-semibold text-gray-900 dark:text-white truncate cursor-pointer hover:text-teal-500 transition"
+                className="font-semibold text-heading truncate cursor-pointer hover:text-teal-500 transition"
                 onClick={onViewProfile}
               >
                 {user.username}
@@ -251,8 +270,8 @@ function UserCard({
                 <Star className="w-4 h-4 text-yellow-500 fill-yellow-500 shrink-0" />
               )}
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
-              {user.bio || user.email || "No bio"}
+            <p className="text-sm text-theme-secondary truncate">
+              {user.bio || (userStatus ? `${userStatus.emoji ? userStatus.emoji + ' ' : ''}${userStatus.mood || 'Status set'}` : 'No status')}
             </p>
           </div>
 
@@ -303,7 +322,7 @@ function UserCard({
 
         <div className="flex items-center gap-2 mb-1">
           <h3 
-            className="font-semibold text-gray-900 dark:text-white cursor-pointer hover:text-teal-500 transition"
+            className="font-semibold text-heading cursor-pointer hover:text-teal-500 transition"
             onClick={onViewProfile}
           >
             {user.username}
@@ -319,28 +338,28 @@ function UserCard({
           </p>
         )}
 
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2 min-h-[40px]">
-          {user.bio || user.email || "No bio available"}
+        <p className="text-sm text-theme-secondary mb-4 line-clamp-2 min-h-[40px]">
+          {user.bio || (userStatus ? `${userStatus.emoji ? userStatus.emoji + ' ' : ''}${userStatus.mood || 'Status set'}` : 'No status')}
         </p>
 
         {(user.followers !== undefined || user.following !== undefined) && (
           <div className="flex gap-4 mb-4 text-xs">
             {user.followers !== undefined && (
               <div>
-                <span className="font-semibold text-gray-900 dark:text-white">
+                <span className="font-semibold text-heading">
                   {user.followers}
                 </span>
-                <span className="text-gray-600 dark:text-gray-400 ml-1">
+                <span className="text-theme-secondary ml-1">
                   Followers
                 </span>
               </div>
             )}
             {user.following !== undefined && (
               <div>
-                <span className="font-semibold text-gray-900 dark:text-white">
+                <span className="font-semibold text-heading">
                   {user.following}
                 </span>
-                <span className="text-gray-600 dark:text-gray-400 ml-1">
+                <span className="text-theme-secondary ml-1">
                   Following
                 </span>
               </div>

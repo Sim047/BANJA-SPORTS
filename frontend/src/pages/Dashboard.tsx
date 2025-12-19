@@ -192,10 +192,23 @@ type Event = {
 export default function Dashboard({ token, onNavigate }: any) {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
-  const [eventsFilter, setEventsFilter] = useState<'all' | 'free' | 'paid'>('all');
-  const [showEvents, setShowEvents] = useState<boolean>(false);
+  const [eventsFilter, setEventsFilter] = useState<'all' | 'free' | 'paid'>(() => {
+    const saved = localStorage.getItem('auralink-dashboard-events-filter');
+    return (saved as any) || 'all';
+  });
+  const [showEvents, setShowEvents] = useState<boolean>(() => {
+    const saved = localStorage.getItem('auralink-dashboard-show-events');
+    return saved ? JSON.parse(saved) : false;
+  });
   const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState<any[]>([]);
+    // Persist dashboard UI state
+    useEffect(() => {
+      localStorage.setItem('auralink-dashboard-events-filter', eventsFilter);
+    }, [eventsFilter]);
+    useEffect(() => {
+      localStorage.setItem('auralink-dashboard-show-events', JSON.stringify(showEvents));
+    }, [showEvents]);
   const [createEventModalOpen, setCreateEventModalOpen] = useState(false);
   const [selectedSport, setSelectedSport] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'dashboard' | 'myRequests' | 'approvals' | 'allEvents' | 'notifications'>('dashboard');

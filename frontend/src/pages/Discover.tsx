@@ -182,14 +182,17 @@ interface DiscoverProps {
 }
 
 export default function Discover({ token, onViewProfile, onStartConversation }: DiscoverProps) {
-  const [activeCategory, setActiveCategory] = useState<CategoryType>(null);
+  const [activeCategory, setActiveCategory] = useState<CategoryType>(() => {
+    const saved = localStorage.getItem("auralink-discover-category");
+    return saved ? (saved as CategoryType) : null;
+  });
   const [events, setEvents] = useState<Event[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [marketplaceItems, setMarketplaceItems] = useState<MarketplaceItem[]>([]);
   const [loading, setLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterCategory, setFilterCategory] = useState("");
-  const [selectedSport, setSelectedSport] = useState("All Sports");
+  const [searchTerm, setSearchTerm] = useState(() => localStorage.getItem("auralink-discover-search") || "");
+  const [filterCategory, setFilterCategory] = useState(() => localStorage.getItem("auralink-discover-filter") || "");
+  const [selectedSport, setSelectedSport] = useState(() => localStorage.getItem("auralink-discover-sport") || "All Sports");
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<MarketplaceItem | null>(null);
@@ -213,6 +216,20 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
       fetchMarketplaceItems();
     }
   }, [activeCategory, selectedSport, filterCategory]);
+
+  // Persist Discover UI selections across refresh
+  useEffect(() => {
+    localStorage.setItem("auralink-discover-category", activeCategory ?? "");
+  }, [activeCategory]);
+  useEffect(() => {
+    localStorage.setItem("auralink-discover-sport", selectedSport);
+  }, [selectedSport]);
+  useEffect(() => {
+    localStorage.setItem("auralink-discover-filter", filterCategory);
+  }, [filterCategory]);
+  useEffect(() => {
+    localStorage.setItem("auralink-discover-search", searchTerm);
+  }, [searchTerm]);
 
   const fetchEvents = async () => {
     setLoading(true);

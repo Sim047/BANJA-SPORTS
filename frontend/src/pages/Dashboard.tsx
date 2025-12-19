@@ -192,6 +192,7 @@ type Event = {
 export default function Dashboard({ token, onNavigate }: any) {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
+  const [eventsFilter, setEventsFilter] = useState<'all' | 'free' | 'paid'>('all');
   const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [createEventModalOpen, setCreateEventModalOpen] = useState(false);
@@ -751,6 +752,18 @@ export default function Dashboard({ token, onNavigate }: any) {
               <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                 Community Events
               </h2>
+              <div className="flex items-center gap-3">
+                <label className="text-sm text-gray-600 dark:text-gray-400">Filter:</label>
+                <select
+                  value={eventsFilter}
+                  onChange={(e) => setEventsFilter(e.target.value as any)}
+                  className="text-sm px-3 py-2 rounded-xl bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-800 dark:text-gray-200"
+                >
+                  <option value="all">All</option>
+                  <option value="free">Free</option>
+                  <option value="paid">Paid</option>
+                </select>
+              </div>
               <button
                 onClick={() => setCreateEventModalOpen(true)}
                 className="px-4 py-2 bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white text-sm font-medium rounded-xl transition-all duration-300 flex items-center gap-2 shadow-lg shadow-teal-500/30"
@@ -773,7 +786,10 @@ export default function Dashboard({ token, onNavigate }: any) {
               </div>
             ) : (
               <div className="space-y-3">
-                {upcomingEvents.slice(0, 5).map((event) => (
+                {upcomingEvents
+                  .filter((e) => eventsFilter === 'all' || (e.pricing?.type || 'free') === eventsFilter)
+                  .slice(0, 5)
+                  .map((event) => (
                   <div
                     key={event._id}
                     onClick={() => openEventDetails(event._id)}

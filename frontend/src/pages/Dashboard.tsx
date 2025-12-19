@@ -563,7 +563,7 @@ export default function Dashboard({ token, onNavigate }: any) {
                 <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.notifications}</p>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">View all updates</p>
               </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/30 group-hover:rotate-12 transition-transform">
+              <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/30 ring-1 ring-accent/30 group-hover:rotate-12 transition-transform">
                 <Bell className="w-6 h-6 text-white" />
               </div>
             </div>
@@ -640,7 +640,7 @@ export default function Dashboard({ token, onNavigate }: any) {
             <div className="flex flex-wrap gap-4">
               <button
                 onClick={() => onNavigate && onNavigate('discover')}
-                className="px-6 py-3 bg-white text-purple-600 font-bold rounded-xl hover:bg-gray-100 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 flex items-center gap-2"
+                className="px-6 py-3 bg-white text-accent font-bold rounded-xl border border-accent/30 hover:border-accent/50 hover:bg-gray-100 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 flex items-center gap-2"
               >
                 <Sparkles className="w-5 h-5" />
                 Discover Events

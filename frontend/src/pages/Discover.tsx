@@ -1459,12 +1459,37 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
                     className="w-full mt-1 rounded-lg input"
                     placeholder="Comma-separated tags (default: event)"
                   />
+                  {/* Tag chips preview (derived, not hard-coded) */}
+                  {String(newOther.tags || "").trim() && (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {String(newOther.tags)
+                        .split(",")
+                        .map((t) => t.trim())
+                        .filter(Boolean)
+                        .slice(0, 8)
+                        .map((t, idx) => (
+                          <span key={idx} className="badge text-xs">{t}</span>
+                        ))}
+                    </div>
+                  )}
                 </div>
                 <div>
                   <label className="text-sm text-theme-secondary">Image</label>
                   <div className="flex items-center gap-3 mt-1">
-                    <input type="file" accept="image/*" onChange={handleOtherImageUpload} />
+                    <input id="other-image-upload" type="file" accept="image/*" onChange={handleOtherImageUpload} className="hidden" />
+                    <label htmlFor="other-image-upload" className="px-3 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg text-sm font-medium cursor-pointer inline-flex items-center gap-2">
+                      <ImageIcon className="w-4 h-4" /> Upload Image
+                    </label>
                     {uploadingOtherImage && <span className="text-xs text-theme-secondary">Uploading...</span>}
+                    {newOther.imageUrl && (
+                      <button
+                        type="button"
+                        onClick={() => setNewOther((p) => ({ ...p, imageUrl: "" }))}
+                        className="px-2 py-1 bg-slate-700 hover:bg-slate-800 text-white rounded text-xs"
+                      >
+                        Remove
+                      </button>
+                    )}
                   </div>
                   {newOther.imageUrl && (
                     <div className="mt-3 rounded-lg overflow-hidden border" style={{ borderColor: 'var(--border)' }}>
@@ -1474,7 +1499,13 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
                 </div>
               </div>
               <div className="flex justify-end gap-2 mt-4">
-                <button className="btn" onClick={handleCreateOther}>Publish</button>
+                <button
+                  className="btn"
+                  onClick={handleCreateOther}
+                  disabled={uploadingOtherImage || !(newOther.title.trim() || newOther.caption.trim() || newOther.imageUrl)}
+                >
+                  {uploadingOtherImage ? "Uploading..." : "Publish"}
+                </button>
                 <button className="btn" onClick={() => setCreateOtherOpen(false)}>Cancel</button>
               </div>
             </div>

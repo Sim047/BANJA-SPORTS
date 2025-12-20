@@ -75,48 +75,10 @@ export default function Sidebar({
   const [assistantHidden, setAssistantHidden] = useState<boolean>(() => {
     try { return localStorage.getItem('auralink.assistantHidden') === 'true'; } catch { return false; }
   });
-  const [hideMobileToggle, setHideMobileToggle] = useState(false);
 
   useEffect(() => {
     loadUserStats();
   }, [token]);
-
-  // Listen for scroll direction events from App and hide/show the mobile toggle
-  useEffect(() => {
-    let showTimeout: any = null;
-    const onScrollDirection = (e: Event) => {
-      try {
-        const detail = (e as CustomEvent).detail || {};
-        const dir = detail.direction as 'up' | 'down';
-        const top = Number(detail.scrollTop) || 0;
-        // Always show near very top
-        if (top <= 12) {
-          setHideMobileToggle(false);
-          return;
-        }
-        // If menu is open, keep visible regardless
-        if (isMobileOpen) {
-          setHideMobileToggle(false);
-          return;
-        }
-        // Hide on downward scroll beyond threshold, show on upward scroll
-        if (dir === 'down' && top > 24) {
-          setHideMobileToggle(true);
-          // optional: auto-show after brief idle
-          clearTimeout(showTimeout);
-          showTimeout = setTimeout(() => setHideMobileToggle(false), 1200);
-        } else {
-          clearTimeout(showTimeout);
-          setHideMobileToggle(false);
-        }
-      } catch {}
-    };
-    window.addEventListener('auralink.scrollDirection', onScrollDirection as EventListener);
-    return () => {
-      window.removeEventListener('auralink.scrollDirection', onScrollDirection as EventListener);
-      clearTimeout(showTimeout);
-    };
-  }, [isMobileOpen]);
 
   async function loadUserStats() {
     if (!token) return;
@@ -208,7 +170,7 @@ export default function Sidebar({
     <>
       <button
         onClick={() => setIsMobileOpen(!isMobileOpen)}
-        className={`lg:hidden fixed top-4 left-4 z-30 p-2 rounded-xl border shadow-lg transition-all duration-200 ${hideMobileToggle && !isMobileOpen ? 'opacity-0 -translate-y-3 pointer-events-none' : 'opacity-100 translate-y-0'}`}
+        className="lg:hidden fixed top-4 left-4 z-30 p-2 rounded-xl border shadow-lg transition-all"
         style={{
           backgroundColor: theme === 'dark' ? '#1e293b' : '#ffffff',
           borderColor: theme === 'dark' ? '#475569' : '#cbd5e1'

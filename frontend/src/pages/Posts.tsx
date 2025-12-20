@@ -1,7 +1,7 @@
 // frontend/src/pages/Posts.tsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Heart, MessageCircle, Send, MoreVertical, Trash2, Edit, X, Image as ImageIcon, Plus, ArrowUp } from "lucide-react";
+import { Heart, MessageCircle, Send, MoreVertical, Trash2, Edit, X, Image as ImageIcon, Plus, ArrowUp, Share } from "lucide-react";
 import { Menu } from "@headlessui/react";
 import Avatar from "../components/Avatar";
 import dayjs from "dayjs";
@@ -86,6 +86,22 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // If opened via a shared link, highlight and scroll to the post
+  useEffect(() => {
+    const highlightId = localStorage.getItem('auralink-highlight-post');
+    if (!highlightId) return;
+    const el = document.getElementById(`post-${highlightId}`);
+    if (!el) return;
+    setTimeout(() => {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.classList.add('ring-2', 'ring-cyan-500');
+      setTimeout(() => {
+        el.classList.remove('ring-2', 'ring-cyan-500');
+        try { localStorage.removeItem('auralink-highlight-post'); } catch {}
+      }, 2000);
+    }, 300);
+  }, [posts.length]);
 
   async function loadPosts() {
     try {
@@ -214,6 +230,37 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
     } catch (err) {
       console.error("Failed to delete post:", err);
       alert("Failed to delete post");
+    }
+  }
+
+  function getPostShareUrl(post: Post) {
+    try {
+      const origin = window.location.origin;
+      const url = `${origin}/?view=posts&post=${post._id}`;
+      return url;
+    } catch {
+      return `/?view=posts&post=${post._id}`;
+    }
+  }
+
+  async function handleSharePost(post: Post) {
+    const shareUrl = getPostShareUrl(post);
+    const title = `${post.author.username}'s post`;
+    const text = post.caption || 'Check out this post on Auralink!';
+    try {
+      if (navigator.share) {
+        await navigator.share({ title, text, url: shareUrl });
+        return;
+      }
+    } catch (e) {
+      console.warn('Web Share aborted or failed:', e);
+    }
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      alert('Share link copied to clipboard');
+    } catch (e) {
+      console.error('Clipboard copy failed:', e);
+      alert(shareUrl);
     }
   }
 
@@ -378,6 +425,7 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
             {posts.map((post) => (
               <div
                 key={post._id}
+                id={`post-${post._id}`}
                 className="rounded-2xl shadow-md themed-card"
                 style={{ overflow: 'visible' }}
               >
@@ -404,37 +452,46 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                   </div>
 
                   {/* Options Menu */}
-                  {post.author._id === currentUserId && (
-                    <Menu as="div" className="relative">
-                      <Menu.Button className="p-2 hover:opacity-80 rounded-full themed-card">
-                        <MoreVertical className="w-5 h-5 text-theme-secondary" />
-                      </Menu.Button>
-                      <Menu.Items className="absolute right-0 mt-2 w-48 shadow-lg z-20 themed-menu" style={{ overflow: 'visible' }}>
-                        <Menu.Item>
-                          {({ active }) => (
-                            <button
-                              onClick={() => startEditPost(post)}
-                              className={`flex items-center gap-2 w-full px-4 py-2 text-sm text-theme ${active ? 'opacity-90' : ''}`}
-                            >
-                              <Edit className="w-4 h-4" />
-                              Edit Post
-                            </button>
-                          )}
-                        </Menu.Item>
-                        <Menu.Item>
-                          {({ active }) => (
-                            <button
-                              onClick={() => handleDeletePost(post._id)}
-                              className={`flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 ${active ? 'opacity-90' : ''}`}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                              Delete Post
-                            </button>
-                          )}
-                        </Menu.Item>
-                      </Menu.Items>
-                    </Menu>
-                  )}
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleSharePost(post)}
+                      className="p-2 hover:opacity-80 rounded-full themed-card"
+                      title="Share"
+                    >
+                      <Share className="w-5 h-5 text-theme-secondary" />
+                    </button>
+                    {post.author._id === currentUserId && (
+                      <Menu as="div" className="relative">
+                        <Menu.Button className="p-2 hover:opacity-80 rounded-full themed-card">
+                          <MoreVertical className="w-5 h-5 text-theme-secondary" />
+                        </Menu.Button>
+                        <Menu.Items className="absolute right-0 mt-2 w-48 shadow-lg z-20 themed-menu" style={{ overflow: 'visible' }}>
+                          <Menu.Item>
+                            {({ active }) => (
+                              <button
+                                onClick={() => startEditPost(post)}
+                                className={`flex items-center gap-2 w-full px-4 py-2 text-sm text-theme ${active ? 'opacity-90' : ''}`}
+                              >
+                                <Edit className="w-4 h-4" />
+                                Edit Post
+                              </button>
+                            )}
+                          </Menu.Item>
+                          <Menu.Item>
+                            {({ active }) => (
+                              <button
+                                onClick={() => handleDeletePost(post._id)}
+                                className={`flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 ${active ? 'opacity-90' : ''}`}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                                Delete Post
+                              </button>
+                            )}
+                          </Menu.Item>
+                        </Menu.Items>
+                      </Menu>
+                    )}
+                  </div>
                 </div>
 
                 {/* Post Image */}

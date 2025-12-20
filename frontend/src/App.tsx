@@ -116,7 +116,6 @@ export default function App() {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const messagesSectionRef = useRef<HTMLDivElement | null>(null);
   const unreadRef = useRef<HTMLDivElement | null>(null);
-  const mainRef = useRef<HTMLDivElement | null>(null);
   const [ready, setReady] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
 
@@ -158,47 +157,18 @@ export default function App() {
     localStorage.setItem("auralink-current-view", view);
   }, [view]);
 
-  // Dispatch scroll direction events for the main content container
+  // Handle deep-link query params (e.g., ?view=posts&post=ID)
   useEffect(() => {
-    const el = mainRef.current;
-    if (!el) return;
-    let last = el.scrollTop;
-    let ticking = false;
-    let lastEmit = 0;
-
-    const emitDirection = (current: number, diff: number) => {
-      const now = Date.now();
-      if (now - lastEmit < 60) return; // throttle event emission
-      // If near top, always emit 'up' to reveal toggle
-      const direction = current <= 12 ? "up" : diff > 0 ? "down" : "up";
-      try {
-        window.dispatchEvent(
-          new CustomEvent("auralink.scrollDirection", {
-            detail: { direction, scrollTop: current },
-          })
-        );
-      } catch {}
-      lastEmit = now;
-    };
-
-    const onScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          const current = el.scrollTop;
-          const diff = current - last;
-          if (Math.abs(diff) > 10) {
-            emitDirection(current, diff);
-            last = current;
-          }
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-
-    el.addEventListener("scroll", onScroll, { passive: true });
-    return () => el.removeEventListener("scroll", onScroll);
-  }, [view]);
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const v = params.get('view');
+      const postId = params.get('post');
+      if (v) setView(v as any);
+      if (postId) localStorage.setItem('auralink-highlight-post', postId);
+    } catch (e) {
+      console.warn('Deep link parsing failed:', e);
+    }
+  }, []);
 
   // editing messages
   const [editingMessageId, setEditingMessageId] =
@@ -1260,11 +1230,9 @@ function onMyStatusUpdated(newStatus: any) {
       {/* ---------------- MAIN VIEW ---------------- */}
       <main 
         className={clsx(
-          "flex-1 flex flex-col",
-          view === "chat" ? "overflow-hidden h-screen" : "overflow-auto p-4 lg:p-6",
-          view !== "chat" ? "pt-14 lg:pt-0" : ""
+          "flex-1 flex flex-col pl-14 lg:pl-0",
+          view === "chat" ? "overflow-hidden h-screen" : "overflow-auto p-4 lg:p-6"
         )} 
-        ref={mainRef}
         style={{ color: 'var(--text)' }}
       >
         {/* DASHBOARD PAGE */}

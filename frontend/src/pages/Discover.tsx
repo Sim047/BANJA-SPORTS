@@ -190,6 +190,9 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
   const [services, setServices] = useState<Service[]>([]);
   const [marketplaceItems, setMarketplaceItems] = useState<MarketplaceItem[]>([]);
   const [otherEvents, setOtherEvents] = useState<any[]>([]);
+  const [createOtherOpen, setCreateOtherOpen] = useState(false);
+  const [newOther, setNewOther] = useState({ caption: "", imageUrl: "", location: "", tags: "event" });
+  const [uploadingOtherImage, setUploadingOtherImage] = useState(false);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState(() => localStorage.getItem("auralink-discover-search") || "");
   const [filterCategory, setFilterCategory] = useState(() => localStorage.getItem("auralink-discover-filter") || "");
@@ -289,6 +292,60 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
       setOtherEvents([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleOtherImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      alert("Image must be under 10MB");
+      return;
+    }
+    try {
+      setUploadingOtherImage(true);
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await axios.post(`${API_URL}/files/upload`, formData, {
+        headers: {
+          Authorization: token ? `Bearer ${token}` : undefined,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      setNewOther((p) => ({ ...p, imageUrl: res.data.url }));
+    } catch (err) {
+      console.error("Upload failed:", err);
+      alert("Failed to upload image");
+    } finally {
+      setUploadingOtherImage(false);
+    }
+  };
+
+  const handleCreateOther = async () => {
+    if (!token) {
+      alert("Please log in to create an event post");
+      return;
+    }
+    if (!newOther.caption.trim() && !newOther.imageUrl) {
+      alert("Please add a caption or image");
+      return;
+    }
+    try {
+      const tags = (newOther.tags || "")
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean);
+      const res = await axios.post(
+        `${API_URL}/posts`,
+        { caption: newOther.caption, imageUrl: newOther.imageUrl, tags, location: newOther.location },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setOtherEvents((prev) => [res.data, ...prev]);
+      setNewOther({ caption: "", imageUrl: "", location: "", tags: "event" });
+      setCreateOtherOpen(false);
+    } catch (err) {
+      console.error("Failed to create event post:", err);
+      alert("Failed to create event post");
     }
   };
 
@@ -1266,63 +1323,7 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
 
   // Other Events View (posts tagged as events)
   if (activeCategory === "other") {
-    const [createOtherOpen, setCreateOtherOpen] = React.useState(false);
-    const [newOther, setNewOther] = React.useState({ caption: "", imageUrl: "", location: "", tags: "event" });
-    const [uploadingOtherImage, setUploadingOtherImage] = React.useState(false);
-
-    const handleOtherImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      if (file.size > 10 * 1024 * 1024) {
-        alert("Image must be under 10MB");
-        return;
-      }
-      try {
-        setUploadingOtherImage(true);
-        const formData = new FormData();
-        formData.append("file", file);
-        const res = await axios.post(`${API_URL}/files/upload`, formData, {
-          headers: {
-            Authorization: token ? `Bearer ${token}` : undefined,
-            "Content-Type": "multipart/form-data",
-          },
-        });
-        setNewOther((p) => ({ ...p, imageUrl: res.data.url }));
-      } catch (err) {
-        console.error("Upload failed:", err);
-        alert("Failed to upload image");
-      } finally {
-        setUploadingOtherImage(false);
-      }
-    };
-
-    const handleCreateOther = async () => {
-      if (!token) {
-        alert("Please log in to create an event post");
-        return;
-      }
-      if (!newOther.caption.trim() && !newOther.imageUrl) {
-        alert("Please add a caption or image");
-        return;
-      }
-      try {
-        const tags = (newOther.tags || "")
-          .split(",")
-          .map((t) => t.trim())
-          .filter(Boolean);
-        const res = await axios.post(
-          `${API_URL}/posts`,
-          { caption: newOther.caption, imageUrl: newOther.imageUrl, tags, location: newOther.location },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        setOtherEvents((prev) => [res.data, ...prev]);
-        setNewOther({ caption: "", imageUrl: "", location: "", tags: "event" });
-        setCreateOtherOpen(false);
-      } catch (err) {
-        console.error("Failed to create event post:", err);
-        alert("Failed to create event post");
-      }
-    };
+    
 
     return (
       <div className="min-h-screen themed-page">

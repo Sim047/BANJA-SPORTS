@@ -1542,7 +1542,7 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
               <p>No posts found</p>
             </div>
           ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               {otherEvents.filter((p) => {
                 const q = searchTerm.trim().toLowerCase();
                 if (!q) return true;
@@ -1557,12 +1557,12 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
                 <div key={post._id} className="rounded-xl overflow-hidden themed-card cursor-pointer" onClick={() => openOtherDetails(post._id)}>
                   {/* Poster Image */}
                   {post.imageUrl && (
-                    <div className="h-40 w-full bg-black/10">
+                    <div className="w-full h-48 sm:h-56 md:h-64 bg-black/10">
                       <img src={post.imageUrl} alt={post.title || post.caption || 'Event'} className="w-full h-full object-cover" />
                     </div>
                   )}
-                  <div className="p-6">
-                    <h3 className="text-lg font-bold text-heading mb-2 line-clamp-2">{post.title || post.caption || "Untitled"}</h3>
+                  <div className="p-4">
+                    <h3 className="text-base sm:text-lg font-bold text-heading mb-2 line-clamp-2">{post.title || post.caption || "Untitled"}</h3>
                     <div className="flex items-center justify-between mb-3">
                       <div className="text-xs text-theme-secondary flex items-center gap-2">
                         <Users className="w-4 h-4" />
@@ -1573,17 +1573,20 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
                       ) : null}
                     </div>
                   {Array.isArray(post.tags) && post.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-3">
-                      {post.tags.slice(0, 5).map((t: string, idx: number) => (
-                        <span key={idx} className="badge text-xs">{t}</span>
+                    <div className="flex flex-wrap items-center gap-2 mb-3">
+                      {post.tags.slice(0, 4).map((t: string, idx: number) => (
+                        <span key={idx} className="px-2 py-0.5 rounded-full text-xs text-cyan-600 dark:text-cyan-400" style={{ border: '1px solid var(--border)' }}>{t}</span>
                       ))}
+                      {post.tags.length > 4 && (
+                        <span className="px-2 py-0.5 rounded-full text-xs text-theme-secondary" style={{ border: '1px solid var(--border)' }}>…</span>
+                      )}
                     </div>
                   )}
                   <div className="flex items-center text-xs text-theme-secondary mb-3">
                     <img
                       src={(post.author?.avatar) || `https://ui-avatars.com/api/?name=${post.author?.username || 'User'}`}
                       alt={post.author?.username || 'User'}
-                      className="w-5 h-5 rounded-full mr-2"
+                      className="w-5 h-5 rounded-full mr-2 border"
                     />
                     <span>{post.author?.username || 'Unknown'}</span>
                     <span className="mx-2">•</span>

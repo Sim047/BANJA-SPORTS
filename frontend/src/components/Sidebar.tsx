@@ -148,16 +148,12 @@ export default function Sidebar({
   const NavButton = ({ icon: Icon, label, badge, isCollapsed, onClick }: any) => (
     <button
       onClick={onClick}
-      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group border"
+      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group themed-card hover:shadow-md"
       title={isCollapsed ? label : ''}
-      style={{
-        background: 'transparent',
-        borderColor: 'var(--border)'
-      }}
     >
-      <Icon className="w-5 h-5 flex-shrink-0" style={{ color: 'var(--text-secondary)' }} />
+      <Icon className="w-5 h-5 flex-shrink-0 text-theme-secondary" />
       {!isCollapsed && (
-        <span className="flex-1 text-left text-sm font-medium" style={{ color: 'var(--text)' }}>
+        <span className="flex-1 text-left text-sm font-medium text-heading">
           {label}
         </span>
       )}
@@ -193,12 +189,12 @@ export default function Sidebar({
   const CollapseToggle = () => (
     <button
       onClick={() => setIsCollapsed(!isCollapsed)}
-      className="hidden lg:flex absolute -right-3 top-8 p-1.5 bg-slate-800 hover:bg-slate-700 rounded-full border border-slate-600 shadow-lg transition-all z-10"
+      className="hidden lg:flex absolute -right-3 top-8 p-1.5 rounded-full border shadow-lg transition-all z-10 themed-card"
     >
       {isCollapsed ? (
-        <ChevronRight className="w-4 h-4 text-white" />
+        <ChevronRight className="w-4 h-4" />
       ) : (
-        <ChevronLeft className="w-4 h-4 text-white" />
+        <ChevronLeft className="w-4 h-4" />
       )}
     </button>
   );
@@ -206,7 +202,7 @@ export default function Sidebar({
   const SidebarContent = () => (
     <div className="h-full flex flex-col overflow-y-auto">
       {/* Header with Logo and Theme Toggle */}
-      <div className="p-4 border-b border-slate-700">
+      <div className="p-4 border-b" style={{ borderColor: 'var(--border)' }}>
         {!isCollapsed ? (
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center justify-center flex-1">
@@ -215,7 +211,7 @@ export default function Sidebar({
             {/* Theme Toggle */}
             <button
               onClick={onThemeToggle}
-              className="p-2 rounded-lg border border-slate-600 hover:border-cyan-500 hover:bg-slate-700/60 transition-all duration-300 group"
+              className="p-2 rounded-lg themed-card hover:opacity-90 transition-all duration-300 group"
               title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
             >
               {theme === "dark" ? (
@@ -234,7 +230,7 @@ export default function Sidebar({
 
       {/* User Profile Section */}
       {!isCollapsed && (
-        <div className="p-4 border-b border-slate-700">
+        <div className="p-4 border-b" style={{ borderColor: 'var(--border)' }}>
           <div className="flex items-center gap-3 mb-3">
             <Avatar
               src={makeAvatarUrl(user?.avatar)}
@@ -266,7 +262,7 @@ export default function Sidebar({
           />
 
           {/* Improved Avatar Upload Section */}
-          <div className="mt-4 pt-4 border-t border-slate-600">
+          <div className="mt-4 pt-4 border-t" style={{ borderColor: 'var(--border)' }}>
             <label className="block text-xs font-semibold mb-3 text-slate-300">
               Profile Picture
             </label>
@@ -327,7 +323,7 @@ export default function Sidebar({
       )}
 
       {/* Navigation Menu */}
-      <div className="p-2 space-y-1">
+      <div className="p-2 space-y-2">
         <NavButton
           icon={Home}
           label="Dashboard"
@@ -398,7 +394,7 @@ export default function Sidebar({
       )}
 
       {/* Quick Stats */}
-      <div className="flex-1 p-4 border-t border-slate-700">
+      <div className="flex-1 p-4 border-t" style={{ borderColor: 'var(--border)' }}>
         {!isCollapsed && (
           <h3 className="text-sm font-bold mb-3" style={{ color: 'var(--text)' }}>Quick Stats</h3>
         )}
@@ -420,14 +416,10 @@ export default function Sidebar({
                   key={index}
                   onClick={stat.onClick}
                   className={`
-                    relative rounded-xl p-3 cursor-pointer border
-                    transition-all duration-300 hover:scale-105 hover:shadow-xl hover:border-cyan-500/40
+                    relative rounded-xl p-3 cursor-pointer themed-card
+                    transition-all duration-300 hover:scale-105 hover:shadow-xl
                     ${isCollapsed ? 'aspect-square' : ''}
                   `}
-                  style={{
-                    background: 'var(--card)',
-                    borderColor: 'var(--border)'
-                  }}
                 >
                   <div className="relative z-10">
                     <div className={`flex ${isCollapsed ? 'flex-col items-center justify-center h-full' : 'items-center justify-between'}`}>
@@ -467,7 +459,7 @@ export default function Sidebar({
       </div>
 
       {/* Assistant Toggle */}
-      <div className="p-4 border-t border-slate-700">
+      <div className="p-4 border-t" style={{ borderColor: 'var(--border)' }}>
         <button
           onClick={() => {
             const next = !assistantHidden;
@@ -485,7 +477,7 @@ export default function Sidebar({
       </div>
 
       {/* Logout and Footer */}
-      <div className="p-4 border-t border-slate-700 space-y-3">
+      <div className="p-4 border-t space-y-3" style={{ borderColor: 'var(--border)' }}>
         {!isCollapsed && (
           <button
             onClick={loadUserStats}

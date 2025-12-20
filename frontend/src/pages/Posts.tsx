@@ -421,7 +421,7 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
             <p className="text-theme-secondary text-sm mt-2">Be the first to share something!</p>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-4">
             {posts.map((post) => (
               <div
                 key={post._id}
@@ -430,7 +430,7 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                 style={{ overflow: 'visible' }}
               >
                 {/* Post Header */}
-                <div className="flex items-center justify-between p-4 relative z-10" style={{ overflow: 'visible' }}>
+                <div className="flex items-center justify-between p-3 relative z-10" style={{ overflow: 'visible' }}>
                   <div className="flex items-center gap-3">
                     <Avatar
                       src={makeAvatarUrl(post.author.avatar)}
@@ -452,7 +452,7 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                   </div>
 
                   {/* Options Menu */}
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5">
                     <button
                       onClick={() => handleSharePost(post)}
                       className="p-2 hover:opacity-80 rounded-full themed-card"
@@ -494,24 +494,26 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                   </div>
                 </div>
 
-                {/* Post Image */}
+                {/* Post Image (standardized height) */}
                 {post.imageUrl && (
-                  <img
-                    src={post.imageUrl}
-                    alt="Post"
-                    className="w-full max-h-[600px] object-cover"
-                  />
+                  <div className="w-full h-64 sm:h-72 md:h-80 overflow-hidden rounded-t-2xl">
+                    <img
+                      src={post.imageUrl}
+                      alt="Post"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
                 )}
 
                 {/* Actions */}
-                <div className="p-4 space-y-3">
+                <div className="p-3 space-y-3">
                   <div className="flex items-center gap-4">
                     <button
                       onClick={() => handleLike(post._id)}
                       className="flex items-center gap-1.5 group"
                     >
                       <Heart
-                        className={`w-6 h-6 transition-all ${
+                        className={`w-5 h-5 transition-all ${
                           post.likes.includes(currentUserId)
                             ? "fill-red-500 text-red-500"
                             : "text-theme-secondary group-hover:text-red-500"
@@ -525,7 +527,7 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                       onClick={() => toggleComments(post._id)}
                       className="flex items-center gap-1.5 text-theme-secondary hover:text-cyan-500"
                     >
-                      <MessageCircle className="w-6 h-6" />
+                      <MessageCircle className="w-5 h-5" />
                       <span className="text-sm font-medium">{post.comments.length}</span>
                     </button>
                   </div>
@@ -575,7 +577,15 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                   ) : (
                     <>
                       {post.caption && (
-                        <p className="text-heading">
+                        <p
+                          className="text-heading"
+                          style={{
+                            display: '-webkit-box',
+                            WebkitLineClamp: 3,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden'
+                          } as any}
+                        >
                           <span className="font-semibold mr-2">{post.author.username}</span>
                           {post.caption}
                         </p>
@@ -584,7 +594,7 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                       {/* Tags */}
                       {post.tags.length > 0 && (
                         <div className="flex flex-wrap gap-2">
-                          {post.tags.map((tag, idx) => (
+                          {post.tags.slice(0, 3).map((tag, idx) => (
                             <span
                               key={idx}
                               className="text-xs text-cyan-500 hover:underline cursor-pointer"
@@ -592,6 +602,9 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                               #{tag}
                             </span>
                           ))}
+                          {post.tags.length > 3 && (
+                            <span className="text-xs text-theme-secondary">…</span>
+                          )}
                         </div>
                       )}
 

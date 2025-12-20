@@ -66,9 +66,10 @@
   --text-secondary: #cbd5e1;
   --muted: #94a3b8;
 
-  --card: #1e293b;
-  --card-solid: #1e293b;
-  --border: rgba(148, 163, 184, 0.15);
+  /* Increase contrast for cards and borders in dark theme */
+  --card: #253549;
+  --card-solid: #253549;
+  --border: rgba(148, 163, 184, 0.28);
 
   --bubble-mine: rgba(34,211,238,0.15);
   --bubble-other: rgba(255,255,255,0.05);
@@ -329,6 +330,12 @@ textarea,
 :root.light .themed-card,
 :root.light .themed-menu {
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+/* Add subtle elevation in dark for better separation */
+:root.dark .themed-card,
+:root.dark .themed-menu {
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35), 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
 /* =========================================================

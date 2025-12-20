@@ -51,6 +51,8 @@ export default function MyEvents({ token, onNavigate }: { token: string; onNavig
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [participantsModalEvent, setParticipantsModalEvent] = useState<any>(null);
+  const [otherEvents, setOtherEvents] = useState<any[]>([]);
+  const [loadingOther, setLoadingOther] = useState<boolean>(false);
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
 
   useEffect(() => {
@@ -58,6 +60,7 @@ export default function MyEvents({ token, onNavigate }: { token: string; onNavig
     loadMyEventsAll();
     loadMyServices();
     loadMyProducts();
+    loadOtherEvents();
     // Consume default tab hint provided by dashboard
     const hint = localStorage.getItem('auralink-my-activities-tab') as TabType | null;
     if (hint) {
@@ -79,6 +82,23 @@ export default function MyEvents({ token, onNavigate }: { token: string; onNavig
       console.error("Load my events error:", err);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function loadOtherEvents() {
+    try {
+      setLoadingOther(true);
+      const res = await axios.get(`${API}/posts`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      });
+      const posts = res.data.posts || res.data || [];
+      const filtered = (posts || []).filter((p: any) => Array.isArray(p.tags) && p.tags.some((t: string) => /event/i.test(t)));
+      setOtherEvents(filtered);
+    } catch (err) {
+      console.error("Load other events error:", err);
+      setOtherEvents([]);
+    } finally {
+      setLoadingOther(false);
     }
   }
 
@@ -252,7 +272,7 @@ export default function MyEvents({ token, onNavigate }: { token: string; onNavig
     <div className="min-h-screen themed-page">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-8">
           <div>
             <h1 className="text-3xl font-bold text-heading mb-2">
               My Activities
@@ -274,7 +294,7 @@ export default function MyEvents({ token, onNavigate }: { token: string; onNavig
                 setCreateProductModalOpen(true);
               }
             }}
-            className="px-6 py-3 bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-teal-500/30 flex items-center gap-2"
+            className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-teal-500/30 flex items-center gap-2"
           >
             <Plus className="w-5 h-5" />
             {activeTab === "events" ? "Create Event" : activeTab === "services" ? "Create Service" : "Sell Product"}
@@ -608,6 +628,36 @@ export default function MyEvents({ token, onNavigate }: { token: string; onNavig
                     >
                       Explore Other Events
                     </button>
+                  </div>
+                  {/* Mini-grid preview */}
+                  <div className="mt-4">
+                    {loadingOther ? (
+                      <div className="text-theme-secondary text-sm">Loading...</div>
+                    ) : otherEvents.length === 0 ? (
+                      <div className="text-theme-secondary text-sm">No other events yet</div>
+                    ) : (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {otherEvents.slice(0, 4).map((post) => (
+                          <div key={post._id} className="rounded-xl overflow-hidden themed-card cursor-pointer" onClick={() => { localStorage.setItem('auralink-discover-category', 'other'); onNavigate && onNavigate('discover'); }}>
+                            {post.imageUrl && (
+                              <div className="w-full h-40 sm:h-48 bg-black/10">
+                                <img src={post.imageUrl} alt={post.title || post.caption || 'Event'} className="w-full h-full object-cover" />
+                              </div>
+                            )}
+                            <div className="p-3">
+                              <h4 className="text-sm font-semibold text-heading line-clamp-2">{post.title || post.caption || 'Untitled'}</h4>
+                              {Array.isArray(post.tags) && post.tags.length > 0 && (
+                                <div className="flex flex-wrap items-center gap-1 mt-2">
+                                  {post.tags.slice(0, 3).map((t: string, idx: number) => (
+                                    <span key={idx} className="px-2 py-0.5 rounded-full text-[11px] text-cyan-600 dark:text-cyan-400" style={{ border: '1px solid var(--border)' }}>{t}</span>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

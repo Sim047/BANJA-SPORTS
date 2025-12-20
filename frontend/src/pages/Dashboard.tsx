@@ -600,6 +600,8 @@ export default function Dashboard({ token, onNavigate }: any) {
             </div>
           )}
         </div>
+        {/* End content container */}
+      </div>
       {/* Create Event Modal */}
       <CreateEventModal
         isOpen={createEventModalOpen}

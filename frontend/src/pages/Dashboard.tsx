@@ -7,11 +7,6 @@ import {
   MapPin, 
   Users, 
   Bell,
-  CheckCircle2,
-  XCircle,
-  AlertCircle,
-  ArrowRight,
-  BookOpen,
   Plus,
   Sparkles,
   Trophy,
@@ -22,8 +17,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import CreateEventModal from "../components/CreateEventModal";
 import EventDetailModal from "../components/EventDetailModal";
 import EventParticipantsModal from "../components/EventParticipantsModal";
-import MyJoinRequestsPage from "./MyJoinRequests";
-import PendingApprovalsPage from "./PendingApprovals";
+// Removed booking-related pages
 import AllEvents from "./AllEvents";
 import NotificationsPage from "./Notifications";
 import SportEvents from "./SportEvents";
@@ -160,17 +154,7 @@ const ALL_SPORTS = [
   { name: "Snooker", category: "Individual Sports", icon: "🎱", popular: false },
 ];
 
-type Booking = {
-  _id: string;
-  bookingType: string;
-  service?: any;
-  event?: any;
-  coach?: any;
-  scheduledDate?: string;
-  status: string;
-  price?: number;
-  createdAt: string;
-};
+// Booking type removed as booking system is deprecated
 
 type Event = {
   _id: string;
@@ -190,7 +174,6 @@ type Event = {
 };
 
 export default function Dashboard({ token, onNavigate }: any) {
-  const [bookings, setBookings] = useState<Booking[]>([]);
   const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
   const [eventsFilter, setEventsFilter] = useState<'all' | 'free' | 'paid'>(() => {
     const saved = localStorage.getItem('auralink-dashboard-events-filter');
@@ -211,11 +194,7 @@ export default function Dashboard({ token, onNavigate }: any) {
     }, [showEvents]);
   const [createEventModalOpen, setCreateEventModalOpen] = useState(false);
   const [selectedSport, setSelectedSport] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'dashboard' | 'myRequests' | 'approvals' | 'allEvents' | 'notifications'>('dashboard');
-  const [myRequestsCount, setMyRequestsCount] = useState(0);
-  const [approvalsCount, setApprovalsCount] = useState(0);
-  const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
-  const [approvedRequestsCount, setApprovedRequestsCount] = useState(0);
+  const [viewMode, setViewMode] = useState<'dashboard' | 'allEvents' | 'notifications'>('dashboard');
   const [selectedEvent, setSelectedEvent] = useState<any | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | undefined>(undefined);
   const [participantsModalEvent, setParticipantsModalEvent] = useState<any | null>(null);
@@ -232,15 +211,6 @@ export default function Dashboard({ token, onNavigate }: any) {
   async function loadDashboardData() {
     try {
       setLoading(true);
-
-      // Load user bookings
-      const bookingsRes = await axios.get(`${API}/api/bookings/my-bookings`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      
-      const userBookings = bookingsRes.data.bookings || [];
-      setBookings(userBookings);
-
       // Load upcoming events (next 30 days)
       const eventsRes = await axios.get(`${API}/api/events?status=published&limit=10`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -256,16 +226,6 @@ export default function Dashboard({ token, onNavigate }: any) {
 
       setUpcomingEvents(events);
 
-      // Create notifications for upcoming bookings
-      const upcomingBookings = userBookings.filter((booking: Booking) => {
-        if (!booking.scheduledDate) return false;
-        const bookingDate = new Date(booking.scheduledDate);
-        const now = new Date();
-        const threeDaysFromNow = new Date();
-        threeDaysFromNow.setDate(now.getDate() + 3);
-        return bookingDate >= now && bookingDate <= threeDaysFromNow && booking.status === 'confirmed';
-      });
-
       const eventNotifications = events.slice(0, 3).map((event: Event) => ({
         id: event._id,
         type: 'event',
@@ -273,73 +233,15 @@ export default function Dashboard({ token, onNavigate }: any) {
         message: `${dayjs(event.startDate).format('MMM D')} at ${event.location?.city || 'TBD'}`,
         time: dayjs(event.startDate).fromNow(),
       }));
-
-      const bookingNotifications = upcomingBookings.map((booking: Booking) => ({
-        id: booking._id,
-        type: 'booking',
-        title: `Booking reminder`,
-        message: `${booking.bookingType} on ${dayjs(booking.scheduledDate).format('MMM D')}`,
-        time: dayjs(booking.scheduledDate).fromNow(),
-      }));
-
-      setNotifications([...bookingNotifications, ...eventNotifications].slice(0, 5));
-
-      // Load booking counts for quick stats
-      try {
-        const myRequestsRes = await axios.get(`${API}/api/bookings-simple/my-requests`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const allRequests = myRequestsRes.data.bookings || [];
-        const pendingRequests = allRequests.filter((b: any) => b.status === "pending");
-        const approvedRequests = allRequests.filter((b: any) => b.status === "approved");
-        setMyRequestsCount(pendingRequests.length);
-        setPendingRequestsCount(pendingRequests.length);
-        setApprovedRequestsCount(approvedRequests.length);
-        
-        const approvalsRes = await axios.get(`${API}/api/bookings-simple/to-approve`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setApprovalsCount(approvalsRes.data.bookings?.length || 0);
-      } catch (err) {
-        console.error("Booking counts error:", err);
-      }
+      // Set event notifications only
+      setNotifications(eventNotifications.slice(0, 5));
     } catch (err) {
       console.error("Dashboard load error:", err);
     } finally {
       setLoading(false);
     }
   }
-
-  const getBookingTitle = (booking: Booking) => {
-    if (booking.service) return booking.service.name || 'Service Booking';
-    if (booking.event) return booking.event.title || 'Event Booking';
-    if (booking.coach) return `Session with ${booking.coach.username || 'Coach'}`;
-    return 'Booking';
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'confirmed': return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
-      case 'pending': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400';
-      case 'cancelled': return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
-      case 'completed': return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400';
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400';
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'confirmed': return <CheckCircle2 className="w-4 h-4" />;
-      case 'pending': return <AlertCircle className="w-4 h-4" />;
-      case 'cancelled': return <XCircle className="w-4 h-4" />;
-      case 'completed': return <CheckCircle2 className="w-4 h-4" />;
-      default: return <AlertCircle className="w-4 h-4" />;
-    }
-  };
-
   const stats = {
-    totalBookings: bookings.length,
-    confirmedBookings: bookings.filter(b => b.status === 'confirmed').length,
     upcomingEvents: upcomingEvents.length,
     notifications: notifications.length,
   };
@@ -392,14 +294,7 @@ export default function Dashboard({ token, onNavigate }: any) {
     }
   };
 
-  // View Mode Routing
-  if (viewMode === 'myRequests') {
-    return <MyJoinRequestsPage onBack={() => setViewMode('dashboard')} onNavigate={onNavigate} />;
-  }
-
-  if (viewMode === 'approvals') {
-    return <PendingApprovalsPage token={token} onBack={() => setViewMode('dashboard')} onNavigate={onNavigate} />;
-  }
+  // View Mode Routing (booking-related routes removed)
 
   if (viewMode === 'allEvents') {
     return (
@@ -508,46 +403,8 @@ export default function Dashboard({ token, onNavigate }: any) {
           </div>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* My Join Requests - Clickable */}
-          <button
-            onClick={() => setViewMode('myRequests')}
-            className="rounded-2xl p-6 hover:shadow-xl hover:scale-105 transition-all duration-300 text-left group relative overflow-hidden"
-            style={{ background: 'var(--card)', border: '2px solid var(--border)', color: 'var(--text)' }}
-          >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500"></div>
-            <div className="relative flex items-center justify-between">
-              <div>
-                <p className="text-sm text-blue-600 dark:text-blue-400 mb-1 font-medium">My Join Requests</p>
-                <p className="text-3xl font-bold text-heading">{myRequestsCount}</p>
-                <p className="text-xs text-theme-secondary mt-1">Pending approval</p>
-              </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:rotate-12 transition-transform">
-                <Clock className="w-6 h-6 text-white" />
-              </div>
-            </div>
-          </button>
-
-          {/* Pending Approvals - Clickable */}
-          <button
-            onClick={() => setViewMode('approvals')}
-            className="rounded-2xl p-6 hover:shadow-xl hover:scale-105 transition-all duration-300 text-left group relative overflow-hidden"
-            style={{ background: 'var(--card)', border: '2px solid var(--border)', color: 'var(--text)' }}
-          >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500"></div>
-            <div className="relative flex items-center justify-between">
-              <div>
-                <p className="text-sm text-orange-600 dark:text-orange-400 mb-1 font-medium">Pending Approvals</p>
-                <p className="text-3xl font-bold text-heading">{approvalsCount}</p>
-                <p className="text-xs text-theme-secondary mt-1">Awaiting your review</p>
-              </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/30 group-hover:rotate-12 transition-transform">
-                <AlertCircle className="w-6 h-6 text-white" />
-              </div>
-            </div>
-          </button>
-
+        {/* Stats Cards (bookings removed) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
           {/* All Events - Clickable */}
           <button
             onClick={() => setViewMode('allEvents')}
@@ -585,59 +442,6 @@ export default function Dashboard({ token, onNavigate }: any) {
               </div>
             </div>
           </button>
-        </div>
-
-        {/* Second Row - Additional Quick Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Pending Requests */}
-          <button
-            onClick={() => setViewMode('myRequests')}
-            className="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 rounded-2xl p-6 border-2 border-amber-200 dark:border-amber-700 hover:shadow-xl hover:scale-105 hover:border-accent/30 transition-all duration-300 text-left"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-amber-700 dark:text-amber-400 mb-1 font-medium">Pending Requests</p>
-                <p className="text-3xl font-bold text-amber-900 dark:text-amber-300">{pendingRequestsCount}</p>
-              </div>
-              <Clock className="w-10 h-10 text-amber-600 dark:text-amber-500" />
-            </div>
-          </button>
-
-          {/* Approved Requests */}
-          <button
-            onClick={() => setViewMode('myRequests')}
-            className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-2xl p-6 border-2 border-green-200 dark:border-green-700 hover:shadow-xl hover:scale-105 hover:border-accent/30 transition-all duration-300 text-left"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-green-700 dark:text-green-400 mb-1 font-medium">Approved Requests</p>
-                <p className="text-3xl font-bold text-green-900 dark:text-green-300">{approvedRequestsCount}</p>
-              </div>
-              <CheckCircle2 className="w-10 h-10 text-green-600 dark:text-green-500" />
-            </div>
-          </button>
-
-          {/* Total Bookings */}
-          <div className="rounded-2xl p-6 hover:shadow-lg transition-all duration-300 themed-card">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-theme-secondary mb-1">Total Bookings</p>
-                <p className="text-3xl font-bold text-heading">{stats.totalBookings}</p>
-              </div>
-              <BookOpen className="w-10 h-10 text-teal-500" />
-            </div>
-          </div>
-
-          {/* Confirmed Bookings */}
-          <div className="rounded-2xl p-6 hover:shadow-lg transition-all duration-300 themed-card">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-theme-secondary mb-1">Confirmed</p>
-                <p className="text-3xl font-bold text-heading">{stats.confirmedBookings}</p>
-              </div>
-              <CheckCircle2 className="w-10 h-10 text-green-500" />
-            </div>
-          </div>
         </div>
 
         {/* Ready to Train Banner - Always at the bottom */}
@@ -764,62 +568,9 @@ export default function Dashboard({ token, onNavigate }: any) {
             )}
           </div>
 
-          {/* Upcoming Events */}
-          <div className="rounded-2xl p-6 themed-card">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-heading">
-                Community Events
-              </h2>
-              <div className="flex items-center gap-3">
-                <label className="text-sm text-theme-secondary">Filter:</label>
-                <select
-                  value={eventsFilter}
-                  onChange={(e) => setEventsFilter(e.target.value as any)}
-                  className="input text-sm rounded-xl"
-                >
-                  <option value="all">All</option>
-                  <option value="free">Free</option>
-                  <option value="paid">Paid</option>
-                </select>
-                <button
-                  onClick={() => setShowEvents((v) => !v)}
-                  className="text-sm px-3 py-2 rounded-xl themed-card hover:opacity-90"
-                  aria-expanded={showEvents}
-                >
-                  {showEvents ? 'Hide' : 'Show'}
-                </button>
-              </div>
-              <button
-                onClick={() => setCreateEventModalOpen(true)}
-                className="px-4 py-2 bg-gradient-to-r from-accent to-accentViolet-light hover:from-accent-dark hover:to-accentViolet-dark text-white text-sm font-medium rounded-xl transition-all duration-300 flex items-center gap-2 shadow-lg"
-              >
-                <Plus className="w-4 h-4" />
-                Create Event
-              </button>
-            </div>
-
-            {!showEvents ? (
-              <div className="text-center py-10 text-theme-secondary">
-                Events are hidden. Click "Show" to view.
-              </div>
-            ) : upcomingEvents.length === 0 ? (
-              <div className="text-center py-12">
-                <Calendar className="w-12 h-12 text-theme-secondary mx-auto mb-3" />
-                <p className="text-theme-secondary mb-4">No upcoming events</p>
-                <button
-                  onClick={() => onNavigate && onNavigate('discover')}
-                  className="px-6 py-2.5 bg-gradient-to-r from-accent to-accentViolet-light hover:from-accent-dark hover:to-accentViolet-dark text-white text-sm font-medium rounded-xl transition-all duration-300 shadow-lg"
-                >
-                  Explore Events
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {upcomingEvents
-                  .filter((e) => eventsFilter === 'all' || (e.pricing?.type || 'free') === eventsFilter)
-                  .slice(0, 5)
-                  .map((event) => (
-                  <div
+          {/* Community Events section */}
+          <div>
+            <div className="rounded-2xl p-6 themed-card">
                     key={event._id}
                     onClick={() => openEventDetails(event._id)}
                     className="p-4 rounded-xl themed-card hover:shadow-md transition-colors cursor-pointer"

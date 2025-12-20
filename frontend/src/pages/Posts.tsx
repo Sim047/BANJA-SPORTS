@@ -593,17 +593,18 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
 
                       {/* Tags */}
                       {post.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                           {post.tags.slice(0, 3).map((tag, idx) => (
                             <span
                               key={idx}
-                              className="text-xs text-cyan-500 hover:underline cursor-pointer"
+                              className="px-2 py-0.5 rounded-full text-xs text-cyan-600 dark:text-cyan-400"
+                              style={{ border: '1px solid var(--border)' }}
                             >
                               #{tag}
                             </span>
                           ))}
                           {post.tags.length > 3 && (
-                            <span className="text-xs text-theme-secondary">…</span>
+                            <span className="px-2 py-0.5 rounded-full text-xs text-theme-secondary" style={{ border: '1px solid var(--border)' }}>…</span>
                           )}
                         </div>
                       )}
@@ -855,7 +856,7 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                   )}
 
                   {/* Add Comment */}
-                  <div className="flex items-center gap-2 pt-2">
+                  <div className="flex items-center gap-2 pt-3 mt-1 border-t rounded-xl" style={{ borderColor: 'var(--border)' }}>
                     <input
                       type="text"
                       placeholder="Add a comment..."

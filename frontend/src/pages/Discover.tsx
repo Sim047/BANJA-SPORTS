@@ -1560,8 +1560,8 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
                   </div>
                     <div className="grid grid-cols-2 gap-2">
                       <button
-                        onClick={(e) => { e.stopPropagation(); onStartConversation(post.author?._id); }}
-                        className="btn w-full text-sm justify-center"
+                        onClick={(e) => { e.stopPropagation(); onStartConversation && onStartConversation(post.author?._id); }}
+                        className="px-3 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg text-sm font-medium w-full"
                       >
                         Message Author
                       </button>
@@ -1569,7 +1569,7 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
                         <button
                           onClick={(e) => { e.stopPropagation(); handleLeaveOther(post._id); }}
                           disabled={!!joiningOther[post._id]}
-                          className="btn w-full text-sm justify-center"
+                          className="px-3 py-2 bg-slate-700 hover:bg-slate-800 text-white rounded-lg text-sm font-medium w-full"
                         >
                           Leave
                         </button>
@@ -1577,7 +1577,7 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
                         <button
                           onClick={(e) => { e.stopPropagation(); handleJoinOther(post._id); }}
                           disabled={!!joiningOther[post._id]}
-                          className="btn w-full text-sm justify-center"
+                          className="px-3 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg text-sm font-medium w-full"
                         >
                           Join
                         </button>
@@ -1626,16 +1626,51 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
                       <span className="px-2 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/20 border border-emerald-600/30 text-emerald-300">Joined</span>
                     ) : null}
                   </div>
+                  {/* Author Info (uniform with Sports Events) */}
+                  {selectedOther.author && (
+                    <div className="bg-white/5 backdrop-blur rounded-xl p-4 mb-4">
+                      <div className="flex items-center justify-between">
+                        <div
+                          className="flex items-center gap-3 cursor-pointer hover:bg-white/5 rounded-lg p-2 -m-2 transition-colors"
+                          onClick={() => onViewProfile && onViewProfile(selectedOther.author._id)}
+                        >
+                          <img
+                            src={selectedOther.author.avatar || `https://ui-avatars.com/api/?name=${selectedOther.author.username || 'User'}`}
+                            alt={selectedOther.author.username || 'User'}
+                            className="w-12 h-12 rounded-full border-2 border-cyan-400"
+                          />
+                          <div>
+                            <p className="text-white font-semibold hover:text-cyan-400 transition-colors">
+                              {selectedOther.author.username || 'User'}
+                            </p>
+                            <p className="text-gray-400 text-sm">Post Author · Click to view profile</p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => onStartConversation && onStartConversation(selectedOther.author._id)}
+                          className="flex items-center gap-2 bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-lg font-semibold transition-all shadow-lg"
+                        >
+                          Message Author
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-2 gap-2">
-                    <button className="btn w-full text-sm justify-center" onClick={() => onStartConversation(selectedOther.author?._id)}>
-                      Message Author
-                    </button>
                     {(selectedOther.participants || []).some((p: any) => p?._id === currentUser._id || p === currentUser._id) ? (
-                      <button className="btn w-full text-sm justify-center" disabled={!!joiningOther[selectedOther._id]} onClick={() => handleLeaveOther(selectedOther._id)}>
+                      <button
+                        className="px-3 py-2 bg-slate-700 hover:bg-slate-800 text-white rounded-lg text-sm font-medium"
+                        disabled={!!joiningOther[selectedOther._id]}
+                        onClick={() => handleLeaveOther(selectedOther._id)}
+                      >
                         Leave
                       </button>
                     ) : (
-                      <button className="btn w-full text-sm justify-center" disabled={!!joiningOther[selectedOther._id]} onClick={() => handleJoinOther(selectedOther._id)}>
+                      <button
+                        className="px-3 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg text-sm font-medium"
+                        disabled={!!joiningOther[selectedOther._id]}
+                        onClick={() => handleJoinOther(selectedOther._id)}
+                      >
                         Join
                       </button>
                     )}

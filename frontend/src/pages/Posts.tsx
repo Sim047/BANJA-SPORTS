@@ -69,6 +69,8 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
   const [showAllComments, setShowAllComments] = useState<Record<string, boolean>>({});
   const [expandedReplies, setExpandedReplies] = useState<Record<string, boolean>>({});
   const [commentBoxOpen, setCommentBoxOpen] = useState<Record<string, boolean>>({});
+  const [expandedCommentText, setExpandedCommentText] = useState<Record<string, boolean>>({});
+  const [expandedReplyText, setExpandedReplyText] = useState<Record<string, Record<number, boolean>>>({});
   
   // Reply state
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
@@ -777,9 +779,26 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                                           <span className="font-semibold text-sm text-heading mr-2">
                                             {comment.user.username}
                                           </span>
-                                          <span className="text-sm text-theme-secondary">
-                                            {comment.text}
-                                          </span>
+                                          <div className="text-sm text-theme-secondary">
+                                            <div
+                                              style={{
+                                                display: expandedCommentText[comment._id] ? 'block' : '-webkit-box',
+                                                WebkitLineClamp: expandedCommentText[comment._id] ? undefined : 4,
+                                                WebkitBoxOrient: 'vertical' as any,
+                                                overflow: expandedCommentText[comment._id] ? 'visible' : 'hidden'
+                                              }}
+                                            >
+                                              {comment.text}
+                                            </div>
+                                            {comment.text && comment.text.length > 200 && (
+                                              <button
+                                                className="mt-1 text-xs text-cyan-600 dark:text-cyan-400 hover:opacity-80"
+                                                onClick={() => setExpandedCommentText((prev) => ({ ...prev, [comment._id]: !prev[comment._id] }))}
+                                              >
+                                                {expandedCommentText[comment._id] ? 'See less' : 'See more'}
+                                              </button>
+                                            )}
+                                          </div>
                                           <div className="flex items-center gap-3 mt-1">
                                             <span className="text-xs text-theme-secondary">
                                               {formatTimestamp(comment.createdAt)}
@@ -861,9 +880,32 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                                                   <span className="font-semibold text-xs text-heading mr-1">
                                                     {reply.user.username}
                                                   </span>
-                                                  <span className="text-xs text-theme-secondary">
-                                                    {reply.text}
-                                                  </span>
+                                                  <div className="text-xs text-theme-secondary">
+                                                    <div
+                                                      style={{
+                                                        display: (expandedReplyText[comment._id]?.[idx]) ? 'block' : '-webkit-box',
+                                                        WebkitLineClamp: (expandedReplyText[comment._id]?.[idx]) ? undefined : 3,
+                                                        WebkitBoxOrient: 'vertical' as any,
+                                                        overflow: (expandedReplyText[comment._id]?.[idx]) ? 'visible' : 'hidden'
+                                                      }}
+                                                    >
+                                                      {reply.text}
+                                                    </div>
+                                                    {reply.text && reply.text.length > 160 && (
+                                                      <button
+                                                        className="mt-0.5 text-[10px] text-cyan-600 dark:text-cyan-400 hover:opacity-80"
+                                                        onClick={() => setExpandedReplyText((prev) => ({
+                                                          ...prev,
+                                                          [comment._id]: {
+                                                            ...(prev[comment._id] || {}),
+                                                            [idx]: !((prev[comment._id] || {})[idx])
+                                                          }
+                                                        }))}
+                                                      >
+                                                        {(expandedReplyText[comment._id]?.[idx]) ? 'See less' : 'See more'}
+                                                      </button>
+                                                    )}
+                                                  </div>
                                                   <div className="text-xs text-theme-secondary mt-0.5">
                                                     {formatTimestamp(reply.createdAt)}
                                                   </div>

@@ -184,10 +184,7 @@ export default function Dashboard({ token, onNavigate, onViewProfile }: any) {
     const saved = localStorage.getItem('auralink-dashboard-show-events');
     return saved ? JSON.parse(saved) : false;
   });
-  // Global Search Component
-  <div className="rounded-2xl p-4 themed-card">
-    <GlobalSearch token={token} onNavigate={onNavigate} />
-  </div>
+  // (Removed duplicate GlobalSearch render) Only render inside the main layout below.
   const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState<any[]>([]);
     // Persist dashboard UI state

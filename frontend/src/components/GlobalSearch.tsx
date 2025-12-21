@@ -196,7 +196,7 @@ export default function GlobalSearch({ token, onNavigate, onViewProfile }: Globa
           className={
             isMobile
               ? "fixed inset-0 z-40 p-4"
-              : "absolute left-0 right-0 mt-2 rounded-2xl border p-4 z-20 themed-card"
+              : "absolute left-0 right-0 mt-2 rounded-2xl border p-4 z-30 themed-card"
           }
           style={isMobile ? { background: 'var(--page)' } : { borderColor: 'var(--border)' }}
         >
@@ -257,9 +257,11 @@ export default function GlobalSearch({ token, onNavigate, onViewProfile }: Globa
               </div>
             </>
           )}
-          {/* Backdrop click to close on mobile */}
-          {isMobile && (
+          {/* Backdrop click to close; provide desktop backdrop too */}
+          {isMobile ? (
             <div className="fixed inset-0 -z-10" onClick={handleClose} />
+          ) : (
+            <div className="fixed inset-0 z-20 bg-black/30" onClick={handleClose} />
           )}
         </div>
       )}

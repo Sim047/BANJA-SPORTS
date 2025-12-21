@@ -15,12 +15,27 @@ export default function ConversationsList({
   onShowProfile,
   onlineUsers,
 }: any) {
-  const [conversations, setConversations] = useState([]);
+  const [conversations, setConversations] = useState<any[]>([]);
   const [totalUnread, setTotalUnread] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState<string>("");
+  const [showAll, setShowAll] = useState<boolean>(false);
 
   useEffect(() => {
     if (!token) return;
+    // Show cached conversations instantly for perceived performance
+    try {
+      const cached = localStorage.getItem("auralink-conversations-cache");
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed)) {
+          const sorted = sortConversations(parsed);
+          setConversations(sorted);
+          setTotalUnread(sorted.reduce((sum: number, c: any) => sum + (c.unreadCount || 0), 0));
+          setLoading(true); // still fetch fresh data
+        }
+      }
+    } catch {}
     loadConversations();
   }, [token]);
 
@@ -31,22 +46,31 @@ export default function ConversationsList({
         headers: { Authorization: "Bearer " + token },
       })
       .then((r) => {
-        const convs = r.data || [];
-        setConversations(convs);
-        
-        // Calculate total unread - only from conversations that actually exist
-        const total = convs.reduce((sum: number, c: any) => sum + (c.unreadCount || 0), 0);
+        const convs = Array.isArray(r.data) ? r.data : (r.data || []);
+        const sorted = sortConversations(convs);
+        setConversations(sorted);
+        localStorage.setItem("auralink-conversations-cache", JSON.stringify(sorted));
+        const total = sorted.reduce((sum: number, c: any) => sum + (c.unreadCount || 0), 0);
         setTotalUnread(total);
-        console.log(`[ConversationsList] Loaded ${convs.length} conversations, ${total} unread`);
       })
       .catch((err) => {
         console.error("ConversationsList error:", err);
-        setConversations([]);
-        setTotalUnread(0);
+        // keep any cached list rather than clearing to empty
       })
       .finally(() => {
         setLoading(false);
       });
+  }
+
+  function sortConversations(list: any[]) {
+    return [...list].sort((a, b) => {
+      const aUnread = a.unreadCount || 0;
+      const bUnread = b.unreadCount || 0;
+      if (aUnread !== bUnread) return bUnread - aUnread;
+      const aTime = new Date(a.updatedAt || a.lastMessage?.createdAt || 0).getTime();
+      const bTime = new Date(b.updatedAt || b.lastMessage?.createdAt || 0).getTime();
+      return bTime - aTime;
+    });
   }
 
   function avatarUrl(u: any) {
@@ -90,6 +114,24 @@ export default function ConversationsList({
     }
   }
 
+  const filtered = React.useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return conversations;
+    return conversations.filter((c: any) => {
+      const partner = (c.participants || []).find((p: any) => String(p._id) !== String(currentUserId));
+      const u = partner || {};
+      return (
+        String(u.username || "").toLowerCase().includes(q) ||
+        String(u.email || "").toLowerCase().includes(q)
+      );
+    });
+  }, [conversations, query, currentUserId]);
+
+  const visible = React.useMemo(() => {
+    if (showAll) return filtered;
+    return filtered.slice(0, 50);
+  }, [filtered, showAll]);
+
   return (
     <div className="flex flex-col gap-2 sm:gap-3">
       {/* Total Unread Badge - only show if there are actual conversations with unread messages */}
@@ -99,9 +141,35 @@ export default function ConversationsList({
         </div>
       )}
 
+      {/* Search + Controls */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <input
+          className="input w-full sm:w-64"
+          placeholder="Search conversations"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+        {filtered.length > 50 && (
+          <button className="text-xs px-3 py-1.5 rounded-md border" style={{ borderColor: 'var(--border)' }} onClick={() => setShowAll((v) => !v)}>
+            {showAll ? 'Show first 50' : `Show all (${filtered.length})`}
+          </button>
+        )}
+      </div>
+
       {loading ? (
-        <div className="text-center py-12 text-slate-600 dark:text-slate-400">
-          Loading conversations...
+        <div className="space-y-2">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="p-3 rounded-lg border animate-pulse" style={{ borderColor: 'var(--border)' }}>
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-md" style={{ background: 'var(--muted)' }} />
+                <div className="flex-1 space-y-2">
+                  <div className="h-3 w-1/3 rounded" style={{ background: 'var(--muted)' }} />
+                  <div className="h-3 w-1/4 rounded" style={{ background: 'var(--muted)' }} />
+                </div>
+                <div className="h-8 w-24 rounded" style={{ background: 'var(--muted)' }} />
+              </div>
+            </div>
+          ))}
         </div>
       ) : conversations.length === 0 ? (
         <div className="text-center py-12 text-slate-600 dark:text-slate-400">
@@ -110,7 +178,7 @@ export default function ConversationsList({
           <div className="text-xs mt-2">Start chatting with users from the All Users page</div>
         </div>
       ) : (
-        conversations.map((c: any) => {
+        visible.map((c: any) => {
           const partner = (c.participants || []).find(
             (p: any) => String(p._id) !== String(currentUserId)
           );
@@ -173,7 +241,7 @@ export default function ConversationsList({
                   className="flex-1 sm:flex-none px-4 py-2 rounded-md bg-gradient-to-r from-cyan-400 to-purple-500 text-white text-sm font-medium hover:shadow-md transition-shadow"
                   onClick={() => onOpenConversation(c)}
                 >
-                  Open Chat
+                  {c.unreadCount > 0 ? 'Open Chat (' + c.unreadCount + ')' : 'Open Chat'}
                 </button>
 
                 {/* Options Menu */}

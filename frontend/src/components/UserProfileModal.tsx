@@ -18,6 +18,10 @@ export default function UserProfileModal({
   const [followState, setFollowState] = React.useState(user.isFollowed);
   const [details, setDetails] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(true);
+  const [tab, setTab] = React.useState<"events" | "posts">("events");
+  const [events, setEvents] = React.useState<any[]>([]);
+  const [posts, setPosts] = React.useState<any[]>([]);
+  const [loadingContent, setLoadingContent] = React.useState(false);
 
   React.useEffect(() => {
     if (!token || !user) return;
@@ -33,6 +37,22 @@ export default function UserProfileModal({
       })
       .catch(() => setLoading(false));
   }, [user, token]);
+
+  React.useEffect(() => {
+    if (!user || !visible) return;
+    setLoadingContent(true);
+    const headers = token ? { Authorization: "Bearer " + token } : undefined;
+    const eventsReq = axios.get(`${API}/api/events/user/${user._id}`, headers ? { headers } : {});
+    const postsReq = axios.get(`${API}/api/posts/user/${user._id}`, headers ? { headers } : {});
+    Promise.allSettled([eventsReq, postsReq])
+      .then((results) => {
+        const ev = results[0].status === "fulfilled" ? (results[0] as any).value.data.events || [] : [];
+        const po = results[1].status === "fulfilled" ? (results[1] as any).value.data || [] : [];
+        setEvents(ev);
+        setPosts(po);
+      })
+      .finally(() => setLoadingContent(false));
+  }, [user, visible, token]);
 
   async function toggleFollow() {
     try {
@@ -151,6 +171,65 @@ export default function UserProfileModal({
               </button>
             </div>
           )}
+
+          {/* Content Tabs */}
+          <div className="mt-2">
+            <div className="flex items-center gap-2 mb-3">
+              <button
+                className={`px-3 py-2 rounded-xl text-sm font-semibold transition-colors ${tab === "events" ? "bg-cyan-600 text-white" : "bg-white/10 text-gray-300 hover:bg-white/20"}`}
+                onClick={() => setTab("events")}
+              >
+                Events {events.length ? `(${events.length})` : ""}
+              </button>
+              <button
+                className={`px-3 py-2 rounded-xl text-sm font-semibold transition-colors ${tab === "posts" ? "bg-purple-600 text-white" : "bg-white/10 text-gray-300 hover:bg-white/20"}`}
+                onClick={() => setTab("posts")}
+              >
+                Posts {posts.length ? `(${posts.length})` : ""}
+              </button>
+            </div>
+
+            {loadingContent ? (
+              <div className="text-center py-6 text-gray-400">Loading {tab}...</div>
+            ) : tab === "events" ? (
+              <div className="space-y-3 max-h-64 overflow-auto pr-1">
+                {events.length === 0 ? (
+                  <div className="text-center text-gray-400 text-sm py-6">No events yet</div>
+                ) : (
+                  events.map((ev: any) => (
+                    <div key={ev._id} className="bg-white/5 rounded-xl p-3 border border-white/10 hover:border-cyan-500/40 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <img src={ev.image || PLACEHOLDER} alt={ev.title} className="w-12 h-12 rounded-lg object-cover" />
+                        <div className="flex-1">
+                          <div className="text-white font-semibold text-sm">{ev.title || "Untitled Event"}</div>
+                          <div className="text-xs text-gray-400">{ev.location || ""}</div>
+                          <div className="text-xs text-cyan-300">{ev.startDate ? new Date(ev.startDate).toLocaleDateString() : ""}</div>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            ) : (
+              <div className="space-y-3 max-h-64 overflow-auto pr-1">
+                {posts.length === 0 ? (
+                  <div className="text-center text-gray-400 text-sm py-6">No posts yet</div>
+                ) : (
+                  posts.map((po: any) => (
+                    <div key={po._id} className="bg-white/5 rounded-xl p-3 border border-white/10 hover:border-purple-500/40 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <img src={po.imageUrl || PLACEHOLDER} alt={po.title || "Post"} className="w-12 h-12 rounded-lg object-cover" />
+                        <div className="flex-1">
+                          <div className="text-white font-semibold text-sm">{po.title || "Post"}</div>
+                          <div className="text-xs text-gray-400 line-clamp-2">{po.caption || ""}</div>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
 
           {/* Close Button */}
           <button

@@ -23,6 +23,20 @@ router.get("/", async (req, res) => {
   }
 });
 
+// GET /api/events/user/:userId - list published events organized by a specific user
+router.get("/user/:userId", async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const events = await Event.find({ status: "published", organizer: userId })
+      .populate("organizer", "username avatar")
+      .sort({ startDate: -1 });
+    res.json({ events });
+  } catch (err) {
+    console.error("Get events by user error:", err);
+    res.status(500).json({ error: "Failed to fetch user's events" });
+  }
+});
+
 // GET /api/events/my/created - events organized by current user
 router.get("/my/created", auth, async (req, res) => {
   try {

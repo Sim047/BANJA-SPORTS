@@ -45,9 +45,19 @@ export default function UserContent({ token, onNavigate }: any) {
   }, [tab, userId]);
 
   useEffect(() => {
+    // If user chooses 'Other' under events, auto-switch to Posts tab
+    if (tab === 'events' && eventFilter === 'Other') return;
     if (!userId || !hasMore || loading) return;
     loadPage(page);
   }, [page, userId, tab]);
+
+  // Auto-switch to Posts when selecting 'Other' in Events filter
+  useEffect(() => {
+    if (tab === 'events' && eventFilter === 'Other') {
+      setTab('posts');
+      try { localStorage.setItem('auralink-user-content-tab', 'posts'); } catch {}
+    }
+  }, [eventFilter, tab]);
 
   function loadPage(p: number) {
     setLoading(true);

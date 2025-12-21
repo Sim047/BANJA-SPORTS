@@ -208,9 +208,17 @@ function WebScreen({ navigation }: any) {
         domStorageEnabled
         cacheEnabled={false}
         pullToRefreshEnabled={true}
+        mixedContentMode="always"
+        thirdPartyCookiesEnabled
+        javaScriptCanOpenWindowsAutomatically
+        allowsFullscreenVideo
+        onHttpError={(e) => {
+          console.warn('WebView HTTP error', e?.nativeEvent);
+        }}
         injectedJavaScriptBeforeContentLoaded={`(function(){
           try {
             ${authScript}
+            try { window.ReactNativeWebView && window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'debug', token: localStorage.getItem('token') ? 'set' : 'missing', api: (window.__API_URL || localStorage.getItem('API_URL') || 'unset'), href: location.href })); } catch(_e){}
             if (!window.__RN_NAV_DEPTH) window.__RN_NAV_DEPTH = 1;
             function post(){
               try { window.ReactNativeWebView && window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'nav', depth: window.__RN_NAV_DEPTH, href: location.href })); } catch(e) {}

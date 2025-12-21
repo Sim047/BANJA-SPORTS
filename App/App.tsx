@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView, View, Text, TextInput, Button, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { SafeAreaView, View, Text, TextInput, Button, StyleSheet, FlatList, TouchableOpacity, BackHandler } from 'react-native';
 import Constants from 'expo-constants';
 import { WebView } from 'react-native-webview';
 import { api } from './src/api';
@@ -124,11 +124,42 @@ function DiscoverScreen({ navigation }: any) {
   );
 }
 
-function WebScreen() {
+function WebScreen({ navigation }: any) {
   const webUrl = (process.env.EXPO_PUBLIC_WEB_URL as string) || (Constants.expoConfig?.extra as any)?.webUrl || 'http://localhost:5173';
+  const webRef = React.useRef<WebView>(null);
+  const [canGoBack, setCanGoBack] = useState(false);
+
+  useEffect(() => {
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+      try {
+        if (canGoBack) {
+          webRef.current?.goBack();
+          return true; // handled by WebView history
+        }
+        if (navigation?.canGoBack?.()) {
+          navigation.goBack();
+          return true; // handled by navigation stack
+        }
+        // At root with no history: navigate to Discover instead of exiting app
+        navigation?.navigate?.('Discover');
+        return true;
+      } catch {
+        return false;
+      }
+    });
+    return () => sub.remove();
+  }, [canGoBack, navigation]);
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}>
-      <WebView source={{ uri: webUrl }} startInLoadingState javaScriptEnabled domStorageEnabled />
+      <WebView
+        ref={webRef}
+        source={{ uri: webUrl }}
+        startInLoadingState
+        javaScriptEnabled
+        domStorageEnabled
+        onNavigationStateChange={(navState) => setCanGoBack(!!navState.canGoBack)}
+      />
     </SafeAreaView>
   );
 }

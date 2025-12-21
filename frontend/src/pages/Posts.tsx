@@ -80,6 +80,10 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
     if (token) loadPosts();
   }, [token]);
 
+  const currentUser = React.useMemo(() => {
+    try { return JSON.parse(localStorage.getItem("user") || "{}"); } catch { return {}; }
+  }, []);
+
   useEffect(() => {
     const handleScroll = () => {
       setShowScrollTop(window.scrollY > 400);
@@ -188,16 +192,25 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
   }
 
   async function handleLike(postId: string) {
+    // Optimistic toggle
+    const prev = posts;
+    setPosts((list) => list.map((p) => {
+      if (p._id !== postId) return p;
+      const liked = p.likes.includes(currentUserId);
+      return { ...p, likes: liked ? p.likes.filter((id) => id !== currentUserId) : [...p.likes, currentUserId] };
+    }));
+
     try {
       const res = await axios.post(
         `${API}/api/posts/${postId}/like`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
-      setPosts(posts.map((p) => (p._id === postId ? res.data : p)));
+      setPosts((list) => list.map((p) => (p._id === postId ? res.data : p)));
     } catch (err) {
       console.error("Failed to like post:", err);
+      // Revert on error
+      setPosts(prev);
     }
   }
 
@@ -205,17 +218,33 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
     const text = commentTexts[postId]?.trim();
     if (!text) return;
 
+    // Optimistic add
+    const prev = posts;
+    const tempId = `temp-${Date.now()}`;
+    const tempComment = {
+      _id: tempId,
+      user: { _id: currentUserId, username: currentUser?.username || "You", avatar: currentUser?.avatar },
+      text,
+      likes: [],
+      replies: [],
+      createdAt: new Date().toISOString(),
+    } as any;
+
+    setPosts((list) => list.map((p) => p._id === postId ? { ...p, comments: [...p.comments, tempComment] } : p));
+    setCommentTexts({ ...commentTexts, [postId]: "" });
+
     try {
       const res = await axios.post(
         `${API}/api/posts/${postId}/comment`,
         { text },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
-      setPosts(posts.map((p) => (p._id === postId ? res.data : p)));
-      setCommentTexts({ ...commentTexts, [postId]: "" });
+      setPosts((list) => list.map((p) => (p._id === postId ? res.data : p)));
     } catch (err) {
       console.error("Failed to add comment:", err);
+      // Revert and restore input
+      setPosts(prev);
+      setCommentTexts({ ...commentTexts, [postId]: text });
     }
   }
 
@@ -324,34 +353,71 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
   }
 
   async function handleLikeComment(postId: string, commentId: string) {
+    // Optimistic toggle
+    const prev = posts;
+    setPosts((list) => list.map((p) => {
+      if (p._id !== postId) return p;
+      return {
+        ...p,
+        comments: p.comments.map((c) => {
+          if (c._id !== commentId) return c;
+          const likes = c.likes || [];
+          const liked = likes.includes(currentUserId);
+          return { ...c, likes: liked ? likes.filter((id) => id !== currentUserId) : [...likes, currentUserId] };
+        })
+      };
+    }));
+
     try {
       const res = await axios.post(
         `${API}/api/posts/${postId}/comment/${commentId}/like`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setPosts(posts.map((p) => (p._id === postId ? res.data : p)));
+      setPosts((list) => list.map((p) => (p._id === postId ? res.data : p)));
     } catch (err) {
       console.error("Failed to like comment:", err);
-      alert("Failed to like comment");
+      setPosts(prev);
     }
   }
 
   async function handleReplyToComment(postId: string, commentId: string) {
     if (!replyText.trim()) return;
 
+    const text = replyText.trim();
+    const prev = posts;
+    const tempReply = {
+      user: { _id: currentUserId, username: currentUser?.username || "You", avatar: currentUser?.avatar },
+      text,
+      createdAt: new Date().toISOString(),
+      _id: `tempreply-${Date.now()}`,
+    } as any;
+
+    // Optimistic add
+    setPosts((list) => list.map((p) => {
+      if (p._id !== postId) return p;
+      return {
+        ...p,
+        comments: p.comments.map((c) => c._id === commentId ? { ...c, replies: [...(c.replies || []), tempReply] } : c)
+      };
+    }));
+    setReplyingTo(null);
+    setReplyText("");
+
     try {
       const res = await axios.post(
         `${API}/api/posts/${postId}/comment/${commentId}/reply`,
-        { text: replyText },
+        { text },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setPosts(posts.map((p) => (p._id === postId ? res.data : p)));
-      setReplyingTo(null);
-      setReplyText("");
+      setPosts((list) => list.map((p) => (p._id === postId ? res.data : p)));
     } catch (err) {
       console.error("Failed to reply to comment:", err);
       alert("Failed to reply to comment");
+      setPosts(prev);
+      // Optionally restore reply draft
+      setReplyingTo(commentId);
+      setReplyText(text);
     }
   }
 

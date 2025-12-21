@@ -155,10 +155,16 @@ function WebScreen({ navigation }: any) {
           userJson = "{}";
         }
         const script = `try{ 
-          try{ localStorage.removeItem('token'); localStorage.removeItem('user'); localStorage.removeItem('API_URL'); }catch(e){}
+          try{
+            if (!sessionStorage.getItem('auralinkClearedOnce')) {
+              localStorage.clear();
+              sessionStorage.setItem('auralinkClearedOnce','true');
+            }
+          }catch(e){}
           localStorage.setItem('token', ${JSON.stringify(token)});
           localStorage.setItem('user', ${typeof userJson === 'string' ? userJson : JSON.stringify(userJson)});
           ${apiBase ? `localStorage.setItem('API_URL', ${JSON.stringify(apiBase)}); window.__API_URL = ${JSON.stringify(apiBase)};` : ''}
+          localStorage.setItem('DEBUG_WEBVIEW','true');
         }catch(e){}`;
         setAuthScript(script);
       } catch { setAuthScript(""); }

@@ -240,6 +240,31 @@ export default function App() {
   const [conversationRefreshKey, setConversationRefreshKey] = useState<number>(0);
   const refreshConversations = () => setConversationRefreshKey((k) => k + 1);
 
+  // Per-message actions dropdown (collapsed by default)
+  const [openMessageActions, setOpenMessageActions] = useState<string | null>(null);
+  const messagePressTimer = useRef<number | null>(null);
+
+  function startMessagePress(id: string) {
+    try {
+      if (messagePressTimer.current) {
+        window.clearTimeout(messagePressTimer.current);
+        messagePressTimer.current = null;
+      }
+      messagePressTimer.current = window.setTimeout(() => {
+        setOpenMessageActions(id);
+      }, 500) as any;
+    } catch {}
+  }
+
+  function cancelMessagePress() {
+    try {
+      if (messagePressTimer.current) {
+        window.clearTimeout(messagePressTimer.current);
+        messagePressTimer.current = null;
+      }
+    } catch {}
+  }
+
 function shouldShowAvatar(index: number) {
   if (index === 0) return true;
   return (
@@ -414,7 +439,11 @@ function onMyStatusUpdated(newStatus: any) {
     });
 
     socket.on("message_status_update", (updatedMsg: any) => {
-      setMessages((m) => m.map((x) => (x._id === updatedMsg._id ? updatedMsg : x)));
+      setMessages((m) => {
+        const next = m.map((x) => (x._id === updatedMsg._id ? updatedMsg : x));
+        computeUnreadIndex(next);
+        return next;
+      });
     });
 
     socket.on("reaction_update", (msg: any) => {
@@ -1018,6 +1047,16 @@ function onMyStatusUpdated(newStatus: any) {
     const element = e.currentTarget;
     const isNearBottom = element.scrollHeight - element.scrollTop - element.clientHeight < 200;
     setShowScrollButton(!isNearBottom);
+    // Hide unread marker once it has been scrolled into view/past
+    try {
+      if (unreadRef.current && messagesSectionRef.current) {
+        const markerRect = unreadRef.current.getBoundingClientRect();
+        const containerRect = messagesSectionRef.current.getBoundingClientRect();
+        if (markerRect.top <= containerRect.top + 32) {
+          setUnreadIndex(-1);
+        }
+      }
+    } catch {}
   };
 
   // Compute unread separator position based on read receipts
@@ -1085,6 +1124,11 @@ function onMyStatusUpdated(newStatus: any) {
               opacity: ready ? 1 : 0,
               transform: ready ? "translateY(0)" : "translateY(6px)"
             }}
+            onMouseDown={() => startMessagePress(m._id)}
+            onMouseUp={cancelMessagePress}
+            onMouseLeave={cancelMessagePress}
+            onTouchStart={() => startMessagePress(m._id)}
+            onTouchEnd={cancelMessagePress}
           >
             {String(m.sender?._id) !== String(user?._id) ? (
               showAvatar ? (
@@ -1136,6 +1180,16 @@ function onMyStatusUpdated(newStatus: any) {
                     <span className="opacity-80">{senderStatus.mood}</span>
                   </span>
                 )}
+
+                {/* Collapsed actions toggle */}
+                <button
+                  className="ml-2 text-xs px-2 py-1 rounded-md border hover:bg-slate-100 dark:hover:bg-slate-800"
+                  style={{ borderColor: 'var(--border)' }}
+                  onClick={(e) => { e.stopPropagation(); setOpenMessageActions(openMessageActions === m._id ? null : m._id); }}
+                  title="Message actions"
+                >
+                  ⋯
+                </button>
               </div>
 
               {m.fileUrl && (
@@ -1189,29 +1243,42 @@ function onMyStatusUpdated(newStatus: any) {
                 </>
               )}
 
-              <div className="flex gap-2 mt-2 items-center text-sm">
-                {["❤️", "🔥", "😂", "😔"].map((emoji) => (
-                  <button
-                    key={emoji}
-                    className={clsx(
-                      "px-2 py-1 rounded-full border",
-                      hasReacted(m, emoji) && "reacted"
-                    )}
-                    onClick={() => toggleReaction(m, emoji)}
-                  >
-                    {emoji} {reactionCount(m, emoji) || ""}
-                  </button>
-                ))}
+              {openMessageActions === m._id && (
+                <div
+                  className="mt-2 p-2 rounded-lg border bg-white dark:bg-slate-800 flex flex-wrap items-center gap-2 text-sm"
+                  style={{ borderColor: 'var(--border)' }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {["❤️", "🔥", "😂", "😔"].map((emoji) => (
+                    <button
+                      key={emoji}
+                      className={clsx(
+                        "px-2 py-1 rounded-full border",
+                        hasReacted(m, emoji) && "reacted"
+                      )}
+                      onClick={() => toggleReaction(m, emoji)}
+                    >
+                      {emoji} {reactionCount(m, emoji) || ""}
+                    </button>
+                  ))}
 
-                {String(m.sender?._id) === String(user?._id) && (
-                  <div className="ml-4 flex gap-2 text-xs">
-                    <button onClick={() => startEdit(m)}>Edit</button>
-                    <button onClick={() => deleteMessage(m._id)}>
-                      Delete
+                  {String(m.sender?._id) === String(user?._id) && (
+                    <div className="ml-2 flex gap-2 text-xs">
+                      <button onClick={() => startEdit(m)}>Edit</button>
+                      <button onClick={() => deleteMessage(m._id)}>Delete</button>
+                    </div>
+                  )}
+
+                  <div className="ml-auto">
+                    <button
+                      className="text-xs px-2 py-1 rounded-md hover:opacity-80"
+                      onClick={() => setOpenMessageActions(null)}
+                    >
+                      Close
                     </button>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           </div>
         </Fragment>

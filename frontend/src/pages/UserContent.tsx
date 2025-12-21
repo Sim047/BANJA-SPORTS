@@ -16,6 +16,14 @@ export default function UserContent({ token, onNavigate }: any) {
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState<number | null>(null);
   const [search, setSearch] = useState<string>("");
+  const [eventFilter, setEventFilter] = useState<string>("All"); // All | Other | specific sport
+  const SPORTS = [
+    "Football/Soccer",
+    "Basketball",
+    "Tennis",
+    "Swimming",
+    "Athletics/Track & Field",
+  ];
   // Event filter removed for simplicity
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
@@ -38,9 +46,19 @@ export default function UserContent({ token, onNavigate }: any) {
   }, [tab, userId]);
 
   useEffect(() => {
+    // When 'Other' selected under Events, don't load events; we'll switch to Posts
+    if (tab === 'events' && eventFilter === 'Other') return;
     if (!userId || !hasMore || loading) return;
     loadPage(page);
   }, [page, userId, tab]);
+
+  // Auto-switch to Posts when selecting 'Other' under Events
+  useEffect(() => {
+    if (tab === 'events' && eventFilter === 'Other') {
+      setTab('posts');
+      try { localStorage.setItem('auralink-user-content-tab', 'posts'); } catch {}
+    }
+  }, [eventFilter, tab]);
 
   function loadPage(p: number) {
     setLoading(true);
@@ -49,8 +67,12 @@ export default function UserContent({ token, onNavigate }: any) {
     const isEvents = tab === 'events';
     const isPosts = tab === 'posts';
     const searchParam = search.trim() ? `&search=${encodeURIComponent(search.trim())}` : '';
+    const isSportsSelection = isEvents && SPORTS.includes(eventFilter);
+    const isOtherSelection = isEvents && eventFilter === 'Other';
+    const sportParam = isSportsSelection ? `&sport=${encodeURIComponent(eventFilter)}` : '';
+    const categoryParam = isOtherSelection ? `&category=other` : (isSportsSelection ? `&category=sports` : '');
     const url = tab === "events"
-      ? `${API}/api/events/user/${userId}?page=${p}&limit=${limit}${searchParam}`
+      ? `${API}/api/events/user/${userId}?page=${p}&limit=${limit}${sportParam}${categoryParam}${searchParam}`
       : `${API}/api/posts/user/${userId}?page=${p}&limit=${limit}${searchParam}`;
     axios
       .get(url, { headers })
@@ -134,7 +156,23 @@ export default function UserContent({ token, onNavigate }: any) {
             className="rounded-xl flex-1 min-w-[220px] px-3 py-2 border"
             style={{ borderColor: 'var(--border)', background: 'var(--card)', color: 'var(--text)' }}
           />
-          {/* Event filter removed */}
+          {tab === 'events' && (
+            <select
+              value={eventFilter}
+              onChange={(e) => { setEventFilter(e.target.value); setItems([]); setPage(1); setHasMore(true); }}
+              className="rounded-xl min-w-[200px] px-3 py-2 border"
+              style={{ borderColor: 'var(--border)', background: 'var(--card)', color: 'var(--text)' }}
+              aria-label="Event filter"
+            >
+              <option>All</option>
+              <option>Other</option>
+              <optgroup label="Sports">
+                {SPORTS.map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </optgroup>
+            </select>
+          )}
         </div>
 
         <div className="space-y-3">

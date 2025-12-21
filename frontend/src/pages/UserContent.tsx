@@ -197,7 +197,7 @@ export default function UserContent({ token, onNavigate }: any) {
             Posts
           </button>
 
-          {/* Unified search + filter */}
+          {/* Search */}
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -206,23 +206,7 @@ export default function UserContent({ token, onNavigate }: any) {
             className="rounded-xl flex-1 min-w-[220px] px-3 py-2 border"
             style={{ borderColor: 'var(--border)', background: 'var(--card)', color: 'var(--text)' }}
           />
-          {tab === 'events' && (
-            <select
-              value={eventFilter}
-              onChange={(e) => { setEventFilter(e.target.value); setItems([]); setPage(1); setHasMore(true); }}
-              className="rounded-xl min-w-[200px] px-3 py-2 border"
-              style={{ borderColor: 'var(--border)', background: 'var(--card)', color: 'var(--text)' }}
-              aria-label="Event filter"
-            >
-              <option>All</option>
-              <option>Other</option>
-              <optgroup label="Sports">
-                {SPORTS.map((s) => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </optgroup>
-            </select>
-          )}
+          {/* Event filter removed */}
         </div>
 
         <div className="space-y-3">

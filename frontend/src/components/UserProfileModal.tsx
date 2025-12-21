@@ -29,7 +29,7 @@ export default function UserProfileModal({
 
     setLoading(true);
     axios
-      .get(API + "/api/users/profile/" + user._id, {
+      .get(API + "/api/users/" + user._id, {
         headers: { Authorization: "Bearer " + token }
       })
       .then((r) => {
@@ -84,6 +84,17 @@ export default function UserProfileModal({
     if (user.avatar.startsWith("http")) return user.avatar;
     if (user.avatar.startsWith("/")) return API + user.avatar;
     return API + "/uploads/" + user.avatar;
+  }
+
+  function formatLocation(loc: any): string {
+    try {
+      if (!loc) return "";
+      if (typeof loc === "string") return loc;
+      const parts = [loc.name, loc.city, loc.state, loc.country].filter(Boolean);
+      return parts.join(", ");
+    } catch {
+      return "";
+    }
   }
 
   return (
@@ -213,7 +224,7 @@ export default function UserProfileModal({
                         <img src={ev.image || PLACEHOLDER} alt={ev.title} className="w-12 h-12 rounded-lg object-cover" />
                         <div className="flex-1">
                           <div className="text-white font-semibold text-sm">{ev.title || "Untitled Event"}</div>
-                          <div className="text-xs text-gray-400">{ev.location || ""}</div>
+                          <div className="text-xs text-gray-400">{formatLocation(ev.location)}</div>
                           <div className="text-xs text-cyan-300">{ev.startDate ? new Date(ev.startDate).toLocaleDateString() : ""}</div>
                         </div>
                       </div>

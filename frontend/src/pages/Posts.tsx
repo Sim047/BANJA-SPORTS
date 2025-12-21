@@ -79,6 +79,9 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [longPressPostId, setLongPressPostId] = useState<string | null>(null);
   const pressTimerRef = React.useRef<number | null>(null);
+  const [showLongPressHint, setShowLongPressHint] = useState<boolean>(() => {
+    try { return !localStorage.getItem('auralink-hint-posts-longpress'); } catch { return true; }
+  });
 
   function startPostPress(postId: string) {
     try {
@@ -87,6 +90,10 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
         pressTimerRef.current = null;
       }
       pressTimerRef.current = window.setTimeout(() => setLongPressPostId(postId), 500) as any;
+      try {
+        localStorage.setItem('auralink-hint-posts-longpress', 'true');
+        setShowLongPressHint(false);
+      } catch {}
     } catch {}
   }
   function cancelPostPress() {
@@ -515,6 +522,19 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
           </div>
         ) : (
           <div className="space-y-4">
+            {showLongPressHint && (
+              <div className="rounded-lg px-3 py-2 text-xs bg-gradient-to-r from-indigo-500/10 to-emerald-500/10 border" style={{ borderColor: 'var(--border)' }}>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-theme-secondary">Tip: Press and hold a post to edit or delete.</span>
+                  <button
+                    className="text-[11px] px-2 py-1 rounded-md bg-white/60 dark:bg-slate-700/60 hover:opacity-80"
+                    onClick={() => { try { localStorage.setItem('auralink-hint-posts-longpress', 'true'); } catch {}; setShowLongPressHint(false); }}
+                  >
+                    Got it
+                  </button>
+                </div>
+              </div>
+            )}
             {posts.map((post) => (
               <div
                 key={post._id}

@@ -1501,7 +1501,7 @@ function onMyStatusUpdated(newStatus: any) {
                       onClick={toggleEnterToSend}
                       className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2 hover:bg-slate-100 dark:hover:bg-slate-800"
                     >
-                      <Zap className={clsx('w-4 h-4', enterToSend ? 'text-green-500' : 'text-gray-400')} />
+                      <Zap className={clsx('w-4 h-4', enterToSend ? 'text-indigo-500' : 'text-gray-400')} />
                       <div className="flex-1">
                         <div className="font-medium">Send on Enter</div>
                         <div className="text-xs opacity-70">

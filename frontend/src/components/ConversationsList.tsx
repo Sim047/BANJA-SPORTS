@@ -2,8 +2,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import Avatar from "./Avatar";
-import { Menu } from "@headlessui/react";
-import { MoreVertical, Trash2, MessageSquareOff } from "lucide-react";
+import { Trash2, MessageSquareOff } from "lucide-react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { socket } from "../socket";
@@ -30,6 +29,11 @@ export default function ConversationsList({
   const pollingTimer = React.useRef<number | null>(null);
   const [longPressFor, setLongPressFor] = useState<string | null>(null);
   const pressTimer = useRef<number | null>(null);
+  const [showLongPressHint, setShowLongPressHint] = useState<boolean>(() => {
+    try {
+      return !localStorage.getItem('auralink-hint-conversations-longpress');
+    } catch { return true; }
+  });
 
   // Cache TTL in ms (2 minutes)
   const CACHE_KEY = "auralink-conversations-cache";
@@ -244,6 +248,10 @@ export default function ConversationsList({
       }
       pressTimer.current = window.setTimeout(() => {
         setLongPressFor(id);
+        try {
+          localStorage.setItem('auralink-hint-conversations-longpress', 'true');
+          setShowLongPressHint(false);
+        } catch {}
       }, 500) as any;
     } catch {}
   }
@@ -259,6 +267,22 @@ export default function ConversationsList({
 
   return (
     <div className="flex flex-col gap-2 sm:gap-3">
+      {showLongPressHint && (
+        <div className="rounded-lg px-3 py-2 text-xs bg-gradient-to-r from-indigo-500/10 to-emerald-500/10 border" style={{ borderColor: 'var(--border)' }}>
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-theme-secondary">Tip: Press and hold a conversation for actions.</span>
+            <button
+              className="text-[11px] px-2 py-1 rounded-md bg-white/60 dark:bg-slate-700/60 hover:opacity-80"
+              onClick={() => {
+                try { localStorage.setItem('auralink-hint-conversations-longpress', 'true'); } catch {}
+                setShowLongPressHint(false);
+              }}
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
       {/* Total Unread Badge - only show if there are actual conversations with unread messages */}
       {!loading && conversations.length > 0 && totalUnread > 0 && (
         <div className="sticky top-0 z-10 bg-gradient-to-r from-emerald-500 to-indigo-600 text-white px-4 py-2 rounded-xl text-center font-semibold shadow-lg ring-1 ring-white/20">

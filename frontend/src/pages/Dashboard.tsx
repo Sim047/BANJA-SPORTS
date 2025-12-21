@@ -17,7 +17,8 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import CreateEventModal from "../components/CreateEventModal";
 import EventDetailModal from "../components/EventDetailModal";
 import EventParticipantsModal from "../components/EventParticipantsModal";
-import GlobalSearch from "../components/GlobalSearch";
+// GlobalSearch removed from Dashboard; using inline DashboardSearch instead
+import DashboardSearch from "../components/DashboardSearch";
 // Removed booking-related pages
 import AllEvents from "./AllEvents";
 import NotificationsPage from "./Notifications";
@@ -405,9 +406,9 @@ export default function Dashboard({ token, onNavigate, onViewProfile }: any) {
           </div>
         </div>
 
-        {/* Global Search across users, events, posts, services */}
+        {/* Inline Dashboard search (single input, no overlay) */}
         <div className="rounded-2xl p-4 themed-card">
-          <GlobalSearch token={token} onNavigate={onNavigate} onViewProfile={onViewProfile} />
+          <DashboardSearch token={token} onNavigate={onNavigate} onViewProfile={onViewProfile} />
         </div>
 
         {/* Stats Cards (bookings removed) */}

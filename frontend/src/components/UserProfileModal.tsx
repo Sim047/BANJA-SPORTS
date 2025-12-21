@@ -43,12 +43,13 @@ export default function UserProfileModal({
     if (!user || !visible) return;
     setLoadingContent(true);
     const headers = token ? { Authorization: "Bearer " + token } : undefined;
-    const eventsReq = axios.get(`${API}/api/events/user/${user._id}`, headers ? { headers } : {});
-    const postsReq = axios.get(`${API}/api/posts/user/${user._id}`, headers ? { headers } : {});
+    const eventsReq = axios.get(`${API}/api/events/user/${user._id}?page=1&limit=10`, headers ? { headers } : {});
+    const postsReq = axios.get(`${API}/api/posts/user/${user._id}?page=1&limit=10`, headers ? { headers } : {});
     Promise.allSettled([eventsReq, postsReq])
       .then((results) => {
-        const ev = results[0].status === "fulfilled" ? (results[0] as any).value.data.events || [] : [];
-        const po = results[1].status === "fulfilled" ? (results[1] as any).value.data || [] : [];
+        const ev = results[0].status === "fulfilled" ? ((results[0] as any).value.data.events || (results[0] as any).value.data || []) : [];
+        const poData = results[1].status === "fulfilled" ? (results[1] as any).value.data : [];
+        const po = Array.isArray(poData) ? poData : (poData.posts || []);
         setEvents(ev);
         setPosts(po);
       })
@@ -194,10 +195,34 @@ export default function UserProfileModal({
                 Events {events.length ? `(${events.length})` : ""}
               </button>
               <button
+                className="px-3 py-2 rounded-xl text-sm font-semibold bg-white/10 text-gray-300 hover:bg-white/20"
+                onClick={() => {
+                  try {
+                    localStorage.setItem('auralink-user-content-id', user._id);
+                    localStorage.setItem('auralink-user-content-tab', 'events');
+                  } catch {}
+                  if (onNavigate) onNavigate('user-content');
+                }}
+              >
+                View all
+              </button>
+              <button
                 className={`px-3 py-2 rounded-xl text-sm font-semibold transition-colors ${tab === "posts" ? "bg-purple-600 text-white" : "bg-white/10 text-gray-300 hover:bg-white/20"}`}
                 onClick={() => setTab("posts")}
               >
                 Posts {posts.length ? `(${posts.length})` : ""}
+              </button>
+              <button
+                className="px-3 py-2 rounded-xl text-sm font-semibold bg-white/10 text-gray-300 hover:bg-white/20"
+                onClick={() => {
+                  try {
+                    localStorage.setItem('auralink-user-content-id', user._id);
+                    localStorage.setItem('auralink-user-content-tab', 'posts');
+                  } catch {}
+                  if (onNavigate) onNavigate('user-content');
+                }}
+              >
+                View all
               </button>
             </div>
 

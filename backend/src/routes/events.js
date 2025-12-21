@@ -23,14 +23,30 @@ router.get("/", async (req, res) => {
   }
 });
 
-// GET /api/events/user/:userId - list published events organized by a specific user
+// GET /api/events/user/:userId - list published events organized by a specific user (paginated)
 router.get("/user/:userId", async (req, res) => {
   try {
     const userId = req.params.userId;
-    const events = await Event.find({ status: "published", organizer: userId })
-      .populate("organizer", "username avatar")
-      .sort({ startDate: -1 });
-    res.json({ events });
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 20, 1), 100);
+    const skip = (page - 1) * limit;
+
+    const query = { status: "published", organizer: userId };
+    const [events, total] = await Promise.all([
+      Event.find(query)
+        .populate("organizer", "username avatar")
+        .sort({ startDate: -1 })
+        .skip(skip)
+        .limit(limit),
+      Event.countDocuments(query),
+    ]);
+
+    res.json({
+      events,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      total,
+    });
   } catch (err) {
     console.error("Get events by user error:", err);
     res.status(500).json({ error: "Failed to fetch user's events" });

@@ -37,12 +37,27 @@ router.get("/", auth, async (req, res) => {
 // Get posts by specific user
 router.get("/user/:userId", auth, async (req, res) => {
   try {
-    const posts = await Post.find({ author: req.params.userId })
-      .populate("author", "username avatar email")
-      .populate("comments.user", "username avatar")
-      .sort({ createdAt: -1 });
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 20, 1), 100);
+    const skip = (page - 1) * limit;
 
-    res.json(posts);
+    const q = { author: req.params.userId };
+    const [posts, total] = await Promise.all([
+      Post.find(q)
+        .populate("author", "username avatar email")
+        .populate("comments.user", "username avatar")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      Post.countDocuments(q),
+    ]);
+
+    res.json({
+      posts,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      totalPosts: total,
+    });
   } catch (err) {
     console.error("Get user posts error:", err);
     res.status(500).json({ error: "Failed to fetch user posts" });

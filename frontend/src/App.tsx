@@ -23,6 +23,7 @@ import SportsEvents from "./pages/SportsEvents";
 import Dashboard from "./pages/Dashboard";
 import MyEvents from "./pages/MyEvents";
 import Posts from "./pages/Posts";
+import UserContent from "./pages/UserContent";
 import Avatar from "./components/Avatar";
 import Sidebar from "./components/Sidebar";
 import AssistantWidget from "./components/AssistantWidget";
@@ -174,7 +175,7 @@ export default function App() {
 
   // dynamic pages
   const [view, setView] = useState<
-    "dashboard" | "discover" | "chat" | "all-users" | "followers" | "following" | "posts" | "direct-messages"
+    "dashboard" | "discover" | "chat" | "all-users" | "followers" | "following" | "posts" | "direct-messages" | "user-content"
   >(() => {
     // Restore previous view from localStorage
     const saved = localStorage.getItem("auralink-current-view");
@@ -1590,6 +1591,13 @@ function onMyStatusUpdated(newStatus: any) {
             token={token}
             currentUserId={user?._id}
             onShowProfile={(u: any) => showProfile(u)}
+          />
+        )}
+
+        {view === "user-content" && (
+          <UserContent
+            token={token}
+            onNavigate={(v: string) => setView(v as any)}
           />
         )}
 

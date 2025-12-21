@@ -118,6 +118,7 @@ export default function App() {
   const unreadRef = useRef<HTMLDivElement | null>(null);
   const [ready, setReady] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
+  const [messagesLoading, setMessagesLoading] = useState(false);
 
   // DM & conversations
   const [conversations, setConversations] = useState<any[]>([]);
@@ -323,7 +324,9 @@ function onMyStatusUpdated(newStatus: any) {
         const exists = filtered.some((existing) => existing._id === msg._id);
         if (exists) return filtered;
         
-        return [...filtered, msg];
+        const next = [...filtered, msg];
+        computeUnreadIndex(next);
+        return next;
       });
       scrollToBottom();
       
@@ -519,47 +522,55 @@ function onMyStatusUpdated(newStatus: any) {
   useEffect(() => {
     if (!token || inDM || view !== "chat") return;
 
+    setMessagesLoading(true);
     axios
       .get(API + "/api/messages/" + room, {
         headers: { Authorization: "Bearer " + token }
       })
       .then((r) => {
-        setMessages(r.data || []);
+        const list = r.data || [];
+        setMessages(list);
+        computeUnreadIndex(list);
         
         // Mark messages as read when loading chat
         if (user && socket) {
-          (r.data || []).forEach((msg: any) => {
+          list.forEach((msg: any) => {
             if (msg.sender?._id !== user._id && !msg.readBy?.some((id: any) => String(id) === String(user._id))) {
               socket.emit("message_read", { messageId: msg._id, userId: user._id });
             }
           });
         }
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setMessagesLoading(false));
   }, [room, token, view, inDM, user, socket]);
 
   // LOAD DM MESSAGES --------------------------------------------
   useEffect(() => {
     if (!token || !inDM || !activeConversation) return;
 
+    setMessagesLoading(true);
     axios
       .get(
         API + "/api/conversations/" + activeConversation._id + "/messages",
         { headers: { Authorization: "Bearer " + token } }
       )
       .then((r) => {
-        setMessages(r.data || []);
+        const list = r.data || [];
+        setMessages(list);
+        computeUnreadIndex(list);
         
         // Mark messages as read when loading DM conversation
         if (user && socket) {
-          (r.data || []).forEach((msg: any) => {
+          list.forEach((msg: any) => {
             if (msg.sender?._id !== user._id && !msg.readBy?.some((id: any) => String(id) === String(user._id))) {
               socket.emit("message_read", { messageId: msg._id, userId: user._id });
             }
           });
         }
       })
-      .catch((e) => console.error("DM load error", e));
+      .catch((e) => console.error("DM load error", e))
+      .finally(() => setMessagesLoading(false));
   }, [token, inDM, activeConversation, user, socket]);
 
   // LOAD ALL STATUSES -------------------------------------------
@@ -970,6 +981,19 @@ function onMyStatusUpdated(newStatus: any) {
     const isNearBottom = element.scrollHeight - element.scrollTop - element.clientHeight < 200;
     setShowScrollButton(!isNearBottom);
   };
+
+  // Compute unread separator position based on read receipts
+  function computeUnreadIndex(list: any[]) {
+    try {
+      const uid = String(user?._id);
+      const idx = list.findIndex(
+        (m: any) => m.sender?._id !== uid && !(m.readBy || []).map(String).includes(uid)
+      );
+      setUnreadIndex(idx);
+    } catch {
+      setUnreadIndex(-1);
+    }
+  }
 
   // MESSAGE RENDERER ---------------------------------------------
   function renderMessages() {
@@ -1540,7 +1564,22 @@ function onMyStatusUpdated(newStatus: any) {
               onScroll={handleScroll}
             >
               <div className="flex flex-col gap-4">
-                {renderMessages()}
+                {messagesLoading ? (
+                  <div className="space-y-3">
+                    {Array.from({ length: 8 }).map((_, i) => (
+                      <div key={i} className="flex items-start gap-3">
+                        <div className="w-10 h-10 rounded-md" style={{ background: 'var(--muted)' }} />
+                        <div className="flex-1">
+                          <div className="h-3 w-24 rounded" style={{ background: 'var(--muted)' }} />
+                          <div className="mt-2 h-3 w-3/5 rounded" style={{ background: 'var(--muted)' }} />
+                          <div className="mt-2 h-3 w-2/5 rounded" style={{ background: 'var(--muted)' }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  renderMessages()
+                )}
                 <div ref={messagesEndRef} />
               </div>
 

@@ -42,6 +42,7 @@ export default function MyEvents({ token, onNavigate }: { token: string; onNavig
   const [hideInactiveEvents, setHideInactiveEvents] = useState<boolean>(true);
   const [eventsCreated, setEventsCreated] = useState<any[]>([]);
   const [eventsJoined, setEventsJoined] = useState<any[]>([]);
+  const [archivedEvents, setArchivedEvents] = useState<any[]>([]);
   const [eventsTab, setEventsTab] = useState<'organizing' | 'joined'>('organizing');
   const [services, setServices] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
@@ -67,6 +68,7 @@ export default function MyEvents({ token, onNavigate }: { token: string; onNavig
   useEffect(() => {
     if (!token) return;
     loadMyEventsAll();
+    loadMyArchivedEvents();
     loadMyServices();
     loadMyProducts();
     loadOtherEvents();
@@ -91,6 +93,18 @@ export default function MyEvents({ token, onNavigate }: { token: string; onNavig
       console.error("Load my events error:", err);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function loadMyArchivedEvents() {
+    try {
+      const res = await axios.get(`${API}/api/events/my/archived`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setArchivedEvents(res.data.events || []);
+    } catch (err) {
+      console.error("Load my archived events error:", err);
+      setArchivedEvents([]);
     }
   }
 
@@ -897,6 +911,51 @@ export default function MyEvents({ token, onNavigate }: { token: string; onNavig
                     ))}
                   </div>
                 )}
+                {/* Past Events */}
+                <div className="mt-10">
+                  <div className="rounded-2xl p-6 themed-card">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-xl font-bold text-heading">Past Events</h3>
+                      <span className="text-sm text-theme-secondary">{archivedEvents.length}</span>
+                    </div>
+                    {archivedEvents.length === 0 ? (
+                      <p className="mt-3 text-sm text-theme-secondary">No past events yet.</p>
+                    ) : (
+                      <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        {archivedEvents.map((ev) => (
+                          <div key={ev._id} className="rounded-xl p-4 themed-card">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1 min-w-0">
+                                <h4 className="text-sm font-semibold text-heading line-clamp-2">{ev.title || 'Untitled Event'}</h4>
+                                <div className="mt-2 space-y-1 text-xs text-theme-secondary">
+                                  <div className="flex items-center gap-2">
+                                    <Calendar className="w-4 h-4 text-slate-500" />
+                                    <span>{ev.startDate ? dayjs(ev.startDate).format('MMM D, YYYY') : 'Date unknown'}</span>
+                                  </div>
+                                  {ev.location?.city && (
+                                    <div className="flex items-center gap-2">
+                                      <MapPin className="w-4 h-4 text-slate-500" />
+                                      <span className="truncate">
+                                        {ev.location?.name ? `${ev.location.name}, ` : ''}
+                                        {ev.location.city}
+                                        {ev.location.state ? `, ${ev.location.state}` : ''}
+                                      </span>
+                                    </div>
+                                  )}
+                                  <div className="flex items-center gap-2">
+                                    <Users className="w-4 h-4 text-slate-500" />
+                                    <span>{(ev.participants?.length || 0)} joined</span>
+                                  </div>
+                                </div>
+                              </div>
+                              <span className="ml-3 px-2 py-1 rounded-lg text-[11px] font-semibold bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300">Past Event</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
               {/* Removed duplicate bottom Other Events section (now placed at top) */}
             </div>
             );

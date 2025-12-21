@@ -1,10 +1,14 @@
 // src/utils/api.ts
 import axios from "axios";
 
-const API = import.meta.env.VITE_API_URL || "";
+// Prefer runtime override provided via WebView/native injection, fallback to Vite env
+const runtimeApi =
+  (typeof window !== "undefined" && (window as any).__API_URL) ||
+  (typeof window !== "undefined" && localStorage.getItem("API_URL")) ||
+  import.meta.env.VITE_API_URL || "";
 
 const api = axios.create({
-  baseURL: API + "/api",
+  baseURL: (runtimeApi ? runtimeApi : "") + "/api",
 });
 
 api.interceptors.request.use((cfg) => {

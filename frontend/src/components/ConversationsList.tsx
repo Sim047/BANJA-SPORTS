@@ -9,7 +9,10 @@ import { socket } from "../socket";
 
 dayjs.extend(relativeTime);
 
-const API = import.meta.env.VITE_API_URL || "";
+const API =
+  (typeof window !== "undefined" && (window as any).__API_URL) ||
+  (typeof window !== "undefined" && localStorage.getItem("API_URL")) ||
+  import.meta.env.VITE_API_URL || "";
 const PLACEHOLDER = "https://ui-avatars.com/api/?name=User&background=0D8ABC&color=fff";
 
 export default function ConversationsList({

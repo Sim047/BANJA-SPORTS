@@ -137,13 +137,18 @@ function WebScreen({ navigation }: any) {
         const token = await readToken();
         if (!token) { setAuthScript(""); return; }
         let userJson = "";
+        const apiBase = (Constants.expoConfig?.extra as any)?.apiUrl || process.env.EXPO_PUBLIC_API_URL || "";
         try {
           const res = await api.get('/users/me');
           userJson = JSON.stringify({ _id: res.data._id, username: res.data.username, email: res.data.email, avatar: res.data.avatar });
         } catch {
           userJson = "{}";
         }
-        const script = `try{ localStorage.setItem('token', ${JSON.stringify(token)}); localStorage.setItem('user', ${JSON.stringify(userJson)}); }catch(e){}`;
+        const script = `try{ 
+          localStorage.setItem('token', ${JSON.stringify(token)});
+          localStorage.setItem('user', ${JSON.stringify(userJson)});
+          ${apiBase ? `localStorage.setItem('API_URL', ${JSON.stringify(apiBase)}); window.__API_URL = ${JSON.stringify(apiBase)};` : ''}
+        }catch(e){}`;
         setAuthScript(script);
       } catch { setAuthScript(""); }
     };

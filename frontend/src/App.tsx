@@ -33,7 +33,10 @@ dayjs.extend(relativeTime);
 dayjs.extend(updateLocale);
 dayjs.updateLocale("en", { weekStart: 1 });
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API =
+  (typeof window !== "undefined" && (window as any).__API_URL) ||
+  (typeof window !== "undefined" && localStorage.getItem("API_URL")) ||
+  import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const SAMPLE_AVATAR =
   "https://ui-avatars.com/api/?name=User&background=0D8ABC&color=fff";

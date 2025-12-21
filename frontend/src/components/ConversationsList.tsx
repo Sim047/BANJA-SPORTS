@@ -238,7 +238,7 @@ export default function ConversationsList({
     <div className="flex flex-col gap-2 sm:gap-3">
       {/* Total Unread Badge - only show if there are actual conversations with unread messages */}
       {!loading && conversations.length > 0 && totalUnread > 0 && (
-        <div className="sticky top-0 z-10 bg-gradient-to-r from-cyan-500 to-purple-500 text-white px-4 py-2 rounded-lg text-center font-semibold shadow-lg">
+        <div className="sticky top-0 z-10 bg-gradient-to-r from-emerald-500 to-indigo-600 text-white px-4 py-2 rounded-xl text-center font-semibold shadow-lg ring-1 ring-white/20">
           {totalUnread} unread message{totalUnread !== 1 ? 's' : ''}
         </div>
       )}
@@ -308,7 +308,7 @@ export default function ConversationsList({
                 bg-white dark:bg-slate-800
                 border-2 transition-all
                 ${unreadCount > 0 
-                  ? 'border-cyan-400 dark:border-cyan-500 shadow-md shadow-cyan-100 dark:shadow-cyan-900/30' 
+                  ? 'border-emerald-400 dark:border-emerald-500 shadow-md shadow-emerald-100 dark:shadow-emerald-900/30' 
                   : 'border-gray-200 dark:border-gray-700 hover:shadow-md'
                 }
                 gap-3 relative
@@ -316,7 +316,7 @@ export default function ConversationsList({
             >
               {/* Unread Badge */}
               {unreadCount > 0 && (
-                <div className="absolute -top-2 -right-2 bg-gradient-to-r from-cyan-500 to-purple-500 text-white text-xs font-bold rounded-full w-7 h-7 flex items-center justify-center shadow-lg animate-pulse">
+                <div className="absolute -top-2 -right-2 bg-gradient-to-r from-emerald-500 to-indigo-600 text-white text-xs font-bold rounded-full w-7 h-7 flex items-center justify-center shadow-lg animate-pulse">
                   {unreadCount > 99 ? '99+' : unreadCount}
                 </div>
               )}
@@ -358,7 +358,7 @@ export default function ConversationsList({
 
               <div className="flex items-center gap-2 w-full sm:w-auto">
                 <button
-                  className="flex-1 sm:flex-none px-4 py-2 rounded-md bg-gradient-to-r from-cyan-400 to-purple-500 text-white text-sm font-medium hover:shadow-md transition-shadow"
+                  className="flex-1 sm:flex-none px-4 py-2 rounded-md bg-gradient-to-r from-emerald-500 to-indigo-600 text-white text-sm font-medium hover:shadow-lg transition-all"
                   onClick={() => {
                     // Optimistically zero unread for this conversation
                     setConversations((prev) => {

@@ -511,6 +511,16 @@ export default function Dashboard({ token, onNavigate, onViewProfile }: any) {
                 <Calendar className="w-5 h-5" />
                 Other Events
               </button>
+              <button
+                onClick={() => {
+                  try { localStorage.setItem('auralink-all-events-filter', 'past'); } catch {}
+                  setViewMode('allEvents');
+                }}
+                className="px-6 py-3 bg-gradient-to-r from-gray-700 to-gray-500 text-white font-bold rounded-xl hover:from-gray-800 hover:to-gray-600 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 flex items-center gap-2"
+              >
+                <Clock className="w-5 h-5" />
+                Past Events
+              </button>
             </div>
           </div>
         </div>

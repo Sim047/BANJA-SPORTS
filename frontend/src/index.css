@@ -584,6 +584,15 @@ textarea,
   border-color: rgba(124, 58, 237, 0.35);
 }
 
+.reaction-option.remove {
+  background: var(--card);
+  color: var(--text);
+}
+.reaction-option.remove:hover {
+  background: var(--accent-amber-muted);
+  border-color: rgba(245, 158, 11, 0.35);
+}
+
 /* =========================================================
    MODALS — FORCE SOLID NON-WASHED-OUT STYLE
    ========================================================= */

@@ -155,8 +155,9 @@ function WebScreen({ navigation }: any) {
           userJson = "{}";
         }
         const script = `try{ 
+          try{ localStorage.removeItem('token'); localStorage.removeItem('user'); localStorage.removeItem('API_URL'); }catch(e){}
           localStorage.setItem('token', ${JSON.stringify(token)});
-          localStorage.setItem('user', ${JSON.stringify(userJson)});
+          localStorage.setItem('user', ${typeof userJson === 'string' ? userJson : JSON.stringify(userJson)});
           ${apiBase ? `localStorage.setItem('API_URL', ${JSON.stringify(apiBase)}); window.__API_URL = ${JSON.stringify(apiBase)};` : ''}
         }catch(e){}`;
         setAuthScript(script);

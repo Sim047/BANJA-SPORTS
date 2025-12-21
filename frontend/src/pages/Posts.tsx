@@ -56,6 +56,7 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
   const [newPost, setNewPost] = useState({ caption: "", imageUrl: "", location: "", tags: "" });
   const [commentTexts, setCommentTexts] = useState<Record<string, string>>({});
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [expandedCaptions, setExpandedCaptions] = useState<Record<string, boolean>>({});
   
   // Edit states
   const [editingPostId, setEditingPostId] = useState<string | null>(null);
@@ -648,18 +649,30 @@ export default function Posts({ token, currentUserId, onShowProfile }: any) {
                   ) : (
                     <>
                       {post.caption && (
-                        <p
-                          className="text-heading"
-                          style={{
-                            display: '-webkit-box',
-                            WebkitLineClamp: 3,
-                            WebkitBoxOrient: 'vertical',
-                            overflow: 'hidden'
-                          } as any}
-                        >
-                          <span className="font-semibold mr-2">{post.author.username}</span>
-                          {post.caption}
-                        </p>
+                        <div>
+                          <p
+                            className="text-heading"
+                            style={expandedCaptions[post._id]
+                              ? {} as any
+                              : ({
+                                  display: '-webkit-box',
+                                  WebkitLineClamp: 3,
+                                  WebkitBoxOrient: 'vertical',
+                                  overflow: 'hidden'
+                                } as any)}
+                          >
+                            <span className="font-semibold mr-2">{post.author.username}</span>
+                            {post.caption}
+                          </p>
+                          {post.caption.length > 240 && (
+                            <button
+                              className="mt-1 text-xs text-cyan-600 dark:text-cyan-400 hover:opacity-80"
+                              onClick={() => setExpandedCaptions((prev) => ({ ...prev, [post._id]: !prev[post._id] }))}
+                            >
+                              {expandedCaptions[post._id] ? 'See less' : 'See more'}
+                            </button>
+                          )}
+                        </div>
                       )}
 
                       {/* Tags */}

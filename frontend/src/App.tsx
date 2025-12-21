@@ -119,6 +119,7 @@ export default function App() {
   const [ready, setReady] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [messagesLoading, setMessagesLoading] = useState(false);
+  const [expandedMessages, setExpandedMessages] = useState<Record<string, boolean>>({});
 
   // DM & conversations
   const [conversations, setConversations] = useState<any[]>([]);
@@ -1126,7 +1127,29 @@ function onMyStatusUpdated(newStatus: any) {
                   </button>
                 </div>
               ) : (
-                <div className="mt-2 break-words" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>{m.text}</div>
+                <>
+                  {m.text && (
+                    <div
+                      className="mt-2 break-words"
+                      style={{
+                        wordBreak: 'break-word',
+                        overflowWrap: 'break-word',
+                        maxHeight: expandedMessages[m._id] ? 'none' : '6rem',
+                        overflow: expandedMessages[m._id] ? 'visible' : 'hidden'
+                      }}
+                    >
+                      {m.text}
+                    </div>
+                  )}
+                  {m.text && m.text.length > 240 && (
+                    <button
+                      className="mt-1 text-xs text-cyan-600 dark:text-cyan-400 hover:opacity-80"
+                      onClick={() => setExpandedMessages((prev) => ({ ...prev, [m._id]: !prev[m._id] }))}
+                    >
+                      {expandedMessages[m._id] ? 'See less' : 'See more'}
+                    </button>
+                  )}
+                </>
               )}
 
               <div className="flex gap-2 mt-2 items-center text-sm">

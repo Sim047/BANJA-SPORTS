@@ -1319,7 +1319,7 @@ function onMyStatusUpdated(newStatus: any) {
         {/* CHAT / DM PAGE */}
         {view === "chat" && (
           <div className="h-full grid grid-rows-[auto_1fr_auto]">
-            <header className="flex items-center justify-between p-4 border-b relative z-10" style={{ borderColor: 'var(--border)', overflow: 'visible' }}>
+            <header className="flex flex-wrap items-center justify-between gap-2 p-4 border-b relative z-10" style={{ borderColor: 'var(--border)', overflow: 'visible' }}>
               {inDM && activeConversation ? (
                 <div className="flex items-center gap-3">
                   {(() => {
@@ -1372,7 +1372,7 @@ function onMyStatusUpdated(newStatus: any) {
                 <h3 className="text-lg font-semibold">#{room}</h3>
               )}
 
-              <div className="text-sm opacity-80 flex items-center gap-2">
+              <div className="text-sm opacity-80 flex flex-wrap items-center gap-2">
                 {Object.keys(typingUsers).length > 0 && (
                   <div className="flex items-center gap-1.5 text-cyan-500 animate-pulse">
                     <div className="flex gap-0.5">
@@ -1618,7 +1618,7 @@ function onMyStatusUpdated(newStatus: any) {
                     }
                   }}
                 />
-                <div className="flex items-center justify-end gap-2">
+                <div className="flex flex-wrap items-center justify-end gap-2">
                   {/* Image Button with Icon */}
                   <label className="cursor-pointer p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors bg-white dark:bg-slate-800">
                     <svg
@@ -1647,7 +1647,7 @@ function onMyStatusUpdated(newStatus: any) {
                   </label>
 
                   <button 
-                    className="p-2 rounded-full bg-gradient-to-r from-cyan-400 to-purple-500 hover:shadow-lg transition-all" 
+                    className="p-2 rounded-full bg-gradient-to-r from-cyan-400 to-purple-500 hover:shadow-lg transition-all w-full sm:w-auto mt-2 sm:mt-0" 
                     type="submit"
                     title="Send message"
                   >

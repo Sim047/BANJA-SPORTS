@@ -1660,9 +1660,9 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
                   {/* Author Info (uniform with Sports Events) */}
                   {selectedOther.author && (
                     <div className="bg-white/5 backdrop-blur rounded-xl p-4 mb-4">
-                      <div className="flex items-center justify-between">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
                         <div
-                          className="flex items-center gap-3 cursor-pointer hover:bg-white/5 rounded-lg p-2 -m-2 transition-colors"
+                          className="flex items-center gap-3 cursor-pointer hover:bg-white/5 rounded-lg p-2 transition-colors"
                           onClick={() => onViewProfile && onViewProfile(selectedOther.author._id)}
                         >
                           <img
@@ -1679,7 +1679,7 @@ export default function Discover({ token, onViewProfile, onStartConversation }: 
                         </div>
                         <button
                           onClick={() => onStartConversation && onStartConversation(selectedOther.author._id)}
-                          className="btn text-sm"
+                          className="btn text-sm w-full sm:w-auto mt-2 sm:mt-0"
                         >
                           Message Author
                         </button>
